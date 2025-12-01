@@ -72,7 +72,7 @@ export async function POST(req: Request) {
 
         const completion = await client.chat.completions.create({
             messages: [{ role: "user", content: prompt }],
-            model: "openai/gpt-oss-20b", // Using a strong model for better reasoning
+            model: "openai/gpt-oss-120b", // Using a strong model for better reasoning
             temperature: 0.5,
         });
 
