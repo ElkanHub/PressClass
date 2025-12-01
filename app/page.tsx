@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, Sparkles, Zap } from "lucide-react";
 
@@ -7,33 +9,33 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="relative flex-1 flex flex-col items-center justify-center text-center px-4 py-20 overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/20 via-background to-background" />
-        
+
         <div className="animate-in fade-in zoom-in duration-1000 slide-in-from-bottom-10">
           <div className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-sm font-medium text-primary mb-8 backdrop-blur-sm">
             <Sparkles className="mr-2 h-4 w-4" />
             AI-Powered Assessment Generator
           </div>
-          
+
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
             Create Classroom Assessments <br />
             <span className="text-primary">In Seconds</span>
           </h1>
-          
+
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-            Empower your teaching with PressClass. Generate WAEC/GES compliant questions instantly. 
+            Empower your teaching with PressClass. Generate WAEC/GES compliant questions instantly.
             Save time, reduce workload, and focus on what matters most—your students.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link 
-              href="/generator" 
+            <Link
+              href="/generator"
               className="inline-flex items-center justify-center rounded-full bg-primary px-8 py-4 text-lg font-medium text-primary-foreground shadow-lg hover:bg-primary/90 transition-all hover:scale-105 active:scale-95"
             >
               Start Generating Now
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
-            <Link 
-              href="#features" 
+            <Link
+              href="#features"
               className="inline-flex items-center justify-center rounded-full border border-input bg-background/50 px-8 py-4 text-lg font-medium shadow-sm hover:bg-accent hover:text-accent-foreground backdrop-blur-sm transition-all"
             >
               Learn More
