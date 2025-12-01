@@ -1,19 +1,12 @@
-// components/layout/sidebar.tsx
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, BookOpen, Settings, User, Zap, LogOut } from "lucide-react";
+import { Zap, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-
-const navItems = [
-    { href: "/dashboard", label: "Dashboard", icon: Home },
-    { href: "/generator", label: "Generator", icon: Zap },
-    { href: "/classes", label: "Classes", icon: BookOpen },
-    { href: "/settings", label: "Settings", icon: Settings },
-];
+import { navItems } from "@/components/layout/nav-data";
 
 export default function Sidebar() {
     const pathname = usePathname();
