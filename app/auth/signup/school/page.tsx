@@ -34,7 +34,7 @@ export default function SchoolSignup() {
                 email,
                 password,
                 options: {
-                    emailRedirectTo: `${location.origin}/auth/confirm?next=/protected`,
+                    emailRedirectTo: `${location.origin}/auth/confirm?next=/dashboard`,
                     data: {
                         full_name: schoolName, // Using school name as profile name for now
                         user_type: "school",

@@ -47,7 +47,7 @@ export default function TeacherSignup() {
                 email,
                 password,
                 options: {
-                    emailRedirectTo: `${location.origin}/auth/confirm?next=/protected`,
+                    emailRedirectTo: `${location.origin}/auth/confirm?next=/dashboard`,
                     data: {
                         full_name: fullName,
                         user_type: "teacher",

@@ -41,7 +41,7 @@ export default function OnboardingPage() {
                 .single();
 
             if (profile?.onboarding_completed) {
-                router.push("/protected"); // Or dashboard
+                router.push("/dashboard"); // Or dashboard
             }
             setProfile(profile);
         };
@@ -75,7 +75,7 @@ export default function OnboardingPage() {
             if (profileError) throw profileError;
 
             // 3. Redirect
-            router.push("/protected");
+            router.push("/dashboard");
         } catch (error) {
             console.error("Onboarding error:", error);
             alert("Failed to save onboarding data. Please try again.");

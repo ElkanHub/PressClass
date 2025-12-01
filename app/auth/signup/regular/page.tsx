@@ -31,7 +31,7 @@ export default function RegularSignup() {
                 email,
                 password,
                 options: {
-                    emailRedirectTo: `${location.origin}/auth/confirm?next=/protected`,
+                    emailRedirectTo: `${location.origin}/auth/confirm?next=/dashboard`,
                     data: {
                         user_type: "regular",
                         onboarding_completed: false,
