@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bell, Search, Menu, Zap, LogOut } from "lucide-react";
