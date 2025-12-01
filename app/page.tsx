@@ -1,4 +1,3 @@
-"use client";
 
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, Sparkles, Zap } from "lucide-react";
@@ -86,7 +85,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="py-8 text-center text-sm text-muted-foreground border-t">
-        <p>© {new Date().getFullYear()} PressClass. All rights reserved.</p>
+        <p>© 2025 PressClass. All rights reserved.</p>
       </footer>
     </div>
   );
