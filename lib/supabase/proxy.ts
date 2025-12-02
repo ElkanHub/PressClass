@@ -33,7 +33,12 @@ export async function updateSession(request: NextRequest) {
 
     // refreshing the auth token
     const { data: { user }, error } = await supabase.auth.getUser();
-    console.log("Middleware getUser result:", user?.id, error?.message);
+
+    // Debug logging
+    const allCookies = request.cookies.getAll().map(c => c.name).join(", ");
+    console.log("PROXY DEBUG: Cookies received:", allCookies);
+    console.log("PROXY DEBUG: User ID:", user?.id);
+    console.log("PROXY DEBUG: Error:", error?.message);
 
     return response;
 }
