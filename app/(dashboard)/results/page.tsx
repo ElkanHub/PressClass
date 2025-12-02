@@ -48,7 +48,7 @@ export default function ResultsPage() {
             // router.push("/dashboard"); 
         } catch (error) {
             console.error("Failed to save:", error);
-            alert("Failed to save assessment.");
+            alert(`Failed to save assessment: ${error instanceof Error ? error.message : "Unknown error"}`);
         } finally {
             setIsSaving(false);
         }

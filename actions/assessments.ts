@@ -87,7 +87,7 @@ export async function createAssessment(data: {
 
     if (error) {
         console.error("Error creating assessment:", error);
-        throw new Error("Failed to create assessment");
+        throw new Error(`Failed to create assessment: ${error.message}`);
     }
 
     revalidatePath("/dashboard");
