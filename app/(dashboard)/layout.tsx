@@ -14,7 +14,9 @@ export default async function ProtectedLayout({
 
   const {
     data: { user },
+    error,
   } = await supabase.auth.getUser();
+  console.log("Layout getUser result:", user?.id, error?.message);
 
   if (!user) {
     return redirect("/auth/login");
