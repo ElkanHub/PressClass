@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Download, Printer, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { Download, Printer, ArrowLeft, Eye, EyeOff, Save } from "lucide-react";
 import jsPDF from "jspdf";
 
 import { Button } from "@/components/ui/button";
 import { QuestionDisplay } from "@/components/question-display";
+import { createAssessment } from "@/actions/assessments";
+import { toast } from "sonner"; // Assuming sonner is used, or I'll use alert for now if not installed. Let's use alert for simplicity or check for toast.
 
 interface AssessmentData {
     title: string;
@@ -19,6 +21,7 @@ export default function ResultsPage() {
     const router = useRouter();
     const [data, setData] = useState<AssessmentData | null>(null);
     const [showAnswers, setShowAnswers] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         const storedData = localStorage.getItem("generatedAssessment");
@@ -30,6 +33,26 @@ export default function ResultsPage() {
     }, [router]);
 
     if (!data) return null;
+
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            await createAssessment({
+                title: data.title,
+                class_level: data.classLevel,
+                topic: data.topic,
+                questions: data.questions,
+            });
+            alert("Assessment saved to Dashboard!");
+            // Optional: Redirect to dashboard or just show success
+            // router.push("/dashboard"); 
+        } catch (error) {
+            console.error("Failed to save:", error);
+            alert("Failed to save assessment.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     const handlePrint = () => {
         window.print();
@@ -118,7 +141,11 @@ export default function ResultsPage() {
                     </p>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
+                    <Button onClick={handleSave} disabled={isSaving} className="bg-green-600 hover:bg-green-700 text-white">
+                        <Save className="mr-2 h-4 w-4" />
+                        {isSaving ? "Saving..." : "Save to Dashboard"}
+                    </Button>
                     <Button variant="outline" onClick={() => setShowAnswers(!showAnswers)}>
                         {showAnswers ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
                         {showAnswers ? "Hide Answers" : "Show Answers"}
@@ -127,7 +154,7 @@ export default function ResultsPage() {
                         <Printer className="mr-2 h-4 w-4" />
                         Print
                     </Button>
-                    <Button onClick={handleDownloadPDF}>
+                    <Button variant="outline" onClick={handleDownloadPDF}>
                         <Download className="mr-2 h-4 w-4" />
                         Download PDF
                     </Button>
