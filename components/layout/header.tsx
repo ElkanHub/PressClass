@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bell, Search, Menu, Zap, LogOut } from "lucide-react";
@@ -12,9 +12,28 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/s
 import { cn } from "@/lib/utils";
 import SidebarContent from "@/components/layout/sidebar-content";
 
+import { createClient } from "@/lib/supabase/client";
+import { useEffect, useState } from "react";
+
 export default function Header() {
     const pathname = usePathname();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [user, setUser] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const getUser = async () => {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            setUser(user);
+            setLoading(false);
+        };
+        getUser();
+    }, []);
+
+    const userEmail = user?.email || "";
+    const userName = user?.user_metadata?.full_name || userEmail.split("@")[0] || "User";
+    const avatarUrl = user?.user_metadata?.avatar_url;
 
     return (
         <header className="h-16 flex items-center justify-between px-6 bg-background/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-30 ml-0 md:ml-64 transition-all duration-300">
@@ -53,23 +72,29 @@ export default function Header() {
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                             <Avatar className="h-9 w-9 border border-border">
-                                <AvatarImage src="/placeholder-user.png" alt="User" />
-                                <AvatarFallback className="bg-primary/10 text-primary">U</AvatarFallback>
+                                <AvatarImage src={avatarUrl} alt={userName} />
+                                <AvatarFallback className="bg-primary/10 text-primary">
+                                    {userName.charAt(0).toUpperCase()}
+                                </AvatarFallback>
                             </Avatar>
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56" align="end" forceMount>
                         <DropdownMenuLabel className="font-normal">
                             <div className="flex flex-col space-y-1">
-                                <p className="text-sm font-medium leading-none">User Name</p>
-                                <p className="text-xs leading-none text-muted-foreground">user@example.com</p>
+                                <p className="text-sm font-medium leading-none">{userName}</p>
+                                <p className="text-xs leading-none text-muted-foreground">{userEmail}</p>
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>Profile</DropdownMenuItem>
                         <DropdownMenuItem>Settings</DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive focus:text-destructive">Log out</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive focus:text-destructive" asChild>
+                            <Link href="/auth/logout">
+                                Log out
+                            </Link>
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>

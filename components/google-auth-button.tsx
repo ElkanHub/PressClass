@@ -6,7 +6,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 interface GoogleAuthButtonProps {
-    role: string;
+    role?: string;
 }
 
 export default function GoogleAuthButton({ role }: GoogleAuthButtonProps) {
@@ -16,10 +16,14 @@ export default function GoogleAuthButton({ role }: GoogleAuthButtonProps) {
         const supabase = createClient();
         setIsLoading(true);
         try {
+            const redirectTo = role
+                ? `${location.origin}/auth/callback?user_type=${role}`
+                : `${location.origin}/auth/callback`;
+
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: "google",
                 options: {
-                    redirectTo: `${location.origin}/auth/callback?user_type=${role}`,
+                    redirectTo,
                     queryParams: {
                         access_type: "offline",
                         prompt: "consent",
