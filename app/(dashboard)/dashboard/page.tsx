@@ -9,15 +9,9 @@ import Link from "next/link";
 export default async function DashboardPage() {
     const supabase = await createClient();
 
-    const {
-        data: { user },
-        error,
-    } = await supabase.auth.getUser();
-    console.log("DashboardPage getUser result:", user?.id, error?.message);
-
-    if (!user) {
-        return redirect("/auth/login");
-    }
+    // Auth check is handled by the layout
+    // const { data: { user } } = await supabase.auth.getUser();
+    // if (!user) return redirect("/auth/login");
 
     const assessments = await getAssessments();
 
