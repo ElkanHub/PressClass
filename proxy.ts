@@ -2,6 +2,10 @@ import { type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/proxy";
 
 export async function proxy(request: NextRequest) {
+    console.log(`PROXY: ${request.method} ${request.nextUrl.pathname}`);
+    const allCookies = request.cookies.getAll().map(c => c.name).join(", ");
+    console.log(`PROXY COOKIES: ${allCookies}`);
+
     return await updateSession(request);
 }
 
