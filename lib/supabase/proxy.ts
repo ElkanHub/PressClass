@@ -30,6 +30,8 @@ export async function updateSession(request: NextRequest) {
             },
             cookieOptions: {
                 secure: process.env.NODE_ENV === "production",
+                maxAge: 60 * 60 * 24 * 7, // 7 days
+                sameSite: "lax",
             },
         },
     );
