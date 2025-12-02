@@ -6,17 +6,11 @@ export async function GET(request: Request) {
     const code = searchParams.get("code");
     // if "next" is in param, use it as the redirect URL
     const next = searchParams.get("next") ?? "/dashboard";
-    const user_type = searchParams.get("user_type");
 
     if (code) {
         const supabase = await createClient();
         const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (!error) {
-            if (user_type) {
-                await supabase.auth.updateUser({
-                    data: { user_type },
-                });
-            }
             const forwardedHost = request.headers.get("x-forwarded-host"); // original origin before load balancer
             const isLocalEnv = process.env.NODE_ENV === "development";
             if (isLocalEnv) {

@@ -1,5 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
     let response = NextResponse.next({
@@ -34,14 +34,8 @@ export async function updateSession(request: NextRequest) {
         },
     );
 
-    // refreshing the auth token
-    const { data: { user }, error } = await supabase.auth.getUser();
-
-    // Debug logging
-    const allCookies = request.cookies.getAll().map(c => c.name).join(", ");
-    console.log("PROXY DEBUG: Cookies received:", allCookies);
-    console.log("PROXY DEBUG: User ID:", user?.id);
-    console.log("PROXY DEBUG: Error:", error?.message);
+    // IMPORTANT: DO NOT REMOVE auth.getUser()
+    const { data: { user } } = await supabase.auth.getUser();
 
     return response;
 }
