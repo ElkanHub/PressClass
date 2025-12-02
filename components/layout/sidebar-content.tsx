@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { navItems } from "@/components/layout/nav-data";
+import { createClient } from "@/lib/supabase/client";
+import { useEffect, useState } from "react";
 
 interface SidebarContentProps {
     onLinkClick?: () => void;
@@ -14,6 +16,23 @@ interface SidebarContentProps {
 
 export default function SidebarContent({ onLinkClick }: SidebarContentProps) {
     const pathname = usePathname();
+    const [user, setUser] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const getUser = async () => {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            setUser(user);
+            setLoading(false);
+        };
+        getUser();
+    }, []);
+
+    const userRole = user?.user_metadata?.user_type || "regular";
+    const userEmail = user?.email || "";
+    const userName = user?.user_metadata?.full_name || userEmail.split("@")[0] || "User";
+    const avatarUrl = user?.user_metadata?.avatar_url;
 
     return (
         <div className="flex flex-col h-full">
@@ -53,16 +72,28 @@ export default function SidebarContent({ onLinkClick }: SidebarContentProps) {
 
             {/* User Profile & Logout */}
             <div className="p-4 border-t border-border/50 bg-muted/20">
-                <div className="flex items-center gap-3 mb-4 px-2">
-                    <Avatar className="h-9 w-9 border border-border">
-                        <AvatarImage src="/placeholder-user.png" />
-                        <AvatarFallback className="bg-primary/10 text-primary">U</AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col overflow-hidden">
-                        <span className="text-sm font-medium truncate">User Name</span>
-                        <span className="text-xs text-muted-foreground truncate">user@example.com</span>
+                {!loading && user ? (
+                    <div className="flex items-center gap-3 mb-4 px-2">
+                        <Avatar className="h-9 w-9 border border-border">
+                            <AvatarImage src={avatarUrl} />
+                            <AvatarFallback className="bg-primary/10 text-primary">
+                                {userName.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col overflow-hidden">
+                            <span className="text-sm font-medium truncate">{userName}</span>
+                            <span className="text-xs text-muted-foreground truncate capitalize">{userRole}</span>
+                        </div>
                     </div>
-                </div>
+                ) : (
+                    <div className="flex items-center gap-3 mb-4 px-2 opacity-50">
+                        <div className="h-9 w-9 rounded-full bg-muted animate-pulse" />
+                        <div className="flex flex-col gap-1">
+                            <div className="h-4 w-20 bg-muted rounded animate-pulse" />
+                            <div className="h-3 w-16 bg-muted rounded animate-pulse" />
+                        </div>
+                    </div>
+                )}
                 <Button variant="outline" className="w-full rounded-full justify-start text-muted-foreground hover:text-destructive hover:border-destructive/50" asChild>
                     <Link href="/auth/logout">
                         <LogOut className="h-4 w-4 mr-2" />
