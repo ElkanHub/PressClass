@@ -17,9 +17,11 @@ export type Assessment = {
 
 export async function getAssessments() {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    console.log("getAssessments getUser result:", user?.id, authError?.message);
 
     if (!user) {
+        console.error("getAssessments: No user found");
         return [];
     }
 
