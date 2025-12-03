@@ -2,7 +2,6 @@ import Link from "next/link";
 import { School, GraduationCap, BookOpen, User } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export const dynamic = "force-dynamic";
 
 export default function SignupRoleSelection() {
     const roles = [

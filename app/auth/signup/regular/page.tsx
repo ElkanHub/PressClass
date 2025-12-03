@@ -1,3 +1,4 @@
+//signup/regular/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -10,8 +11,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-
-export const dynamic = "force-dynamic";
 
 export default function RegularSignup() {
     const router = useRouter();
