@@ -77,8 +77,8 @@ export async function getAssessment(id: string) {
 //
 export async function createAssessment(form: {
     title: string;
-    class_level?: string;
-    topic?: string;
+    class_level?: string | null;
+    topic?: string | null;
     questions: any[];
 }) {
     const supabase = await createClient();
@@ -102,7 +102,7 @@ export async function createAssessment(form: {
 
     if (error) {
         console.error("Error creating assessment:", error);
-        return { error: error.message };
+        return { success: false, error: error.message };
     }
 
     // No revalidatePath here — client handles refresh.
