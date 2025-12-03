@@ -17,7 +17,6 @@ export async function updateSession(request: NextRequest) {
                     return request.cookies.getAll();
                 },
                 setAll(cookiesToSet) {
-                    console.log("PROXY: Setting cookies:", cookiesToSet.map(c => `${c.name}=${c.value.substring(0, 10)}...`).join(", "));
                     cookiesToSet.forEach(({ name, value, options }) =>
                         request.cookies.set(name, value),
                     );
@@ -30,7 +29,7 @@ export async function updateSession(request: NextRequest) {
                 },
             },
             cookieOptions: {
-                secure: false, // FORCE FALSE FOR DEBUGGING
+                secure: process.env.NODE_ENV === "production",
                 maxAge: 60 * 60 * 24 * 7, // 7 days
                 sameSite: "lax",
             },

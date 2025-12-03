@@ -6,7 +6,7 @@ export const createClient = () =>
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
       cookieOptions: {
-        secure: false, // FORCE FALSE FOR DEBUGGING
+        secure: process.env.NODE_ENV === "production",
         maxAge: 60 * 60 * 24 * 7, // 7 days
         sameSite: "lax",
       },
