@@ -1,3 +1,4 @@
+
 // app/dashboard/page.tsx
 import { Plus } from "lucide-react";
 import { getAssessments } from "@/actions/assessments";
@@ -6,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 // Revalidate this page every 60 seconds
-export const revalidate = 60;
+// Revalidate removed to prevent caching user data
+// export const revalidate = 60;
 
 export default async function DashboardPage() {
     const assessments = await getAssessments();

@@ -3,7 +3,8 @@ import { getAssessment } from "@/actions/assessments";
 import { AssessmentDetail } from "@/components/assessments/assessment-detail";
 import { notFound } from "next/navigation";
 
-export const revalidate = 60; // <<— Option A: revalidate this page every 60 seconds
+// Revalidate removed to prevent caching user data
+// export const revalidate = 60; // <<— Option A: revalidate this page every 60 seconds
 
 interface PageProps {
     params: Promise<{ id: string }>;
