@@ -1,8 +1,6 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 export type Assessment = {
     id: string;
@@ -10,18 +8,23 @@ export type Assessment = {
     title: string;
     class_level: string | null;
     topic: string | null;
-    questions: any[]; // Using any[] for flexibility with jsonb, but ideally should be typed
+    questions: any[];
     created_at: string;
     updated_at: string;
 };
 
+
+//
+// -------------------------
+// GET ALL ASSESSMENTS
+// -------------------------
+//
 export async function getAssessments() {
     const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    console.log("getAssessments getUser result:", user?.id, authError?.message);
 
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (!user) {
-        console.error("getAssessments: No user found");
+        console.error("getAssessments: No user");
         return [];
     }
 
@@ -39,13 +42,17 @@ export async function getAssessments() {
     return data as Assessment[];
 }
 
+
+//
+// -------------------------
+// GET SINGLE ASSESSMENT
+// -------------------------
+//
 export async function getAssessment(id: string) {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
-        return null;
-    }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
 
     const { data, error } = await supabase
         .from("assessments")
@@ -62,46 +69,61 @@ export async function getAssessment(id: string) {
     return data as Assessment;
 }
 
-export async function createAssessment(data: {
+
+//
+// -------------------------
+// CREATE ASSESSMENT
+// -------------------------
+//
+export async function createAssessment(form: {
     title: string;
     class_level?: string;
     topic?: string;
     questions: any[];
 }) {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
 
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-        throw new Error("User not authenticated");
+        return { error: "Not authenticated" };
     }
 
     const { data: assessment, error } = await supabase
         .from("assessments")
         .insert({
             user_id: user.id,
-            title: data.title,
-            class_level: data.class_level,
-            topic: data.topic,
-            questions: data.questions,
+            title: form.title,
+            class_level: form.class_level || null,
+            topic: form.topic || null,
+            questions: form.questions,
         })
         .select()
         .single();
 
     if (error) {
         console.error("Error creating assessment:", error);
-        throw new Error(`Failed to create assessment: ${error.message}`);
+        return { error: error.message };
     }
 
-    revalidatePath("/dashboard");
-    return assessment;
+    // No revalidatePath here — client handles refresh.
+    return {
+        success: true,
+        assessment,
+    };
 }
 
+
+//
+// -------------------------
+// UPDATE ASSESSMENT
+// -------------------------
+//
 export async function updateAssessment(id: string, data: Partial<Assessment>) {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
 
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-        throw new Error("User not authenticated");
+        return { error: "Not authenticated" };
     }
 
     const { error } = await supabase
@@ -115,19 +137,24 @@ export async function updateAssessment(id: string, data: Partial<Assessment>) {
 
     if (error) {
         console.error("Error updating assessment:", error);
-        throw new Error("Failed to update assessment");
+        return { error: error.message };
     }
 
-    revalidatePath(`/assessments/${id}`);
-    revalidatePath("/dashboard");
+    return { success: true };
 }
 
+
+//
+// -------------------------
+// DELETE ASSESSMENT
+// -------------------------
+//
 export async function deleteAssessment(id: string) {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
 
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-        throw new Error("User not authenticated");
+        return { error: "Not authenticated" };
     }
 
     const { error } = await supabase
@@ -138,9 +165,8 @@ export async function deleteAssessment(id: string) {
 
     if (error) {
         console.error("Error deleting assessment:", error);
-        throw new Error("Failed to delete assessment");
+        return { error: error.message };
     }
 
-    revalidatePath("/dashboard");
-    redirect("/dashboard");
+    return { success: true };
 }
