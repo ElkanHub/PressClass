@@ -19,27 +19,31 @@ export type Assessment = {
 // GET ALL ASSESSMENTS
 // -------------------------
 //
-export async function getAssessments() {
+export async function getAssessments(page: number = 1, limit: number = 10) {
     const supabase = await createClient();
 
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (!user) {
         console.error("getAssessments: No user");
-        return [];
+        return { data: [], count: 0 };
     }
 
-    const { data, error } = await supabase
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    const { data, count, error } = await supabase
         .from("assessments")
-        .select("*")
+        .select("*", { count: "exact" })
         .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .range(from, to);
 
     if (error) {
         console.error("Error fetching assessments:", error);
-        return [];
+        return { data: [], count: 0 };
     }
 
-    return data as Assessment[];
+    return { data: data as Assessment[], count: count || 0 };
 }
 
 

@@ -23,26 +23,30 @@ export type LessonPlan = {
 // GET ALL LESSON PLANS
 // -------------------------
 //
-export async function getLessonPlans() {
+export async function getLessonPlans(page: number = 1, limit: number = 10) {
     const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-        return [];
+        return { data: [], count: 0 };
     }
 
-    const { data, error } = await supabase
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    const { data, count, error } = await supabase
         .from("lesson_plans")
-        .select("*")
+        .select("*", { count: "exact" })
         .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .range(from, to);
 
     if (error) {
         console.error("Error fetching lesson plans:", error);
-        return [];
+        return { data: [], count: 0 };
     }
 
-    return data as LessonPlan[];
+    return { data: data as LessonPlan[], count: count || 0 };
 }
 
 //

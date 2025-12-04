@@ -11,9 +11,9 @@ import Link from "next/link";
 // export const revalidate = 60;
 
 export default async function DashboardPage() {
-    const [assessments, lessonPlans] = await Promise.all([
-        getAssessments(),
-        getLessonPlans(),
+    const [{ data: assessments, count: assessmentsCount }, { data: lessonPlans, count: lessonPlansCount }] = await Promise.all([
+        getAssessments(1, 6),
+        getLessonPlans(1, 6),
     ]);
 
     return (
@@ -41,13 +41,13 @@ export default async function DashboardPage() {
                     <h3 className="tracking-tight text-sm font-medium text-muted-foreground">
                         Total Assessments
                     </h3>
-                    <div className="text-2xl font-bold mt-2">{assessments.length}</div>
+                    <div className="text-2xl font-bold mt-2">{assessmentsCount}</div>
                 </div>
                 <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-6">
                     <h3 className="tracking-tight text-sm font-medium text-muted-foreground">
                         Total Lesson Plans
                     </h3>
-                    <div className="text-2xl font-bold mt-2">{lessonPlans.length}</div>
+                    <div className="text-2xl font-bold mt-2">{lessonPlansCount}</div>
                 </div>
             </div>
 
@@ -55,9 +55,14 @@ export default async function DashboardPage() {
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <h2 className="text-xl font-semibold tracking-tight">Recent Assessments</h2>
-                    <Button variant="link" asChild>
-                        <Link href="/generator/assessment">Create Assessment</Link>
-                    </Button>
+                    <div className="flex items-center gap-4">
+                        <Button variant="link" asChild>
+                            <Link href="/assessments">View All</Link>
+                        </Button>
+                        <Button variant="outline" size="sm" asChild>
+                            <Link href="/generator/assessment">Create New</Link>
+                        </Button>
+                    </div>
                 </div>
                 <AssessmentList assessments={assessments} />
             </div>
@@ -66,9 +71,14 @@ export default async function DashboardPage() {
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <h2 className="text-xl font-semibold tracking-tight">Recent Lesson Plans</h2>
-                    <Button variant="link" asChild>
-                        <Link href="/generator/lesson-plan">Create Lesson Plan</Link>
-                    </Button>
+                    <div className="flex items-center gap-4">
+                        <Button variant="link" asChild>
+                            <Link href="/lesson-plans">View All</Link>
+                        </Button>
+                        <Button variant="outline" size="sm" asChild>
+                            <Link href="/generator/lesson-plan">Create New</Link>
+                        </Button>
+                    </div>
                 </div>
                 <LessonPlanList lessonPlans={lessonPlans} />
             </div>
