@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+
 export default async function AssessmentsPage({
     searchParams,
 }: {
@@ -19,6 +21,8 @@ export default async function AssessmentsPage({
 
     return (
         <div className="flex-1 w-full flex flex-col gap-8 p-4 md:p-8 max-w-7xl mx-auto">
+            <Breadcrumb items={[{ label: "Assessments" }]} />
+
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Assessments</h1>

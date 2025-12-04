@@ -2,6 +2,7 @@
 import { getAssessment } from "@/actions/assessments";
 import { AssessmentDetail } from "@/components/assessments/assessment-detail";
 import { notFound } from "next/navigation";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 
 // Revalidate removed to prevent caching user data
 // export const revalidate = 60; // <<— Option A: revalidate this page every 60 seconds
@@ -22,6 +23,12 @@ export default async function AssessmentPage({ params }: PageProps) {
 
     return (
         <div className="container mx-auto py-8 px-4 max-w-5xl">
+            <Breadcrumb
+                items={[
+                    { label: "Assessments", href: "/assessments" },
+                    { label: assessment.title },
+                ]}
+            />
             <AssessmentDetail assessment={assessment} />
         </div>
     );

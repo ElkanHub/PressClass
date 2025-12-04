@@ -2,9 +2,12 @@ import Link from "next/link";
 import { BookOpen, FileText } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+
 export default function GeneratorHubPage() {
     return (
         <div className="container mx-auto py-12 px-4">
+            <Breadcrumb items={[{ label: "Generator" }]} />
             <div className="text-center mb-12">
                 <h1 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
                     Content Generator
