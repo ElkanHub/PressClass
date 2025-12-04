@@ -17,7 +17,7 @@ export default function GeneratorHubPage() {
                 </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
                 <Link href="/generator/assessment" className="group">
                     <Card className="h-full transition-all duration-300 hover:shadow-lg hover:border-primary/50 cursor-pointer">
                         <CardHeader>
@@ -57,6 +57,28 @@ export default function GeneratorHubPage() {
                                 <li>Learning objectives & R.P.K.</li>
                                 <li>Teaching materials list</li>
                                 <li>Integrated assessment ideas</li>
+                            </ul>
+                        </CardContent>
+                    </Card>
+                </Link>
+
+                <Link href="/generator/notes" className="group">
+                    <Card className="h-full transition-all duration-300 hover:shadow-lg hover:border-blue-500/50 cursor-pointer">
+                        <CardHeader>
+                            <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center mb-4 group-hover:bg-blue-500/20 transition-colors">
+                                <FileText className="w-6 h-6 text-blue-600" />
+                            </div>
+                            <CardTitle className="text-2xl">Notes Generator</CardTitle>
+                            <CardDescription>
+                                Create structured, curriculum-aligned lesson notes for students.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                                <li>Student-friendly summaries</li>
+                                <li>Key points & core concepts</li>
+                                <li>Examples & illustrations</li>
+                                <li>Quick check questions</li>
                             </ul>
                         </CardContent>
                     </Card>

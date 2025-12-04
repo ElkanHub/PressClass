@@ -2,8 +2,10 @@
 import { Plus } from "lucide-react";
 import { getAssessments } from "@/actions/assessments";
 import { getLessonPlans } from "@/actions/lesson-plans";
+import { getNotes } from "@/actions/notes";
 import { AssessmentList } from "@/components/assessments/assessment-list";
 import { LessonPlanList } from "@/components/lesson-plan-list";
+import { NoteList } from "@/components/note-list";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -11,9 +13,14 @@ import Link from "next/link";
 // export const revalidate = 60;
 
 export default async function DashboardPage() {
-    const [{ data: assessments, count: assessmentsCount }, { data: lessonPlans, count: lessonPlansCount }] = await Promise.all([
+    const [
+        { data: assessments, count: assessmentsCount },
+        { data: lessonPlans, count: lessonPlansCount },
+        { data: notes, count: notesCount }
+    ] = await Promise.all([
         getAssessments(1, 6),
         getLessonPlans(1, 6),
+        getNotes(1, 6),
     ]);
 
     return (
@@ -23,7 +30,7 @@ export default async function DashboardPage() {
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
                     <p className="text-muted-foreground mt-1">
-                        Manage your assessments and lesson plans.
+                        Manage your assessments, lesson plans, and notes.
                     </p>
                 </div>
 
@@ -48,6 +55,12 @@ export default async function DashboardPage() {
                         Total Lesson Plans
                     </h3>
                     <div className="text-2xl font-bold mt-2">{lessonPlansCount}</div>
+                </div>
+                <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-6">
+                    <h3 className="tracking-tight text-sm font-medium text-muted-foreground">
+                        Total Notes
+                    </h3>
+                    <div className="text-2xl font-bold mt-2">{notesCount}</div>
                 </div>
             </div>
 
@@ -81,6 +94,22 @@ export default async function DashboardPage() {
                     </div>
                 </div>
                 <LessonPlanList lessonPlans={lessonPlans} />
+            </div>
+
+            {/* Notes */}
+            <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-semibold tracking-tight">Recent Notes</h2>
+                    <div className="flex items-center gap-4">
+                        <Button variant="link" asChild>
+                            <Link href="/notes">View All</Link>
+                        </Button>
+                        <Button variant="outline" size="sm" asChild>
+                            <Link href="/generator/notes">Create New</Link>
+                        </Button>
+                    </div>
+                </div>
+                <NoteList notes={notes} />
             </div>
         </div>
     );
