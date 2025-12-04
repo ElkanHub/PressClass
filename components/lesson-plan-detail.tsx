@@ -14,15 +14,39 @@ import {
     Loader2,
     School,
     Share2,
+    Clock,
+    Download,
+    FileText,
+    GraduationCap,
+    Layout,
+    Loader2,
+    School,
+    Share2,
+    Edit2,
+    Trash2,
+    Save,
+    X,
+    MoreVertical,
+    Plus,
+    Minus
 } from "lucide-react";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { LessonPlan } from "@/actions/lesson-plans";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { LessonPlan, updateLessonPlan, deleteLessonPlan } from "@/actions/lesson-plans";
 import { createAssessment } from "@/actions/assessments";
 
 interface LessonPlanDetailProps {
@@ -46,8 +70,75 @@ interface LessonPlanContent {
 export function LessonPlanDetail({ lessonPlan }: LessonPlanDetailProps) {
     const router = useRouter();
     const [isGeneratingAssessment, setIsGeneratingAssessment] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [data, setData] = useState(lessonPlan);
+    const [content, setContent] = useState(lessonPlan.content as LessonPlanContent);
 
-    const content = lessonPlan.content as LessonPlanContent;
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            await updateLessonPlan(data.id, {
+                title: data.title,
+                subject: data.subject,
+                class_level: data.class_level,
+                topic: data.topic,
+                sub_topic: data.sub_topic,
+                duration: data.duration,
+                week_term: data.week_term,
+                date: data.date,
+                content: content,
+            });
+            setIsEditing(false);
+            router.refresh();
+            toast.success("Lesson plan saved successfully");
+        } catch (error) {
+            console.error("Failed to save:", error);
+            toast.error("Failed to save changes");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (confirm("Are you sure you want to delete this lesson plan? This action cannot be undone.")) {
+            try {
+                await deleteLessonPlan(data.id);
+                toast.success("Lesson plan deleted");
+                router.push("/lesson-plans");
+            } catch (error) {
+                console.error("Failed to delete:", error);
+                toast.error("Failed to delete lesson plan");
+            }
+        }
+    };
+
+    const handleContentChange = (field: keyof LessonPlanContent, value: any) => {
+        setContent({ ...content, [field]: value });
+    };
+
+    const handleStageChange = (stage: keyof NonNullable<LessonPlanContent['stages']>, value: string) => {
+        setContent({
+            ...content,
+            stages: { ...content.stages, [stage]: value }
+        });
+    };
+
+    const handleListChange = (field: 'objectives' | 'materials' | 'corePoints' | 'evaluation', index: number, value: string) => {
+        const newList = [...(content[field] || [])];
+        newList[index] = value;
+        setContent({ ...content, [field]: newList });
+    };
+
+    const addListItem = (field: 'objectives' | 'materials' | 'corePoints' | 'evaluation') => {
+        setContent({ ...content, [field]: [...(content[field] || []), ""] });
+    };
+
+    const removeListItem = (field: 'objectives' | 'materials' | 'corePoints' | 'evaluation', index: number) => {
+        const newList = [...(content[field] || [])];
+        newList.splice(index, 1);
+        setContent({ ...content, [field]: newList });
+    };
 
     const handleDownloadPDF = async () => {
         const element = document.getElementById("lesson-plan-content");
@@ -133,29 +224,65 @@ export function LessonPlanDetail({ lessonPlan }: LessonPlanDetailProps) {
         <div className="space-y-6">
             {/* Actions Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card p-4 rounded-lg border shadow-sm">
-                <div>
-                    <h1 className="text-2xl font-bold">{lessonPlan.title}</h1>
+                <div className="w-full md:w-auto flex-1">
+                    {isEditing ? (
+                        <Input
+                            value={data.title}
+                            onChange={(e) => setData({ ...data, title: e.target.value })}
+                            className="font-bold text-xl mb-2"
+                        />
+                    ) : (
+                        <h1 className="text-2xl font-bold">{data.title}</h1>
+                    )}
                     <p className="text-muted-foreground text-sm">
-                        Created on {format(new Date(lessonPlan.created_at), "PPP")}
+                        Created on {format(new Date(data.created_at), "PPP")}
                     </p>
                 </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" onClick={handleDownloadPDF}>
-                        <Download className="mr-2 h-4 w-4" />
-                        Download PDF
-                    </Button>
-                    <Button
-                        onClick={handleGenerateAssessment}
-                        disabled={isGeneratingAssessment}
-                        className="bg-gradient-to-r from-primary to-purple-600"
-                    >
-                        {isGeneratingAssessment ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        ) : (
-                            <FileText className="mr-2 h-4 w-4" />
-                        )}
-                        Generate Assessment
-                    </Button>
+                <div className="flex gap-2 flex-wrap justify-end">
+                    {isEditing ? (
+                        <>
+                            <Button variant="outline" onClick={() => { setIsEditing(false); setData(lessonPlan); setContent(lessonPlan.content as LessonPlanContent); }}>
+                                <X className="mr-2 h-4 w-4" /> Cancel
+                            </Button>
+                            <Button onClick={handleSave} disabled={isSaving}>
+                                <Save className="mr-2 h-4 w-4" /> {isSaving ? "Saving..." : "Save Changes"}
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <Button variant="outline" onClick={handleDownloadPDF}>
+                                <Download className="mr-2 h-4 w-4" />
+                                PDF
+                            </Button>
+                            <Button
+                                onClick={handleGenerateAssessment}
+                                disabled={isGeneratingAssessment}
+                                className="bg-gradient-to-r from-primary to-purple-600"
+                            >
+                                {isGeneratingAssessment ? (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                ) : (
+                                    <FileText className="mr-2 h-4 w-4" />
+                                )}
+                                Generate Assessment
+                            </Button>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="outline" size="icon">
+                                        <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => setIsEditing(true)}>
+                                        <Edit2 className="mr-2 h-4 w-4" /> Edit Lesson Plan
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="text-destructive" onClick={handleDelete}>
+                                        <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </>
+                    )}
                 </div>
             </div>
 
@@ -165,27 +292,51 @@ export function LessonPlanDetail({ lessonPlan }: LessonPlanDetailProps) {
                 <section className="grid grid-cols-2 md:grid-cols-3 gap-4 border-b pb-6">
                     <div>
                         <h3 className="font-bold text-gray-500 text-xs uppercase tracking-wider">School</h3>
-                        <p className="font-medium">{lessonPlan.content.schoolName || "N/A"}</p>
+                        {isEditing ? (
+                            <Input value={content.schoolName || ""} onChange={(e) => handleContentChange('schoolName', e.target.value)} className="h-8" />
+                        ) : (
+                            <p className="font-medium">{content.schoolName || "N/A"}</p>
+                        )}
                     </div>
                     <div>
                         <h3 className="font-bold text-gray-500 text-xs uppercase tracking-wider">Class</h3>
-                        <p className="font-medium">{lessonPlan.class_level}</p>
+                        {isEditing ? (
+                            <Input value={data.class_level} onChange={(e) => setData({ ...data, class_level: e.target.value })} className="h-8" />
+                        ) : (
+                            <p className="font-medium">{data.class_level}</p>
+                        )}
                     </div>
                     <div>
                         <h3 className="font-bold text-gray-500 text-xs uppercase tracking-wider">Subject</h3>
-                        <p className="font-medium">{lessonPlan.subject}</p>
+                        {isEditing ? (
+                            <Input value={data.subject} onChange={(e) => setData({ ...data, subject: e.target.value })} className="h-8" />
+                        ) : (
+                            <p className="font-medium">{data.subject}</p>
+                        )}
                     </div>
                     <div>
                         <h3 className="font-bold text-gray-500 text-xs uppercase tracking-wider">Date</h3>
-                        <p className="font-medium">{lessonPlan.date || "N/A"}</p>
+                        {isEditing ? (
+                            <Input value={data.date || ""} onChange={(e) => setData({ ...data, date: e.target.value })} className="h-8" />
+                        ) : (
+                            <p className="font-medium">{data.date || "N/A"}</p>
+                        )}
                     </div>
                     <div>
                         <h3 className="font-bold text-gray-500 text-xs uppercase tracking-wider">Duration</h3>
-                        <p className="font-medium">{lessonPlan.duration || "N/A"}</p>
+                        {isEditing ? (
+                            <Input value={data.duration || ""} onChange={(e) => setData({ ...data, duration: e.target.value })} className="h-8" />
+                        ) : (
+                            <p className="font-medium">{data.duration || "N/A"}</p>
+                        )}
                     </div>
                     <div>
                         <h3 className="font-bold text-gray-500 text-xs uppercase tracking-wider">Week/Term</h3>
-                        <p className="font-medium">{lessonPlan.week_term || "N/A"}</p>
+                        {isEditing ? (
+                            <Input value={data.week_term || ""} onChange={(e) => setData({ ...data, week_term: e.target.value })} className="h-8" />
+                        ) : (
+                            <p className="font-medium">{data.week_term || "N/A"}</p>
+                        )}
                     </div>
                 </section>
 
@@ -195,21 +346,54 @@ export function LessonPlanDetail({ lessonPlan }: LessonPlanDetailProps) {
                         <Layout className="h-5 w-5" />
                         Topic & Sub-topic
                     </h2>
-                    <div className="bg-gray-50 p-4 rounded-md">
-                        <p><span className="font-semibold">Topic:</span> {lessonPlan.topic}</p>
-                        <p><span className="font-semibold">Sub-topic:</span> {lessonPlan.sub_topic}</p>
+                    <div className="bg-gray-50 p-4 rounded-md space-y-2">
+                        {isEditing ? (
+                            <>
+                                <div>
+                                    <span className="font-semibold">Topic:</span>
+                                    <Input value={data.topic || ""} onChange={(e) => setData({ ...data, topic: e.target.value })} className="mt-1" />
+                                </div>
+                                <div>
+                                    <span className="font-semibold">Sub-topic:</span>
+                                    <Input value={data.sub_topic || ""} onChange={(e) => setData({ ...data, sub_topic: e.target.value })} className="mt-1" />
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <p><span className="font-semibold">Topic:</span> {data.topic}</p>
+                                <p><span className="font-semibold">Sub-topic:</span> {data.sub_topic}</p>
+                            </>
+                        )}
                     </div>
                 </section>
 
                 {/* 3. Objectives */}
                 <section>
-                    <h2 className="text-xl font-bold text-primary mb-3 flex items-center gap-2">
-                        <GraduationCap className="h-5 w-5" />
-                        Learning Objectives
-                    </h2>
+                    <div className="flex justify-between items-center mb-3">
+                        <h2 className="text-xl font-bold text-primary flex items-center gap-2">
+                            <GraduationCap className="h-5 w-5" />
+                            Learning Objectives
+                        </h2>
+                        {isEditing && (
+                            <Button size="sm" variant="outline" onClick={() => addListItem('objectives')}>
+                                <Plus className="h-4 w-4 mr-1" /> Add
+                            </Button>
+                        )}
+                    </div>
                     <ul className="list-disc list-inside space-y-2 bg-gray-50 p-4 rounded-md">
                         {content.objectives?.map((obj: string, i: number) => (
-                            <li key={i}>{obj}</li>
+                            <li key={i} className="flex gap-2 items-center">
+                                {isEditing ? (
+                                    <>
+                                        <Input value={obj} onChange={(e) => handleListChange('objectives', i, e.target.value)} />
+                                        <Button size="icon" variant="ghost" onClick={() => removeListItem('objectives', i)}>
+                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <span>{obj}</span>
+                                )}
+                            </li>
                         ))}
                     </ul>
                 </section>
@@ -221,19 +405,41 @@ export function LessonPlanDetail({ lessonPlan }: LessonPlanDetailProps) {
                         Relevant Previous Knowledge (R.P.K.)
                     </h2>
                     <div className="bg-gray-50 p-4 rounded-md">
-                        <p>{content.rpk}</p>
+                        {isEditing ? (
+                            <Textarea value={content.rpk || ""} onChange={(e) => handleContentChange('rpk', e.target.value)} />
+                        ) : (
+                            <p>{content.rpk}</p>
+                        )}
                     </div>
                 </section>
 
                 {/* 5. Materials */}
                 <section>
-                    <h2 className="text-xl font-bold text-primary mb-3 flex items-center gap-2">
-                        <BookOpen className="h-5 w-5" />
-                        Teaching / Learning Materials
-                    </h2>
+                    <div className="flex justify-between items-center mb-3">
+                        <h2 className="text-xl font-bold text-primary flex items-center gap-2">
+                            <BookOpen className="h-5 w-5" />
+                            Teaching / Learning Materials
+                        </h2>
+                        {isEditing && (
+                            <Button size="sm" variant="outline" onClick={() => addListItem('materials')}>
+                                <Plus className="h-4 w-4 mr-1" /> Add
+                            </Button>
+                        )}
+                    </div>
                     <ul className="list-disc list-inside space-y-2 bg-gray-50 p-4 rounded-md">
                         {content.materials?.map((item: string, i: number) => (
-                            <li key={i}>{item}</li>
+                            <li key={i} className="flex gap-2 items-center">
+                                {isEditing ? (
+                                    <>
+                                        <Input value={item} onChange={(e) => handleListChange('materials', i, e.target.value)} />
+                                        <Button size="icon" variant="ghost" onClick={() => removeListItem('materials', i)}>
+                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <span>{item}</span>
+                                )}
+                            </li>
                         ))}
                     </ul>
                 </section>
@@ -247,35 +453,83 @@ export function LessonPlanDetail({ lessonPlan }: LessonPlanDetailProps) {
                     <div className="space-y-4">
                         <div className="border-l-4 border-green-500 pl-4 py-2 bg-green-50 rounded-r-md">
                             <h3 className="font-bold text-green-700">Starter / Introduction</h3>
-                            <p className="mt-1">{content.stages?.starter}</p>
+                            {isEditing ? (
+                                <Textarea value={content.stages?.starter || ""} onChange={(e) => handleStageChange('starter', e.target.value)} className="mt-1 bg-white" />
+                            ) : (
+                                <p className="mt-1">{content.stages?.starter}</p>
+                            )}
                         </div>
                         <div className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50 rounded-r-md">
                             <h3 className="font-bold text-blue-700">Main Development</h3>
-                            <p className="mt-1">{content.stages?.development}</p>
+                            {isEditing ? (
+                                <Textarea value={content.stages?.development || ""} onChange={(e) => handleStageChange('development', e.target.value)} className="mt-1 bg-white min-h-[150px]" />
+                            ) : (
+                                <p className="mt-1">{content.stages?.development}</p>
+                            )}
                         </div>
                         <div className="border-l-4 border-orange-500 pl-4 py-2 bg-orange-50 rounded-r-md">
                             <h3 className="font-bold text-orange-700">Reflection / Plenary</h3>
-                            <p className="mt-1">{content.stages?.reflection}</p>
+                            {isEditing ? (
+                                <Textarea value={content.stages?.reflection || ""} onChange={(e) => handleStageChange('reflection', e.target.value)} className="mt-1 bg-white" />
+                            ) : (
+                                <p className="mt-1">{content.stages?.reflection}</p>
+                            )}
                         </div>
                     </div>
                 </section>
 
                 {/* 7. Core Points */}
                 <section>
-                    <h2 className="text-xl font-bold text-primary mb-3">Core Points</h2>
+                    <div className="flex justify-between items-center mb-3">
+                        <h2 className="text-xl font-bold text-primary">Core Points</h2>
+                        {isEditing && (
+                            <Button size="sm" variant="outline" onClick={() => addListItem('corePoints')}>
+                                <Plus className="h-4 w-4 mr-1" /> Add
+                            </Button>
+                        )}
+                    </div>
                     <ul className="list-disc list-inside space-y-2 bg-gray-50 p-4 rounded-md">
                         {content.corePoints?.map((point: string, i: number) => (
-                            <li key={i}>{point}</li>
+                            <li key={i} className="flex gap-2 items-center">
+                                {isEditing ? (
+                                    <>
+                                        <Input value={point} onChange={(e) => handleListChange('corePoints', i, e.target.value)} />
+                                        <Button size="icon" variant="ghost" onClick={() => removeListItem('corePoints', i)}>
+                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <span>{point}</span>
+                                )}
+                            </li>
                         ))}
                     </ul>
                 </section>
 
                 {/* 8. Evaluation */}
                 <section>
-                    <h2 className="text-xl font-bold text-primary mb-3">Evaluation / Assessment</h2>
+                    <div className="flex justify-between items-center mb-3">
+                        <h2 className="text-xl font-bold text-primary">Evaluation / Assessment</h2>
+                        {isEditing && (
+                            <Button size="sm" variant="outline" onClick={() => addListItem('evaluation')}>
+                                <Plus className="h-4 w-4 mr-1" /> Add
+                            </Button>
+                        )}
+                    </div>
                     <ul className="list-disc list-inside space-y-2 bg-gray-50 p-4 rounded-md">
                         {content.evaluation?.map((item: string, i: number) => (
-                            <li key={i}>{item}</li>
+                            <li key={i} className="flex gap-2 items-center">
+                                {isEditing ? (
+                                    <>
+                                        <Input value={item} onChange={(e) => handleListChange('evaluation', i, e.target.value)} />
+                                        <Button size="icon" variant="ghost" onClick={() => removeListItem('evaluation', i)}>
+                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <span>{item}</span>
+                                )}
+                            </li>
                         ))}
                     </ul>
                 </section>

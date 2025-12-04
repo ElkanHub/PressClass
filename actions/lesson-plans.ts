@@ -128,6 +128,36 @@ export async function createLessonPlan(form: {
 
 //
 // -------------------------
+// UPDATE LESSON PLAN
+// -------------------------
+//
+export async function updateLessonPlan(id: string, data: Partial<LessonPlan>) {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return { error: "Not authenticated" };
+    }
+
+    const { error } = await supabase
+        .from("lesson_plans")
+        .update({
+            ...data,
+            updated_at: new Date().toISOString(),
+        })
+        .eq("id", id)
+        .eq("user_id", user.id);
+
+    if (error) {
+        console.error("Error updating lesson plan:", error);
+        return { error: error.message };
+    }
+
+    return { success: true };
+}
+
+//
+// -------------------------
 // DELETE LESSON PLAN
 // -------------------------
 //
