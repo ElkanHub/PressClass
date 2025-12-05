@@ -2,11 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
-    let response = NextResponse.next({
-        request: {
-            headers: request.headers,
-        },
-    });
+    let response = NextResponse.next();
 
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,44 +13,42 @@ export async function updateSession(request: NextRequest) {
                     return request.cookies.getAll();
                 },
                 setAll(cookiesToSet) {
-                    cookiesToSet.forEach(({ name, value, options }) =>
-                        request.cookies.set(name, value)
-                    );
-                    response = NextResponse.next({
-                        request,
+                    // ONLY write to the response, NEVER to request
+                    cookiesToSet.forEach(({ name, value, options }) => {
+                        response.cookies.set(name, value, {
+                            ...options,
+                            path: "/",
+                            sameSite: "lax",
+                            secure: process.env.NODE_ENV === "production",
+                        });
                     });
-                    cookiesToSet.forEach(({ name, value, options }) =>
-                        response.cookies.set(name, value, options)
-                    );
                 },
+            },
+            cookieOptions: {
+                path: "/",
+                sameSite: "lax",
+                secure: process.env.NODE_ENV === "production",
             },
         }
     );
 
-    // This will refresh session if expired - required for Server Components
-    // https://supabase.com/docs/guides/auth/server-side/nextjs
     const {
         data: { user },
     } = await supabase.auth.getUser();
 
-    // Protected routes
-    // We assume that everything NOT in /auth and NOT the root / (landing page) is protected.
-    // Adjust this logic if there are other public pages.
-    const isAuthRoute = request.nextUrl.pathname.startsWith("/auth");
-    const isRoot = request.nextUrl.pathname === "/";
-    const isPublicApi = request.nextUrl.pathname.startsWith("/api/public"); // Example
+    const pathname = request.nextUrl.pathname;
+    const isAuthRoute = pathname.startsWith("/auth");
+    const isRoot = pathname === "/";
 
-    if (!user && !isAuthRoute && !isRoot && !isPublicApi) {
-        // Redirect to login if accessing protected route without user
+    if (!user && !isAuthRoute && !isRoot) {
         const url = request.nextUrl.clone();
         url.pathname = "/auth/login";
         return NextResponse.redirect(url);
     }
 
     if (user && isAuthRoute) {
-        // Redirect to dashboard if accessing auth routes while logged in
         const url = request.nextUrl.clone();
-        url.pathname = "/dashboard"; // Or wherever the main app is
+        url.pathname = "/dashboard";
         return NextResponse.redirect(url);
     }
 
