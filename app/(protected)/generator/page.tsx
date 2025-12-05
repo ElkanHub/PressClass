@@ -61,6 +61,28 @@ export default function GeneratorHubPage() {
                         </CardContent>
                     </Card>
                 </Link>
+
+                <Link href="/generator/notes" className="group">
+                    <Card className="h-full transition-all duration-300 hover:shadow-lg hover:border-blue-500/50 cursor-pointer">
+                        <CardHeader>
+                            <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center mb-4 group-hover:bg-blue-500/20 transition-colors">
+                                <FileText className="w-6 h-6 text-blue-600" />
+                            </div>
+                            <CardTitle className="text-2xl">Notes Generator</CardTitle>
+                            <CardDescription>
+                                Create structured, curriculum-aligned notes for students.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                                <li>Clear lesson summaries</li>
+                                <li>Key points & definitions</li>
+                                <li>Examples & illustrations</li>
+                                <li>Review questions & resources</li>
+                            </ul>
+                        </CardContent>
+                    </Card>
+                </Link>
             </div>
         </div>
     );
