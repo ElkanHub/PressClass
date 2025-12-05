@@ -11,6 +11,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import SidebarContent from "@/components/layout/sidebar-content";
+import { LogoutButton } from "@/components/logout-button";
 
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
@@ -90,10 +91,8 @@ export default function Header() {
                         <DropdownMenuItem>Profile</DropdownMenuItem>
                         <DropdownMenuItem>Settings</DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive focus:text-destructive" asChild>
-                            <Link href="/auth/logout">
-                                Log out
-                            </Link>
+                        <DropdownMenuItem className="text-destructive focus:text-destructive">
+                            <LogoutButton />
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
