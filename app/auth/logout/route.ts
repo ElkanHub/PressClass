@@ -13,7 +13,7 @@ export async function GET() {
     //     await supabase.auth.signOut();
     // }
 
-    // revalidatePath("/", "layout"); ........
+    // revalidatePath("/", "layout"); ..
     return NextResponse.redirect("/auth/login", {
         status: 302,
     });
