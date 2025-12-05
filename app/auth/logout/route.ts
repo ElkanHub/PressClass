@@ -1,21 +1,20 @@
 import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
     const supabase = await createClient();
 
     // Check if a user's logged in
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
+    // const {
+    //     data: { user },
+    // } = await supabase.auth.getUser();
 
-    if (user) {
-        await supabase.auth.signOut();
-    }
+    // if (user) {
+    //     await supabase.auth.signOut();
+    // }
 
-    revalidatePath("/", "layout");
-    return NextResponse.redirect(new URL("/auth/login", req.url), {
+    // revalidatePath("/", "layout");
+    return NextResponse.redirect("/auth/login", {
         status: 302,
     });
 }
