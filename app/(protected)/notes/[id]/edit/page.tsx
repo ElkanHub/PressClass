@@ -118,11 +118,24 @@ export default function EditNotePage() {
         setIsSaving(true);
         try {
             // Transform object arrays back to string arrays for the API
-            const noteData = {
+            const contentData = {
                 ...values,
                 keyPoints: values.keyPoints.map((item) => item.value),
                 examples: values.examples.map((item) => item.value),
                 resources: values.resources.map((item) => item.value),
+            };
+
+            const noteData = {
+                title: values.topic,
+                school: values.administrativeDetails.school,
+                class_level: values.administrativeDetails.class,
+                subject: values.administrativeDetails.subject,
+                strand: values.topic.split(" - ")[0],
+                sub_strand: values.topic.split(" - ")[1] || "",
+                date: values.administrativeDetails.date,
+                week_term: values.administrativeDetails.weekTerm,
+                duration: values.administrativeDetails.duration,
+                content: contentData,
             };
 
             await updateNote(params.id as string, noteData);

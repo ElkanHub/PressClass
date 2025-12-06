@@ -21,13 +21,10 @@ export default [
       next: nextPlugin,
     },
 
-    // ✔ Use extends, not rules — this avoids circular errors
-    extends: [
-      nextPlugin.configs.recommended,
-      nextPlugin.configs["core-web-vitals"],
-    ],
-
-    // Optional: Add custom rules here if needed
-    rules: {},
+    rules: {
+      // Spread the recommended and core-web-vitals rules inside "rules"
+      ...nextPlugin.configs.recommended.rules,
+      ...nextPlugin.configs["core-web-vitals"].rules,
+    },
   },
 ];
