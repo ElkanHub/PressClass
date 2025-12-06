@@ -70,15 +70,15 @@ export default function GeneratorHubPage() {
                             </div>
                             <CardTitle className="text-2xl">Notes Generator</CardTitle>
                             <CardDescription>
-                                Create structured, curriculum-aligned lesson notes for students.
+                                Create structured, curriculum-aligned notes for students.
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
                             <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                                <li>Student-friendly summaries</li>
-                                <li>Key points & core concepts</li>
+                                <li>Clear lesson summaries</li>
+                                <li>Key points & definitions</li>
                                 <li>Examples & illustrations</li>
-                                <li>Quick check questions</li>
+                                <li>Review questions & resources</li>
                             </ul>
                         </CardContent>
                     </Card>

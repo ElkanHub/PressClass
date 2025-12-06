@@ -1,104 +1,95 @@
-import { getNotes } from "@/actions/notes";
+import { getNotes, deleteNote } from "@/actions/notes";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, FileText, Calendar, Clock, BookOpen } from "lucide-react";
+import { Trash2, FileText, Calendar, Clock, Plus } from "lucide-react";
 import Link from "next/link";
-import { format } from "date-fns";
+import { revalidatePath } from "next/cache";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 
 export default async function NotesPage() {
-    const { data: notes } = await getNotes();
+    const notes = await getNotes();
 
     // Group notes by subject
-    const notesBySubject = notes.reduce((acc, note) => {
-        const subject = note.subject;
+    const notesBySubject = notes.data.reduce((acc: any, note: any) => {
+        const subject = note.subject || "Uncategorized";
         if (!acc[subject]) {
             acc[subject] = [];
         }
         acc[subject].push(note);
         return acc;
-    }, {} as Record<string, typeof notes>);
+    }, {});
 
     return (
-        <div className="space-y-8">
-            <div className="flex justify-between items-center">
+        <div className="flex-1 w-full flex flex-col gap-8 p-4 md:p-8 max-w-7xl mx-auto">
+            <Breadcrumb items={[{ label: "Notes" }]} />
+
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold">My Notes</h1>
-                    <p className="text-muted-foreground">
-                        Manage and organize your generated lesson notes
+                    <h1 className="text-3xl font-bold tracking-tight">My Notes</h1>
+                    <p className="text-muted-foreground mt-1">
+                        View and manage all your generated notes.
                     </p>
                 </div>
-                <Link href="/generator/notes">
-                    <Button className="bg-gradient-to-r from-primary to-purple-600">
-                        <Plus className="mr-2 h-4 w-4" /> Generate New Notes
-                    </Button>
-                </Link>
+
+                <Button asChild className="gap-2 bg-gradient-to-r from-primary to-purple-600">
+                    <Link href="/generator/notes">
+                        <Plus className="h-4 w-4" />
+                        Create New
+                    </Link>
+                </Button>
             </div>
 
-            {notes.length === 0 ? (
-                <Card className="text-center py-12">
-                    <CardContent className="space-y-4">
-                        <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                            <FileText className="h-8 w-8 text-primary" />
-                        </div>
-                        <h3 className="text-xl font-semibold">No notes yet</h3>
-                        <p className="text-muted-foreground max-w-sm mx-auto">
-                            Get started by generating your first set of lesson notes using our AI-powered tool.
-                        </p>
-                        <Link href="/generator/notes">
-                            <Button>Generate Notes</Button>
-                        </Link>
-                    </CardContent>
-                </Card>
-            ) : (
-                <div className="space-y-8">
-                    {Object.entries(notesBySubject).map(([subject, subjectNotes]) => (
-                        <div key={subject} className="space-y-4">
-                            <h2 className="text-xl font-bold flex items-center gap-2">
-                                <BookOpen className="h-5 w-5 text-primary" />
-                                {subject}
-                                <span className="text-sm font-normal text-muted-foreground ml-2">
-                                    ({subjectNotes.length} {subjectNotes.length === 1 ? 'note' : 'notes'})
-                                </span>
-                            </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {subjectNotes.map((note) => (
-                                    <Link key={note.id} href={`/notes/${note.id}`}>
-                                        <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
-                                            <CardHeader className="pb-2">
-                                                <div className="flex justify-between items-start">
-                                                    <Badge variant="outline" className="mb-2">
-                                                        {note.class_level}
-                                                    </Badge>
-                                                    <span className="text-xs text-muted-foreground">
-                                                        {format(new Date(note.created_at), "MMM d, yyyy")}
-                                                    </span>
-                                                </div>
-                                                <CardTitle className="line-clamp-2 text-lg">
-                                                    {note.title}
-                                                </CardTitle>
-                                            </CardHeader>
-                                            <CardContent>
-                                                <div className="space-y-2 text-sm text-muted-foreground">
-                                                    <div className="flex items-center gap-2">
-                                                        <Calendar className="h-4 w-4" />
-                                                        <span>{note.week_term}</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <Clock className="h-4 w-4" />
-                                                        <span>{note.duration}</span>
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
+            {(!notes.data || notes.data.length === 0) && (
+                <div className="text-center py-12 text-muted-foreground">
+                    <p>No notes found. Start by creating one!</p>
                 </div>
             )}
+
+            {Object.entries(notesBySubject || {}).map(([subject, subjectNotes]: [string, any]) => (
+                <div key={subject} className="space-y-4">
+                    <h2 className="text-2xl font-semibold border-b pb-2">{subject}</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {subjectNotes.map((note: any) => (
+                            <Card key={note.id} className="hover:shadow-lg transition-shadow">
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg line-clamp-1">{note.strand} - {note.sub_strand}</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="text-sm text-muted-foreground space-y-1">
+                                        <div className="flex items-center">
+                                            <Calendar className="mr-2 h-4 w-4" />
+                                            {note.date}
+                                        </div>
+                                        <div className="flex items-center">
+                                            <Clock className="mr-2 h-4 w-4" />
+                                            {note.duration}
+                                        </div>
+                                        <div className="flex items-center">
+                                            <span className="font-semibold mr-2">Class:</span> {note.class_level}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-between pt-4">
+                                        <Link href={`/notes/${note.id}`} className="w-full mr-2">
+                                            <Button variant="outline" className="w-full">
+                                                <FileText className="mr-2 h-4 w-4" /> View
+                                            </Button>
+                                        </Link>
+                                        <form action={async () => {
+                                            "use server";
+                                            await deleteNote(note.id);
+                                        }}>
+                                            <Button variant="destructive" size="icon" type="submit">
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </form>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                </div>
+            ))}
         </div>
     );
 }
-
-import { Badge } from "@/components/ui/badge";

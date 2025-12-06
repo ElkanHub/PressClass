@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { navItems } from "@/components/layout/nav-data";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
+import { LogoutButton } from "@/components/logout-button";
 
 interface SidebarContentProps {
     onLinkClick?: () => void;
@@ -94,12 +95,7 @@ export default function SidebarContent({ onLinkClick }: SidebarContentProps) {
                         </div>
                     </div>
                 )}
-                <Button variant="outline" className="w-full rounded-full justify-start text-muted-foreground hover:text-destructive hover:border-destructive/50" asChild>
-                    <Link href="/auth/logout">
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Sign Out
-                    </Link>
-                </Button>
+                <LogoutButton />
             </div>
         </div>
     );

@@ -50,6 +50,39 @@ export async function createNote(data: Partial<Note>) {
     return { success: true, note };
 }
 
+export async function saveNote(noteData: any) {
+    const supabase = await createClient();
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+        throw new Error("User not authenticated");
+    }
+
+    const { error } = await supabase.from("notes").insert({
+        user_id: user.id,
+        title: noteData.topic,
+        school: noteData.administrativeDetails.school,
+        class_level: noteData.administrativeDetails.class,
+        subject: noteData.administrativeDetails.subject,
+        strand: noteData.topic.split(" - ")[0], // Assuming format "Strand - Substrand"
+        sub_strand: noteData.topic.split(" - ")[1] || "",
+        date: noteData.administrativeDetails.date,
+        week_term: noteData.administrativeDetails.weekTerm,
+        duration: noteData.administrativeDetails.duration,
+        content: noteData,
+    });
+
+    if (error) {
+        console.error("Error saving note:", error);
+        throw new Error("Failed to save note");
+    }
+
+    revalidatePath("/dashboard");
+    revalidatePath("/notes");
+}
+
 export async function getNotes(page = 1, limit = 10) {
     const supabase = await createClient();
 
