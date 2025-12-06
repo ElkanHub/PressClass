@@ -46,9 +46,11 @@ interface NoteDetailProps {
 
 interface NoteContent {
     summary?: string;
+    lessonSummary?: string;
     keyPoints?: string[];
     examples?: string[];
     questions?: string[];
+    activity?: string;
     resources?: string[];
 }
 
@@ -197,6 +199,12 @@ export function NoteDetail({ note }: NoteDetailProps) {
             setIsGeneratingAssessment(false);
         }
     };
+
+    // Helper to get the summary text
+    const getSummary = () => content.lessonSummary || content.summary || "";
+
+    // Helper to get activity content
+    const getActivity = () => content.activity || "";
 
     return (
         <div className="space-y-6">
@@ -357,9 +365,13 @@ export function NoteDetail({ note }: NoteDetailProps) {
                     </h2>
                     <div className="bg-gray-50 p-4 rounded-md">
                         {isEditing ? (
-                            <Textarea value={content.summary || ""} onChange={(e) => setContent({ ...content, summary: e.target.value })} className="min-h-[150px]" />
+                            <Textarea
+                                value={getSummary()}
+                                onChange={(e) => setContent({ ...content, lessonSummary: e.target.value, summary: e.target.value })}
+                                className="min-h-[150px]"
+                            />
                         ) : (
-                            <p className="whitespace-pre-wrap">{content.summary}</p>
+                            <p className="whitespace-pre-wrap">{getSummary()}</p>
                         )}
                     </div>
                 </section>
@@ -426,35 +438,25 @@ export function NoteDetail({ note }: NoteDetailProps) {
                     </ul>
                 </section>
 
-                {/* 6. Questions */}
+                {/* 6. Activity / Questions */}
                 <section>
                     <div className="flex justify-between items-center mb-3">
                         <h2 className="text-xl font-bold text-primary flex items-center gap-2">
                             <HelpCircle className="h-5 w-5" />
                             Short Activity / Quick Check
                         </h2>
-                        {isEditing && (
-                            <Button size="sm" variant="outline" onClick={() => addListItem('questions')}>
-                                <Plus className="h-4 w-4 mr-1" /> Add
-                            </Button>
+                    </div>
+                    <div className="bg-gray-50 p-4 rounded-md">
+                        {isEditing ? (
+                            <Textarea
+                                value={getActivity()}
+                                onChange={(e) => setContent({ ...content, activity: e.target.value })}
+                                className="min-h-[100px]"
+                            />
+                        ) : (
+                            <p className="whitespace-pre-wrap">{getActivity()}</p>
                         )}
                     </div>
-                    <ul className="list-decimal list-inside space-y-2 bg-gray-50 p-4 rounded-md">
-                        {content.questions?.map((item: string, i: number) => (
-                            <li key={i} className="flex gap-2 items-center">
-                                {isEditing ? (
-                                    <>
-                                        <Input value={item} onChange={(e) => handleListChange('questions', i, e.target.value)} />
-                                        <Button size="icon" variant="ghost" onClick={() => removeListItem('questions', i)}>
-                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                        </Button>
-                                    </>
-                                ) : (
-                                    <span>{item}</span>
-                                )}
-                            </li>
-                        ))}
-                    </ul>
                 </section>
 
                 {/* 7. Resources */}
