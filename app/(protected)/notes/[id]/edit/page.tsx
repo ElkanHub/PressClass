@@ -83,19 +83,21 @@ export default function EditNotePage() {
     useEffect(() => {
         const fetchNote = async () => {
             try {
-                const data = await getNote(params.id as string);
-                if (!data) {
+                const response = await getNote(params.id as string);
+                if (!response.success || !response.note) {
                     toast.error("Note not found");
                     router.push("/notes");
                     return;
                 }
 
+                const note = response.note;
+
                 // Transform string arrays to object arrays for the form
                 const formData = {
-                    ...data.content,
-                    keyPoints: data.content.keyPoints.map((point: string) => ({ value: point })),
-                    examples: data.content.examples.map((example: string) => ({ value: example })),
-                    resources: data.content.resources.map((resource: string) => ({ value: resource })),
+                    ...note.content,
+                    keyPoints: note.content.keyPoints.map((point: string) => ({ value: point })),
+                    examples: note.content.examples.map((example: string) => ({ value: example })),
+                    resources: note.content.resources.map((resource: string) => ({ value: resource })),
                 };
 
                 form.reset(formData);

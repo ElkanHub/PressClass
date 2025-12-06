@@ -8,19 +8,26 @@ export default [
   },
   {
     files: ["**/*.{ts,tsx}"],
+
     languageOptions: {
       parser: tsParser,
       parserOptions: {
         project: "./tsconfig.json",
       },
     },
+
     plugins: {
       "@typescript-eslint": tsPlugin,
       next: nextPlugin,
     },
-    rules: {
-      ...nextPlugin.configs.recommended.rules,
-      ...nextPlugin.configs["core-web-vitals"].rules,
-    },
+
+    // ✔ Use extends, not rules — this avoids circular errors
+    extends: [
+      nextPlugin.configs.recommended,
+      nextPlugin.configs["core-web-vitals"],
+    ],
+
+    // Optional: Add custom rules here if needed
+    rules: {},
   },
 ];
