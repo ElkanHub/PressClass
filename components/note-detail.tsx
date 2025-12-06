@@ -297,7 +297,11 @@ export function NoteDetail({ note }: NoteDetailProps) {
                         {isEditing ? (
                             <Input value={data.date || ""} onChange={(e) => setData({ ...data, date: e.target.value })} className="h-8" />
                         ) : (
-                            <p className="font-medium">{data.date || "N/A"}</p>
+                            <p className="font-medium">
+                                {data.date && !isNaN(new Date(data.date).getTime())
+                                    ? format(new Date(data.date), "PPP")
+                                    : data.date || "N/A"}
+                            </p>
                         )}
                     </div>
                     <div>

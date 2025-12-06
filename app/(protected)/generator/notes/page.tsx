@@ -75,7 +75,7 @@ export default function NotesGeneratorPage() {
                 },
                 body: JSON.stringify({
                     ...values,
-                    date: format(values.date, "PPP"),
+                    date: format(values.date, "yyyy-MM-dd"),
                 }),
             });
 

@@ -76,11 +76,12 @@ export async function saveNote(noteData: any) {
 
     if (error) {
         console.error("Error saving note:", error);
-        throw new Error("Failed to save note");
+        return { success: false, error: error.message };
     }
 
     revalidatePath("/dashboard");
     revalidatePath("/notes");
+    return { success: true };
 }
 
 export async function getNotes(page = 1, limit = 10) {

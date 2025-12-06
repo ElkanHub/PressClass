@@ -8,6 +8,7 @@ import { Loader2, Save, Printer, Download, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { saveNote } from "@/actions/notes";
 import jsPDF from "jspdf";
+import { format } from "date-fns";
 
 export default function NotesResultPage() {
     const router = useRouter();
@@ -27,13 +28,17 @@ export default function NotesResultPage() {
         if (!notes) return;
         setIsSaving(true);
         try {
-            await saveNote(notes);
-            toast.success("Notes saved to dashboard!");
-            // Optionally redirect to the saved note view or dashboard
-            // router.push("/dashboard"); 
+            const result = await saveNote(notes);
+            if (result.success) {
+                toast.success("Notes saved to dashboard!");
+                // Optionally redirect to the saved note view or dashboard
+                // router.push("/dashboard"); 
+            } else {
+                toast.error(`Failed to save notes: ${result.error}`);
+            }
         } catch (error) {
             console.error(error);
-            toast.error("Failed to save notes.");
+            toast.error("An unexpected error occurred while saving.");
         } finally {
             setIsSaving(false);
         }
@@ -133,7 +138,7 @@ export default function NotesResultPage() {
                             <span className="font-semibold">Subject:</span> {notes.administrativeDetails.subject}
                         </div>
                         <div>
-                            <span className="font-semibold">Date:</span> {notes.administrativeDetails.date}
+                            <span className="font-semibold">Date:</span> {notes.administrativeDetails.date ? format(new Date(notes.administrativeDetails.date), "PPP") : "N/A"}
                         </div>
                         <div>
                             <span className="font-semibold">Duration:</span> {notes.administrativeDetails.duration}
