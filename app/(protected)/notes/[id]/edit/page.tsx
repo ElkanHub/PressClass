@@ -33,10 +33,10 @@ const formSchema = z.object({
         duration: z.string().min(1, "Duration is required"),
     }),
     lessonSummary: z.string().min(1, "Lesson Summary is required"),
-    keyPoints: z.array(z.string().min(1, "Key point cannot be empty")),
-    examples: z.array(z.string().min(1, "Example cannot be empty")),
+    keyPoints: z.array(z.object({ value: z.string().min(1, "Key point cannot be empty") })),
+    examples: z.array(z.object({ value: z.string().min(1, "Example cannot be empty") })),
     activity: z.string().min(1, "Activity is required"),
-    resources: z.array(z.string().min(1, "Resource cannot be empty")),
+    resources: z.array(z.object({ value: z.string().min(1, "Resource cannot be empty") })),
 });
 
 export default function EditNotePage() {
@@ -67,17 +67,17 @@ export default function EditNotePage() {
 
     const { fields: keyPointsFields, append: appendKeyPoint, remove: removeKeyPoint } = useFieldArray({
         control: form.control,
-        name: "keyPoints" as any, // Type assertion needed for simple array of strings with react-hook-form
+        name: "keyPoints",
     });
 
     const { fields: examplesFields, append: appendExample, remove: removeExample } = useFieldArray({
         control: form.control,
-        name: "examples" as any,
+        name: "examples",
     });
 
     const { fields: resourcesFields, append: appendResource, remove: removeResource } = useFieldArray({
         control: form.control,
-        name: "resources" as any,
+        name: "resources",
     });
 
     useEffect(() => {
@@ -89,10 +89,16 @@ export default function EditNotePage() {
                     router.push("/notes");
                     return;
                 }
-                // Reset form with fetched data
-                // We need to ensure the structure matches the schema
-                // The data from DB has 'content' field which matches our schema structure mostly
-                form.reset(data.content);
+
+                // Transform string arrays to object arrays for the form
+                const formData = {
+                    ...data.content,
+                    keyPoints: data.content.keyPoints.map((point: string) => ({ value: point })),
+                    examples: data.content.examples.map((example: string) => ({ value: example })),
+                    resources: data.content.resources.map((resource: string) => ({ value: resource })),
+                };
+
+                form.reset(formData);
             } catch (error) {
                 console.error(error);
                 toast.error("Failed to fetch note");
@@ -109,7 +115,15 @@ export default function EditNotePage() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsSaving(true);
         try {
-            await updateNote(params.id as string, values);
+            // Transform object arrays back to string arrays for the API
+            const noteData = {
+                ...values,
+                keyPoints: values.keyPoints.map((item) => item.value),
+                examples: values.examples.map((item) => item.value),
+                resources: values.resources.map((item) => item.value),
+            };
+
+            await updateNote(params.id as string, noteData);
             toast.success("Note updated successfully");
             router.push(`/notes/${params.id}`);
         } catch (error) {
@@ -266,7 +280,7 @@ export default function EditNotePage() {
                                         type="button"
                                         variant="outline"
                                         size="sm"
-                                        onClick={() => appendKeyPoint("")}
+                                        onClick={() => appendKeyPoint({ value: "" })}
                                     >
                                         <Plus className="h-4 w-4 mr-2" /> Add Point
                                     </Button>
@@ -275,7 +289,7 @@ export default function EditNotePage() {
                                     <div key={field.id} className="flex gap-2">
                                         <FormField
                                             control={form.control}
-                                            name={`keyPoints.${index}`}
+                                            name={`keyPoints.${index}.value`}
                                             render={({ field }) => (
                                                 <FormItem className="flex-1">
                                                     <FormControl>
@@ -304,7 +318,7 @@ export default function EditNotePage() {
                                         type="button"
                                         variant="outline"
                                         size="sm"
-                                        onClick={() => appendExample("")}
+                                        onClick={() => appendExample({ value: "" })}
                                     >
                                         <Plus className="h-4 w-4 mr-2" /> Add Example
                                     </Button>
@@ -313,7 +327,7 @@ export default function EditNotePage() {
                                     <div key={field.id} className="flex gap-2">
                                         <FormField
                                             control={form.control}
-                                            name={`examples.${index}`}
+                                            name={`examples.${index}.value`}
                                             render={({ field }) => (
                                                 <FormItem className="flex-1">
                                                     <FormControl>
@@ -356,7 +370,7 @@ export default function EditNotePage() {
                                         type="button"
                                         variant="outline"
                                         size="sm"
-                                        onClick={() => appendResource("")}
+                                        onClick={() => appendResource({ value: "" })}
                                     >
                                         <Plus className="h-4 w-4 mr-2" /> Add Resource
                                     </Button>
@@ -365,7 +379,7 @@ export default function EditNotePage() {
                                     <div key={field.id} className="flex gap-2">
                                         <FormField
                                             control={form.control}
-                                            name={`resources.${index}`}
+                                            name={`resources.${index}.value`}
                                             render={({ field }) => (
                                                 <FormItem className="flex-1">
                                                     <FormControl>
