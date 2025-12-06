@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Printer, Download, FileText, ArrowLeft } from "lucide-react";
+import { Loader2, Printer, Download, FileText, ArrowLeft, Edit } from "lucide-react";
 import { toast } from "sonner";
 import { getNote } from "@/actions/notes";
 import jsPDF from "jspdf";
@@ -117,6 +117,12 @@ export default function NoteDetailPage() {
                     <h1 className="text-3xl font-bold">Note Details</h1>
                 </div>
                 <div className="flex gap-2">
+                    <Link href={`/notes/${params.id}/edit`}>
+                        <Button variant="outline">
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                        </Button>
+                    </Link>
                     <Button variant="outline" onClick={handlePrint}>
                         <Printer className="mr-2 h-4 w-4" />
                         Print

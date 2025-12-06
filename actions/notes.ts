@@ -102,3 +102,38 @@ export async function deleteNote(id: string) {
     revalidatePath("/dashboard");
     revalidatePath("/notes");
 }
+
+export async function updateNote(id: string, noteData: any) {
+    const supabase = await createClient();
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+        throw new Error("User not authenticated");
+    }
+
+    const { error } = await supabase
+        .from("notes")
+        .update({
+            school_name: noteData.administrativeDetails.school,
+            class_level: noteData.administrativeDetails.class,
+            subject: noteData.administrativeDetails.subject,
+            strand: noteData.topic.split(" - ")[0],
+            sub_strand: noteData.topic.split(" - ")[1] || "",
+            date: noteData.administrativeDetails.date,
+            week_term: noteData.administrativeDetails.weekTerm,
+            duration: noteData.administrativeDetails.duration,
+            content: noteData,
+        })
+        .eq("id", id);
+
+    if (error) {
+        console.error("Error updating note:", error);
+        throw new Error("Failed to update note");
+    }
+
+    revalidatePath("/dashboard");
+    revalidatePath("/notes");
+    revalidatePath(`/notes/${id}`);
+}
