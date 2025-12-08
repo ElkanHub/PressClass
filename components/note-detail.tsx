@@ -40,6 +40,8 @@ import {
 import { Note, updateNote, deleteNote } from "@/actions/notes";
 import { createAssessment } from "@/actions/assessments";
 
+import { AddItemModal } from "@/components/calendar/add-item-modal";
+
 interface NoteDetailProps {
     note: Note;
 }
@@ -57,6 +59,7 @@ interface NoteContent {
 export function NoteDetail({ note }: NoteDetailProps) {
     const router = useRouter();
     const [isGeneratingAssessment, setIsGeneratingAssessment] = useState(false);
+    const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [data, setData] = useState(note);
@@ -236,6 +239,10 @@ export function NoteDetail({ note }: NoteDetailProps) {
                         </>
                     ) : (
                         <>
+                            <Button variant="outline" onClick={() => setIsCalendarModalOpen(true)}>
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                Add to Calendar
+                            </Button>
                             <Button variant="outline" onClick={handleDownloadPDF}>
                                 <Download className="mr-2 h-4 w-4" />
                                 PDF
@@ -271,6 +278,14 @@ export function NoteDetail({ note }: NoteDetailProps) {
                     )}
                 </div>
             </div>
+
+            <AddItemModal
+                open={isCalendarModalOpen}
+                onOpenChange={setIsCalendarModalOpen}
+                defaultTitle={data.title}
+                defaultType="lesson"
+                defaultDescription={`Review notes for ${data.subject}: ${data.strand}`}
+            />
 
             {/* Note Content */}
             <div id="note-content" className="bg-white text-black p-8 rounded-lg shadow-lg max-w-4xl mx-auto space-y-8">
