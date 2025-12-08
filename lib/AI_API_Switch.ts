@@ -18,17 +18,21 @@ export function getAIClient() {
         });
 
         return {
-            provider: "groq",
+            provider: "groq" as const,
             client,
             model: "openai/gpt-oss-120b",
-            send: async (prompt: string) => {
+            send: async (prompt: string): Promise<string> => {
                 const completion = await client.chat.completions.create({
                     messages: [{ role: "user", content: prompt }],
                     model: "openai/gpt-oss-120b",
                     temperature: 0.5,
                 });
 
-                return completion.choices[0]?.message?.content;
+                const content = completion.choices[0]?.message?.content;
+                if (!content) {
+                    throw new Error("No content generated from GROQ API");
+                }
+                return content;
             }
         };
     }
@@ -41,12 +45,16 @@ export function getAIClient() {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
     return {
-        provider: "gemini",
+        provider: "gemini" as const,
         client: model,
         model: "gemini-2.5-flash-lite",
-        send: async (prompt: string) => {
+        send: async (prompt: string): Promise<string> => {
             const result = await model.generateContent(prompt);
-            return result.response.text();
+            const text = result.response.text();
+            if (!text) {
+                throw new Error("No content generated from Gemini API");
+            }
+            return text;
         }
     };
 }
