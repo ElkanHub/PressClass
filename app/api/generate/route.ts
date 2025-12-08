@@ -72,13 +72,34 @@ export async function POST(req: Request) {
         - Quantity: ${quantity}
         ${difficultyInstructions}
 
-        Return ONLY valid JSON:
+        Return ONLY valid JSON with this EXACT structure:
         {
-          "title": "",
+          "title": "Assessment title here",
           "classLevel": "${classLevel}",
           "topic": "${strand} - ${subStrand}",
-          "questions": []
+          "questions": [
+            {
+              "id": 1,
+              "type": "objective",
+              "question": "Question text here",
+              "options": ["Option A", "Option B", "Option C", "Option D"],
+              "answer": "Correct answer here"
+            },
+            {
+              "id": 2,
+              "type": "subjective",
+              "question": "Question text here",
+              "answer": "Expected answer or marking scheme"
+            }
+          ]
         }
+
+        IMPORTANT:
+        - Each question MUST have a unique numeric "id" starting from 1
+        - "type" must be either "objective" or "subjective"
+        - For objective questions, include "options" array with 4 choices
+        - All questions MUST have an "answer" field
+        - Generate exactly ${quantity} questions
       `;
     }
 

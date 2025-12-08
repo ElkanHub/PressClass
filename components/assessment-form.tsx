@@ -109,8 +109,16 @@ export function AssessmentForm() {
             if (!response.ok) throw new Error("Failed to generate questions");
 
             const data = await response.json();
+
+            // Ensure all questions have IDs (fallback if API doesn't provide them)
+            if (data.questions && Array.isArray(data.questions)) {
+                data.questions = data.questions.map((q: any, index: number) => ({
+                    ...q,
+                    id: q.id || index + 1, // Use API id if available, otherwise use index
+                }));
+            }
+
             // Store results in localStorage or state management to display on results page
-            // For simplicity, we'll pass it via query param or context, but localStorage is safer for large data
             localStorage.setItem("generatedAssessment", JSON.stringify(data));
             router.push("/results");
         } catch (error) {
