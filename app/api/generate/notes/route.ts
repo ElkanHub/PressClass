@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     } = body;
 
     const prompt = `
-      Create detailed curriculum-aligned lesson notes:
+      Create detailed curriculum-aligned lesson notes for students personal study:
 
       - School: ${schoolName || "N/A"}
       - Class: ${classLevel}
