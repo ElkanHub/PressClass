@@ -4,7 +4,7 @@ import React from 'react';
 import { Handle, Position } from 'reactflow';
 import { Button } from '@/components/ui/button';
 
-export default function CustomNode({ data, id }) {
+export default function CustomNode({ data, id }: { data: { title: string; content: string }; id: string }) {
     return (
         <div className="w-64 rounded-lg shadow p-3 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
             <div className="flex justify-between items-start">

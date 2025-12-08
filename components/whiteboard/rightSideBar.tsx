@@ -3,12 +3,20 @@
 import React, { useEffect, useState } from 'react';
 import { Dialog } from '@radix-ui/react-dialog';
 import { Button } from '@/components/ui/button';
+import { Node } from 'reactflow';
 
-export default function RightSidebar({ open, node, onClose, onSave }) {
+interface RightSidebarProps {
+    open: boolean;
+    node: Node | null;
+    onClose: () => void;
+    onSave: (updates: { title: string; content: string }) => void;
+}
+
+export default function RightSidebar({ open, node, onClose, onSave }: RightSidebarProps) {
     const [local, setLocal] = useState({ title: '', content: '' });
 
     useEffect(() => {
-        const handler = (e) => {
+        const handler = (e: CustomEvent<{ id: string }>) => {
             const id = e.detail.id;
             // find node
             const nodes = window.__REACT_FLOW_NODES__;
@@ -24,7 +32,7 @@ export default function RightSidebar({ open, node, onClose, onSave }) {
             }
         };
         window.addEventListener('whiteboard:edit', handler);
-        const openHandler = () => onClose(false);
+        const openHandler = () => onClose();
         window.addEventListener('whiteboard:sidebar:open', openHandler);
         return () => window.removeEventListener('whiteboard:edit', handler);
     }, []);

@@ -11,6 +11,10 @@ import ReactFlow, {
     NodeTypes,
     ReactFlowProvider,
     useReactFlow,
+    ReactFlowInstance,
+    NodeChange,
+    NodeDragHandler,
+    NodeMouseHandler,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { v4 as uuidv4 } from 'uuid';
@@ -24,12 +28,12 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 
 // Minimal styles: container should respect parent theme (tailwind)
-export default function WhiteboardPage({ }) {
+export default function WhiteboardPage() {
     const supabase = createClient();
     const nodeTypes = useMemo(() => ({ customCard: CustomNode }), []);
 
     const [nodes, setNodes] = useState<Node[]>([]);
-    const [rfInstance, setRfInstance] = useState(null);
+    const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
     const [selectedNode, setSelectedNode] = useState<Node | null>(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [boardId, setBoardId] = useState<string | null>(null);
@@ -53,7 +57,7 @@ export default function WhiteboardPage({ }) {
                 setBoardId(newId);
             }
         })();
-    }, []);
+    }, [supabase]);
 
     const loadNodes = useCallback(async (bId: string) => {
         const { data } = await supabase.from('board_nodes').select('*').eq('board_id', bId);
@@ -66,7 +70,7 @@ export default function WhiteboardPage({ }) {
             }));
             setNodes(loaded);
         }
-    }, []);
+    }, [supabase]);
 
     const saveNode = useCallback(async (node: any) => {
         if (!boardId) return;
@@ -80,21 +84,22 @@ export default function WhiteboardPage({ }) {
             position: node.position,
         };
         await supabase.from('board_nodes').upsert(payload).eq('id', node.id);
-    }, [boardId]);
+    }, [boardId, supabase]);
 
-    const onNodesChange = useCallback((changes) => {
+    const onNodesChange = useCallback((changes: NodeChange[]) => {
         // reactflow gives changes; we simply map
         setNodes((nds) => nds.map((n) => {
-            const change = changes.find((c) => c.id === n.id);
+            // Only process changes that have an 'id' property (excludes NodeAddChange)
+            const change = changes.find((c) => 'id' in c && c.id === n.id);
             if (!change) return n;
             if (change.type === 'position') {
-                return { ...n, position: (change as any).position };
+                return 'position' in change && change.position ? { ...n, position: change.position } : n;
             }
             return n;
         }));
     }, []);
 
-    const onNodeDragStop = useCallback(async (event, node) => {
+    const onNodeDragStop: NodeDragHandler = useCallback(async (event, node) => {
         // Save position
         await saveNode(node);
     }, [saveNode]);
@@ -103,7 +108,7 @@ export default function WhiteboardPage({ }) {
         const id = uuidv4();
         const basePos = { x: 100 + Math.random() * 400, y: 100 + Math.random() * 400 };
         const data = preset === 'todo' ? { title: 'Todo', content: 'To do...' } : preset === 'lesson' ? { title: 'Lesson', content: 'Lesson details...' } : { title: 'Card', content: 'Write anything...' };
-        const node = { id, type: 'customCard', position: basePos, data };
+        const node: Node = { id, type: 'customCard', position: basePos, data };
         setNodes((nds) => [...nds, node]);
         // Save
         saveNode(node);
@@ -111,7 +116,6 @@ export default function WhiteboardPage({ }) {
 
     const fitView = useCallback(() => {
         if (!rfInstance) return;
-        // @ts-ignore
         rfInstance.fitView({ padding: 0.1 });
     }, [rfInstance]);
 
@@ -129,11 +133,11 @@ export default function WhiteboardPage({ }) {
     }, []);
 
     // Snap to grid on drag stop
-    const onNodeDrag = useCallback((event, node) => {
+    const onNodeDrag: NodeDragHandler = useCallback((event, node) => {
         // optional real-time snapping
     }, []);
 
-    const onNodeDoubleClick = useCallback((evt, node) => {
+    const onNodeDoubleClick: NodeMouseHandler = useCallback((evt, node) => {
         // don't open editor on tap — use Edit button on node
     }, []);
 
@@ -151,7 +155,7 @@ export default function WhiteboardPage({ }) {
                 <ReactFlowProvider>
                     <ReactFlow
                         nodes={nodes}
-                        onNodesChange={setNodes}
+                        onNodesChange={onNodesChange}
                         onNodeDragStop={onNodeDragStop}
                         nodeTypes={nodeTypes}
                         minZoom={minZoom}
