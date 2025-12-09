@@ -4,7 +4,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export type AIProvider = "groq" | "gemini";
 
-export const ACTIVE_PROVIDER: AIProvider = "gemini";
+export const ACTIVE_PROVIDER: AIProvider = "groq";
 // Change to "gemini" anytime you want
 
 export function getAIClient() {
