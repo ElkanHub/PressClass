@@ -29,18 +29,24 @@ export async function POST(req: Request) {
       - Week/Term: ${weekTerm}
       - Duration: ${duration}
 
+      IMPORTANT FORMATTING INSTRUCTIONS:
+      - For text fields (rpk, starter, development, reflection), use \\n for line breaks between sentences or points
+      - Use \\n\\n for paragraph breaks
+      - Write in clear, well-structured paragraphs
+      - Each stage should have multiple paragraphs with proper spacing
+
       Return ONLY valid JSON:
       {
-        "objectives": [],
-        "rpk": "",
-        "materials": [],
+        "objectives": ["objective 1", "objective 2", ...],
+        "rpk": "Previous knowledge text with proper\\n\\nline breaks between paragraphs",
+        "materials": ["material 1", "material 2", ...],
         "stages": {
-          "starter": "",
-          "development": "",
-          "reflection": ""
+          "starter": "Introduction text with\\n\\nproper paragraph breaks",
+          "development": "Main lesson content with\\n\\nmultiple paragraphs\\n\\nand clear structure",
+          "reflection": "Reflection text with\\n\\nproper formatting"
         },
-        "corePoints": [],
-        "evaluation": []
+        "corePoints": ["point 1", "point 2", ...],
+        "evaluation": ["question 1", "question 2", ...]
       }
     `;
 

@@ -67,6 +67,29 @@ export function LessonPlanDetail({ lessonPlan }: LessonPlanDetailProps) {
     const [data, setData] = useState(lessonPlan);
     const [content, setContent] = useState(lessonPlan.content as LessonPlanContent);
 
+    // Helper function to format text with proper line breaks and paragraphs
+    const formatText = (text: string | undefined) => {
+        if (!text) return null;
+
+        // Split by double line breaks for paragraphs, or single line breaks
+        const paragraphs = text.split(/\n\n+/).filter(p => p.trim());
+
+        return paragraphs.map((para, idx) => {
+            // Split each paragraph by single line breaks
+            const lines = para.split(/\n/).filter(l => l.trim());
+            return (
+                <p key={idx} className="mb-3 last:mb-0">
+                    {lines.map((line, lineIdx) => (
+                        <span key={lineIdx}>
+                            {line}
+                            {lineIdx < lines.length - 1 && <br />}
+                        </span>
+                    ))}
+                </p>
+            );
+        });
+    };
+
     const handleSave = async () => {
         setIsSaving(true);
         try {
@@ -398,9 +421,11 @@ export function LessonPlanDetail({ lessonPlan }: LessonPlanDetailProps) {
                     </h2>
                     <div className="bg-gray-50 p-4 rounded-md">
                         {isEditing ? (
-                            <Textarea value={content.rpk || ""} onChange={(e) => handleContentChange('rpk', e.target.value)} />
+                            <Textarea value={content.rpk || ""} onChange={(e) => handleContentChange('rpk', e.target.value)} rows={4} />
                         ) : (
-                            <p>{content.rpk}</p>
+                            <div className="text-gray-700 leading-relaxed">
+                                {formatText(content.rpk)}
+                            </div>
                         )}
                     </div>
                 </section>
@@ -446,25 +471,31 @@ export function LessonPlanDetail({ lessonPlan }: LessonPlanDetailProps) {
                         <div className="border-l-4 border-green-500 pl-4 py-2 bg-green-50 rounded-r-md">
                             <h3 className="font-bold text-green-700">Starter / Introduction</h3>
                             {isEditing ? (
-                                <Textarea value={content.stages?.starter || ""} onChange={(e) => handleStageChange('starter', e.target.value)} className="mt-1 bg-white" />
+                                <Textarea value={content.stages?.starter || ""} onChange={(e) => handleStageChange('starter', e.target.value)} className="mt-1 bg-white" rows={4} />
                             ) : (
-                                <p className="mt-1">{content.stages?.starter}</p>
+                                <div className="mt-2 text-gray-700 leading-relaxed">
+                                    {formatText(content.stages?.starter)}
+                                </div>
                             )}
                         </div>
                         <div className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50 rounded-r-md">
                             <h3 className="font-bold text-blue-700">Main Development</h3>
                             {isEditing ? (
-                                <Textarea value={content.stages?.development || ""} onChange={(e) => handleStageChange('development', e.target.value)} className="mt-1 bg-white min-h-[150px]" />
+                                <Textarea value={content.stages?.development || ""} onChange={(e) => handleStageChange('development', e.target.value)} className="mt-1 bg-white min-h-[150px]" rows={8} />
                             ) : (
-                                <p className="mt-1">{content.stages?.development}</p>
+                                <div className="mt-2 text-gray-700 leading-relaxed">
+                                    {formatText(content.stages?.development)}
+                                </div>
                             )}
                         </div>
                         <div className="border-l-4 border-orange-500 pl-4 py-2 bg-orange-50 rounded-r-md">
                             <h3 className="font-bold text-orange-700">Reflection / Plenary</h3>
                             {isEditing ? (
-                                <Textarea value={content.stages?.reflection || ""} onChange={(e) => handleStageChange('reflection', e.target.value)} className="mt-1 bg-white" />
+                                <Textarea value={content.stages?.reflection || ""} onChange={(e) => handleStageChange('reflection', e.target.value)} className="mt-1 bg-white" rows={4} />
                             ) : (
-                                <p className="mt-1">{content.stages?.reflection}</p>
+                                <div className="mt-2 text-gray-700 leading-relaxed">
+                                    {formatText(content.stages?.reflection)}
+                                </div>
                             )}
                         </div>
                     </div>
