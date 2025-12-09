@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     } = body;
 
     const prompt = `
-      Create detailed curriculum-aligned lesson notes for students personal study:
+      Create detailed curriculum-aligned personal lesson notes for students personal study:
 
       - School: ${schoolName || "N/A"}
       - Class: ${classLevel}
@@ -51,11 +51,11 @@ export async function POST(req: Request) {
       IMPORTANT:
       - administrativeDetails must contain all fields: school, class, subject, date, duration, weekTerm
       - topic should be a clear, concise title for the lesson
-      - lessonSummary should be a detailed paragraph explaining the lesson
-      - keyPoints should be an array of 3-5 important points
+      - lessonSummary should be a detailed three paragraph explanation of the topic. This is the go to for students to understand the topic
+      - keyPoints should be an array of 3-5(or more if neccesary) important points
       - examples should be an array of practical examples
-      - activity should describe a learning activity for students
-      - resources should be an array of helpful learning resources
+      - activity should describe a learning activity for the student to help them understand the topic
+      - resources should be an array of helpful learning resources(external links to learn more on the internet)
     `;
 
     const ai = getAIClient();
