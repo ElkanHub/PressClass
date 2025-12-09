@@ -1,23 +1,23 @@
 import { getAssessments } from "@/actions/assessments";
-import { AssessmentList } from "@/components/assessments/assessment-list";
-import { Pagination } from "@/components/ui/pagination";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Plus } from "lucide-react";
-
+import { Plus, FileText, Calendar, GraduationCap } from "lucide-react";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 
-export default async function AssessmentsPage({
-    searchParams,
-}: {
-    searchParams: Promise<{ page?: string }>;
-}) {
-    const params = await searchParams;
-    const page = Number(params.page) || 1;
-    const limit = 10;
+export default async function AssessmentsPage() {
+    // Fetch all assessments (no pagination for grouping)
+    const { data: assessments } = await getAssessments(1, 1000);
 
-    const { data: assessments, count } = await getAssessments(page, limit);
-    const totalPages = Math.ceil(count / limit);
+    // Group assessments by subject
+    const assessmentsBySubject = assessments.reduce((acc: any, assessment: any) => {
+        const subject = assessment.topic || "Uncategorized";
+        if (!acc[subject]) {
+            acc[subject] = [];
+        }
+        acc[subject].push(assessment);
+        return acc;
+    }, {});
 
     return (
         <div className="flex-1 w-full flex flex-col gap-8 p-4 md:p-8 max-w-7xl mx-auto">
@@ -39,14 +39,48 @@ export default async function AssessmentsPage({
                 </Button>
             </div>
 
-            <div className="space-y-4">
-                <AssessmentList assessments={assessments} />
-                <Pagination
-                    currentPage={page}
-                    totalPages={totalPages}
-                    baseUrl="/assessments"
-                />
-            </div>
+            {(!assessments || assessments.length === 0) && (
+                <div className="text-center py-12 text-muted-foreground">
+                    <p>No assessments found. Start by creating one!</p>
+                </div>
+            )}
+
+            {Object.entries(assessmentsBySubject || {}).map(([subject, subjectAssessments]: [string, any]) => (
+                <div key={subject} className="space-y-4">
+                    <h2 className="text-2xl font-semibold border-b pb-2">{subject}</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {subjectAssessments.map((assessment: any) => (
+                            <Card key={assessment.id} className="hover:shadow-lg transition-shadow">
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg line-clamp-1">{assessment.title}</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="text-sm text-muted-foreground space-y-1">
+                                        <div className="flex items-center">
+                                            <GraduationCap className="mr-2 h-4 w-4" />
+                                            {assessment.class_level}
+                                        </div>
+                                        <div className="flex items-center">
+                                            <FileText className="mr-2 h-4 w-4" />
+                                            {assessment.questions?.length || 0} questions
+                                        </div>
+                                        <div className="flex items-center">
+                                            <Calendar className="mr-2 h-4 w-4" />
+                                            {new Date(assessment.created_at).toLocaleDateString()}
+                                        </div>
+                                    </div>
+
+                                    <Link href={`/assessments/${assessment.id}`} className="w-full block">
+                                        <Button variant="outline" className="w-full">
+                                            <FileText className="mr-2 h-4 w-4" /> View Assessment
+                                        </Button>
+                                    </Link>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                </div>
+            ))}
         </div>
     );
 }
