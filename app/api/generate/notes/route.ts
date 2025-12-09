@@ -30,16 +30,32 @@ export async function POST(req: Request) {
       - Week/Term: ${weekTerm}
       - Duration: ${duration}
 
-      Return ONLY valid JSON:
+      Return ONLY valid JSON with this EXACT structure:
       {
-        "administrativeDetails": {},
-        "topic": "",
-        "lessonSummary": "",
-        "keyPoints": [],
-        "examples": [],
-        "activity": "",
-        "resources": []
+        "administrativeDetails": {
+          "school": "${schoolName || "N/A"}",
+          "class": "${classLevel}",
+          "subject": "${subject}",
+          "date": "${date}",
+          "duration": "${duration}",
+          "weekTerm": "${weekTerm}"
+        },
+        "topic": "Main topic title here",
+        "lessonSummary": "Comprehensive lesson summary here",
+        "keyPoints": ["Key point 1", "Key point 2", "Key point 3"],
+        "examples": ["Example 1", "Example 2"],
+        "activity": "Student activity description here",
+        "resources": ["Resource 1", "Resource 2"]
       }
+
+      IMPORTANT:
+      - administrativeDetails must contain all fields: school, class, subject, date, duration, weekTerm
+      - topic should be a clear, concise title for the lesson
+      - lessonSummary should be a detailed paragraph explaining the lesson
+      - keyPoints should be an array of 3-5 important points
+      - examples should be an array of practical examples
+      - activity should describe a learning activity for students
+      - resources should be an array of helpful learning resources
     `;
 
     const ai = getAIClient();

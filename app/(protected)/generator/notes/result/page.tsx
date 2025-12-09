@@ -53,12 +53,12 @@ export default function NotesResultPage() {
         const doc = new jsPDF();
 
         doc.setFontSize(20);
-        doc.text(notes.topic, 10, 20);
+        doc.text(notes.topic || "Lesson Notes", 10, 20);
 
         doc.setFontSize(12);
-        doc.text(`Subject: ${notes.administrativeDetails.subject}`, 10, 30);
-        doc.text(`Class: ${notes.administrativeDetails.class}`, 10, 40);
-        doc.text(`Date: ${notes.administrativeDetails.date}`, 10, 50);
+        doc.text(`Subject: ${notes.administrativeDetails?.subject || "N/A"}`, 10, 30);
+        doc.text(`Class: ${notes.administrativeDetails?.class || "N/A"}`, 10, 40);
+        doc.text(`Date: ${notes.administrativeDetails?.date || "N/A"}`, 10, 50);
 
         let y = 60;
 
@@ -74,11 +74,13 @@ export default function NotesResultPage() {
         doc.text("Key Points", 10, y);
         y += 10;
         doc.setFontSize(12);
-        notes.keyPoints.forEach((point: string) => {
-            const pointLines = doc.splitTextToSize(`• ${point}`, 180);
-            doc.text(pointLines, 10, y);
-            y += pointLines.length * 7;
-        });
+        if (notes.keyPoints && notes.keyPoints.length > 0) {
+            notes.keyPoints.forEach((point: string) => {
+                const pointLines = doc.splitTextToSize(`• ${point}`, 180);
+                doc.text(pointLines, 10, y);
+                y += pointLines.length * 7;
+            });
+        }
         y += 10;
 
         // Add new page if content overflows (simplified check)
@@ -129,25 +131,25 @@ export default function NotesResultPage() {
                 <CardHeader className="border-b bg-muted/50 print:bg-transparent print:border-none">
                     <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                            <span className="font-semibold">School:</span> {notes.administrativeDetails.school}
+                            <span className="font-semibold">School:</span> {notes.administrativeDetails?.school || "N/A"}
                         </div>
                         <div>
-                            <span className="font-semibold">Class:</span> {notes.administrativeDetails.class}
+                            <span className="font-semibold">Class:</span> {notes.administrativeDetails?.class || "N/A"}
                         </div>
                         <div>
-                            <span className="font-semibold">Subject:</span> {notes.administrativeDetails.subject}
+                            <span className="font-semibold">Subject:</span> {notes.administrativeDetails?.subject || "N/A"}
                         </div>
                         <div>
-                            <span className="font-semibold">Date:</span> {notes.administrativeDetails.date ? format(new Date(notes.administrativeDetails.date), "PPP") : "N/A"}
+                            <span className="font-semibold">Date:</span> {notes.administrativeDetails?.date ? format(new Date(notes.administrativeDetails.date), "PPP") : "N/A"}
                         </div>
                         <div>
-                            <span className="font-semibold">Duration:</span> {notes.administrativeDetails.duration}
+                            <span className="font-semibold">Duration:</span> {notes.administrativeDetails?.duration || "N/A"}
                         </div>
                         <div>
-                            <span className="font-semibold">Week/Term:</span> {notes.administrativeDetails.weekTerm}
+                            <span className="font-semibold">Week/Term:</span> {notes.administrativeDetails?.weekTerm || "N/A"}
                         </div>
                     </div>
-                    <CardTitle className="mt-4 text-2xl text-center">{notes.topic}</CardTitle>
+                    <CardTitle className="mt-4 text-2xl text-center">{notes.topic || "Lesson Notes"}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6 p-6">
                     <section>
@@ -162,36 +164,48 @@ export default function NotesResultPage() {
                     <section>
                         <h3 className="text-lg font-semibold mb-2">Key Points</h3>
                         <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
-                            {notes.keyPoints.map((point: string, index: number) => (
-                                <li key={index}>{point}</li>
-                            ))}
+                            {notes.keyPoints && notes.keyPoints.length > 0 ? (
+                                notes.keyPoints.map((point: string, index: number) => (
+                                    <li key={index}>{point}</li>
+                                ))
+                            ) : (
+                                <li>No key points available</li>
+                            )}
                         </ul>
                     </section>
 
                     <section>
                         <h3 className="text-lg font-semibold mb-2">Examples</h3>
                         <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
-                            {notes.examples.map((example: string, index: number) => (
-                                <li key={index}>{example}</li>
-                            ))}
+                            {notes.examples && notes.examples.length > 0 ? (
+                                notes.examples.map((example: string, index: number) => (
+                                    <li key={index}>{example}</li>
+                                ))
+                            ) : (
+                                <li>No examples available</li>
+                            )}
                         </ul>
                     </section>
 
                     <section>
                         <h3 className="text-lg font-semibold mb-2">Activity</h3>
-                        <p className="text-muted-foreground">{notes.activity}</p>
+                        <p className="text-muted-foreground">{notes.activity || "No activity specified"}</p>
                     </section>
 
                     <section>
                         <h3 className="text-lg font-semibold mb-2">Resources</h3>
                         <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
-                            {notes.resources.map((resource: string, index: number) => (
-                                <li key={index}>
-                                    <a href={resource} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                                        {resource}
-                                    </a>
-                                </li>
-                            ))}
+                            {notes.resources && notes.resources.length > 0 ? (
+                                notes.resources.map((resource: string, index: number) => (
+                                    <li key={index}>
+                                        <a href={resource} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                                            {resource}
+                                        </a>
+                                    </li>
+                                ))
+                            ) : (
+                                <li>No resources available</li>
+                            )}
                         </ul>
                     </section>
                 </CardContent>
