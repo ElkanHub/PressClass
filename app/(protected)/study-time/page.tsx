@@ -39,6 +39,10 @@ export default function StudyTimePage() {
     const [isRunning, setIsRunning] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
 
+    // Pomodoro-specific state
+    const [pomodoroPhase, setPomodoroPhase] = useState<'work' | 'break'>('work');
+    const [pomodoroSessionCount, setPomodoroSessionCount] = useState(0);
+
     // Session tracking
     const [sessionId, setSessionId] = useState<string | null>(null);
     const [sessionStartTime, setSessionStartTime] = useState<string | null>(null);
@@ -83,19 +87,26 @@ export default function StudyTimePage() {
         if (isRunning && !isPaused) {
             intervalRef.current = setInterval(() => {
                 setTime((prev) => {
-                    if (mode === 'countdown' && prev <= 1) {
+                    // Pomodoro and Countdown both count down
+                    if ((mode === 'countdown' || mode === 'pomodoro') && prev <= 1) {
                         handleTimerComplete();
                         return 0;
                     }
-                    return mode === 'countdown' ? prev - 1 : prev + 1;
+                    // Countdown and Pomodoro count down, Stopwatch counts up
+                    return (mode === 'countdown' || mode === 'pomodoro') ? prev - 1 : prev + 1;
                 });
-                setTimeSpent((prev) => prev + 1);
+                // Only track time spent during work phase for Pomodoro
+                if (mode !== 'pomodoro' || pomodoroPhase === 'work') {
+                    setTimeSpent((prev) => prev + 1);
+                }
             }, 1000);
 
-            // Track current streak
-            streakIntervalRef.current = setInterval(() => {
-                setCurrentStreak((prev) => prev + 1);
-            }, 1000);
+            // Track current streak (only during work phase for Pomodoro)
+            if (mode !== 'pomodoro' || pomodoroPhase === 'work') {
+                streakIntervalRef.current = setInterval(() => {
+                    setCurrentStreak((prev) => prev + 1);
+                }, 1000);
+            }
         } else {
             if (intervalRef.current) clearInterval(intervalRef.current);
             if (streakIntervalRef.current) clearInterval(streakIntervalRef.current);
@@ -105,11 +116,46 @@ export default function StudyTimePage() {
             if (intervalRef.current) clearInterval(intervalRef.current);
             if (streakIntervalRef.current) clearInterval(streakIntervalRef.current);
         };
-    }, [isRunning, isPaused, mode]);
+    }, [isRunning, isPaused, mode, pomodoroPhase]);
 
     const handleTimerComplete = () => {
-        setIsRunning(false);
-        handleEndSession();
+        // For Pomodoro, transition between work and break
+        if (mode === 'pomodoro') {
+            if (pomodoroPhase === 'work') {
+                // Work session complete, start break
+                setPomodoroPhase('break');
+                const newSessionCount = pomodoroSessionCount + 1;
+                setPomodoroSessionCount(newSessionCount);
+
+                // Determine break duration (long break every N sessions)
+                const isLongBreak = newSessionCount % settings.longBreakInterval === 0;
+                const breakDuration = isLongBreak ? settings.longBreakDuration : settings.breakDuration;
+
+                setTime(breakDuration * 60);
+                setTotalTime(breakDuration * 60);
+                setIsRunning(true);
+
+                toast({
+                    title: isLongBreak ? '🎉 Long Break Time!' : '☕ Break Time!',
+                    description: `Great work! Take a ${breakDuration} minute break.`,
+                });
+            } else {
+                // Break complete, ask if user wants to continue or end session
+                setIsRunning(false);
+                toast({
+                    title: '✅ Break Complete!',
+                    description: 'Ready for another work session? Click Start to continue or End Session to finish.',
+                });
+                // Reset to work phase for next session
+                setPomodoroPhase('work');
+                setTime(settings.workDuration * 60);
+                setTotalTime(settings.workDuration * 60);
+            }
+        } else {
+            // For Countdown and Stopwatch, end the session
+            setIsRunning(false);
+            handleEndSession();
+        }
     };
 
     const handleStart = async () => {
@@ -118,6 +164,8 @@ export default function StudyTimePage() {
         let total = 0;
 
         if (mode === 'pomodoro') {
+            // Always start with work phase
+            setPomodoroPhase('work');
             initialTime = settings.workDuration * 60;
             total = settings.workDuration * 60;
         } else if (mode === 'countdown') {
@@ -135,28 +183,34 @@ export default function StudyTimePage() {
         setTimeSpent(0);
         setCurrentStreak(0);
         setPauseCount(0);
+        setPomodoroSessionCount(0);
 
-        // Create session in database
-        const startTime = new Date().toISOString();
-        setSessionStartTime(startTime);
+        // Create session in database (only if starting fresh, not resuming from break)
+        if (!sessionId) {
+            const startTime = new Date().toISOString();
+            setSessionStartTime(startTime);
 
-        const { data, error } = await createStudySession({
-            session_type: mode,
-            start_time: startTime,
-            settings: settings,
-        });
-
-        if (error) {
-            toast({
-                title: 'Error',
-                description: 'Failed to start session. Please try again.',
-                variant: 'destructive',
+            const { data, error } = await createStudySession({
+                session_type: mode,
+                start_time: startTime,
+                settings: settings,
             });
-            return;
-        }
 
-        if (data) {
-            setSessionId(data.id);
+            if (error) {
+                toast({
+                    title: 'Error',
+                    description: 'Failed to start session. Please try again.',
+                    variant: 'destructive',
+                });
+                return;
+            }
+
+            if (data) {
+                setSessionId(data.id);
+            }
+        } else {
+            // Resuming from break, just restart the timer
+            setIsRunning(true);
         }
     };
 
@@ -224,6 +278,8 @@ export default function StudyTimePage() {
         setPauseCount(0);
         setSessionId(null);
         setSessionStartTime(null);
+        setPomodoroPhase('work');
+        setPomodoroSessionCount(0);
 
         // Reload analytics
         loadAnalytics();
@@ -385,10 +441,25 @@ export default function StudyTimePage() {
                 {/* Timer Display */}
                 <TimerDisplay
                     time={time}
-                    mode={mode}
+                    mode={mode === 'pomodoro' && pomodoroPhase === 'break' ? 'countdown' : mode}
                     isRunning={isRunning}
                     totalTime={totalTime}
                 />
+
+                {/* Pomodoro Phase Indicator */}
+                {mode === 'pomodoro' && (isRunning || isPaused) && (
+                    <div className="text-center">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted">
+                            <div className={`w-2 h-2 rounded-full ${pomodoroPhase === 'work' ? 'bg-primary' : 'bg-green-500'}`} />
+                            <span className="text-sm font-medium">
+                                {pomodoroPhase === 'work' ? '🎯 Work Session' : '☕ Break Time'}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                                Session {pomodoroSessionCount + (pomodoroPhase === 'work' ? 1 : 0)}
+                            </span>
+                        </div>
+                    </div>
+                )}
 
                 {/* Timer Controls */}
                 <TimerControls
@@ -405,7 +476,7 @@ export default function StudyTimePage() {
                     <div className="w-full max-w-3xl">
                         <LiveSessionInsights
                             timeSpent={timeSpent}
-                            timeRemaining={mode === 'countdown' ? time : undefined}
+                            timeRemaining={(mode === 'countdown' || mode === 'pomodoro') ? time : undefined}
                             pauseCount={pauseCount}
                             currentStreak={currentStreak}
                         />
