@@ -1,8 +1,9 @@
 // app/dashboard/page.tsx
-import { Plus } from "lucide-react";
+import { Plus, Clock } from "lucide-react";
 import { getAssessments } from "@/actions/assessments";
 import { getLessonPlans } from "@/actions/lesson-plans";
 import { getNotes } from "@/actions/notes";
+import { getStudyAnalytics } from "@/actions/study-time";
 import { AssessmentList } from "@/components/assessments/assessment-list";
 import { LessonPlanList } from "@/components/lesson-plan-list";
 import { NoteList } from "@/components/note-list";
@@ -16,11 +17,13 @@ export default async function DashboardPage() {
     const [
         { data: assessments, count: assessmentsCount },
         { data: lessonPlans, count: lessonPlansCount },
-        { data: notes, count: notesCount }
+        { data: notes, count: notesCount },
+        { data: studyAnalytics }
     ] = await Promise.all([
         getAssessments(1, 6),
         getLessonPlans(1, 6),
         getNotes(1, 6),
+        getStudyAnalytics(),
     ]);
 
     return (
@@ -43,7 +46,7 @@ export default async function DashboardPage() {
             </div>
 
             {/* Stats */}
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-4">
                 <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-6">
                     <h3 className="tracking-tight text-sm font-medium text-muted-foreground">
                         Total Assessments
@@ -62,6 +65,15 @@ export default async function DashboardPage() {
                     </h3>
                     <div className="text-2xl font-bold mt-2">{notesCount}</div>
                 </div>
+                <Link href="/study-time" className="rounded-xl border bg-gradient-to-br from-primary/10 to-purple-500/10 hover:from-primary/20 hover:to-purple-500/20 transition-all shadow-sm p-6 flex flex-col">
+                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground mb-2">
+                        <Clock className="h-4 w-4 text-primary" />
+                        Study Time This Week
+                    </div>
+                    <div className="text-2xl font-bold">
+                        {studyAnalytics ? `${Math.floor(studyAnalytics.totalMinutesThisWeek / 60)}h ${studyAnalytics.totalMinutesThisWeek % 60}m` : '0h 0m'}
+                    </div>
+                </Link>
             </div>
 
             {/* Assessments */}
