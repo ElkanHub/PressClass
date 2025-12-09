@@ -25,7 +25,13 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Plus, Menu } from 'lucide-react';
 
 // Minimal styles: container should respect parent theme (tailwind)
 export default function WhiteboardPage() {
@@ -144,11 +150,46 @@ export default function WhiteboardPage() {
     return (
         <div className="w-full h-[85vh] bg-neutral-50 dark:bg-neutral-900">
             <div className="flex items-center gap-2 p-3">
-                <Button onClick={() => addCard('lesson')} className="flex items-center gap-2"><Plus />Add Lesson</Button>
-                <Button onClick={() => addCard('todo')} className="flex items-center gap-2"><Plus />Add Todo</Button>
-                <Button onClick={() => addCard()} className="flex items-center gap-2"><Plus />Add Card</Button>
-                <Button onClick={fitView}>Center View</Button>
-                <Button onClick={exportAsImage}>Export PDF</Button>
+                {/* Mobile Dropdown Menu - visible on screens < 768px */}
+                <div className="md:hidden">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button className="flex items-center gap-2">
+                                <Menu className="h-4 w-4" />
+                                Actions
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="w-48">
+                            <DropdownMenuItem onClick={() => addCard('lesson')}>
+                                <Plus className="h-4 w-4" />
+                                Add Lesson
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => addCard('todo')}>
+                                <Plus className="h-4 w-4" />
+                                Add Todo
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => addCard()}>
+                                <Plus className="h-4 w-4" />
+                                Add Card
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={fitView}>
+                                Center View
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={exportAsImage}>
+                                Export PDF
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+
+                {/* Desktop Buttons - visible on screens ≥ 768px */}
+                <div className="hidden md:flex items-center gap-2">
+                    <Button onClick={() => addCard('lesson')} className="flex items-center gap-2"><Plus />Add Lesson</Button>
+                    <Button onClick={() => addCard('todo')} className="flex items-center gap-2"><Plus />Add Todo</Button>
+                    <Button onClick={() => addCard()} className="flex items-center gap-2"><Plus />Add Card</Button>
+                    <Button onClick={fitView}>Center View</Button>
+                    <Button onClick={exportAsImage}>Export PDF</Button>
+                </div>
             </div>
 
             <div style={{ width: '100%', height: 'calc(85vh - 56px)' }}>
