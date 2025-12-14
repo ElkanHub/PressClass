@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Zap } from "lucide-react"
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -70,6 +71,14 @@ export function SignUpForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
+      <div className="h-16 flex items-center justify-center px-6 border-b border-border/50">
+        <Link href="/" className="flex items-center justify-center gap-2 font-bold text-3xl text-primary">
+          <div className="bg-primary/10 p-1.5 rounded-lg">
+            <Zap className="h-5 w-5 text-primary" />
+          </div>
+          <span>PressClass</span>
+        </Link>
+      </div>
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl">Sign up</CardTitle>

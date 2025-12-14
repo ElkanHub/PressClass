@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { School, GraduationCap, BookOpen, User } from "lucide-react";
+import { School, GraduationCap, BookOpen, User, Zap } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 
@@ -35,6 +35,14 @@ export default function SignupRoleSelection() {
         <div className="flex min-h-screen items-center justify-center bg-muted/50 p-4">
             <div className="w-full max-w-4xl space-y-8">
                 <div className="text-center space-y-2">
+                    <div className="h-16 flex items-center justify-center px-6 border-b border-border/50">
+                        <Link href="/" className="flex items-center justify-center gap-2 font-bold text-3xl text-primary">
+                            <div className="bg-primary/10 p-1.5 rounded-lg">
+                                <Zap className="h-5 w-5 text-primary" />
+                            </div>
+                            <span>PressClass</span>
+                        </Link>
+                    </div>
                     <h1 className="text-3xl font-bold tracking-tight">Join PressClass AI</h1>
                     <p className="text-muted-foreground">Choose how you want to use the platform.</p>
                 </div>

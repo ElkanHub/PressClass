@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2, School } from "lucide-react";
+import { Loader2, School, Zap } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -82,6 +82,14 @@ export default function SchoolSignup() {
         <div className="flex min-h-screen items-center justify-center bg-muted/50 p-4">
             <Card className="w-full max-w-md">
                 <CardHeader className="space-y-1">
+                    <div className="h-16 flex items-center justify-start px-0 border-b border-border/50">
+                        <Link href="/" className="flex items-center justify-center gap-2 font-bold text-3xl text-primary">
+                            <div className="bg-primary/10 p-1.5 rounded-lg">
+                                <Zap className="h-5 w-5 text-primary" />
+                            </div>
+                            <span>PressClass</span>
+                        </Link>
+                    </div>
                     <div className="flex items-center gap-2 mb-2">
                         <School className="h-6 w-6 text-primary" />
                         <CardTitle className="text-2xl">School Registration</CardTitle>
