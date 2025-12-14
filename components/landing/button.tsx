@@ -1,12 +1,30 @@
 import React from 'react';
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    variant?: 'primary' | 'secondary' | 'dark' | 'link';
+type ButtonVariants = 'primary' | 'secondary' | 'dark' | 'link';
+
+interface BaseProps {
+    variant?: ButtonVariants;
     icon?: React.ElementType;
+    className?: string;
+    children: React.ReactNode;
 }
 
-const Button = ({ children, variant = 'primary', className = '', icon: Icon, ...props }: ButtonProps) => {
-    const baseStyles = "inline-flex items-center justify-center px-6 py-3 rounded-full font-medium transition-all duration-200 text-sm md:text-base";
+type ButtonProps<T extends React.ElementType> = BaseProps & {
+    as?: T;
+} & React.ComponentPropsWithoutRef<T>;
+
+const Button = <T extends React.ElementType = 'button'>({
+    as,
+    children,
+    variant = 'primary',
+    className = '',
+    icon: Icon,
+    ...props
+}: ButtonProps<T>) => {
+    const Component = as || 'button';
+
+    const baseStyles =
+        "inline-flex items-center justify-center px-6 py-3 rounded-full font-medium transition-all duration-200 text-sm md:text-base";
 
     const variants = {
         primary: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20",
@@ -17,10 +35,13 @@ const Button = ({ children, variant = 'primary', className = '', icon: Icon, ...
     };
 
     return (
-        <button className={`${baseStyles} ${variants[variant]} ${className}`} {...props}>
+        <Component
+            className={`${baseStyles} ${variants[variant]} ${className}`}
+            {...props}
+        >
             {children}
             {Icon && <Icon className="ml-2 w-4 h-4" />}
-        </button>
+        </Component>
     );
 };
 

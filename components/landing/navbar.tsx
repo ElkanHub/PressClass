@@ -27,7 +27,7 @@ const Navbar = () => {
 
                     <div className="hidden md:flex items-center gap-4">
                         <Link href="/auth/login" className="text-sm font-medium text-foreground hover:text-primary transition-colors">Log In</Link>
-                        <Button className="w-full"><Link href="/auth/signup">Sign Up</Link></Button>
+                        <Button as={Link} href="/auth/signup" className="w-full">Sign Up</Button>
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -48,7 +48,7 @@ const Navbar = () => {
                     <a href="#" className="block text-base font-medium text-muted-foreground hover:text-foreground">Changelog</a>
                     <div className="pt-4 border-t border-border flex flex-col gap-3">
                         <Link href="/auth/login" className="text-center font-medium text-foreground">Log In</Link>
-                        <Button className="w-full"><Link href="/auth/signup">Sign Up</Link></Button>
+                        <Button as={Link} href="/auth/signup" className="w-full">Sign Up</Button>
                     </div>
                 </div>
             )}

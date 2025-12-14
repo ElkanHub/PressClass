@@ -28,11 +28,11 @@ const Hero = () => {
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
-                    <Button className="w-full sm:w-auto h-12 px-8 text-base">
-                        <Link href="/auth/login">Start for FREE</Link>
+                    <Button as={Link} href="/auth/signup" className="w-full sm:w-auto h-12 px-8 text-base">
+                        Start for FREE
                         <ChevronRight className="w-4 h-4 ml-1" />
                     </Button>
-                    <Button variant="secondary" className="w-full sm:w-auto h-12 px-8 text-base group">
+                    <Button variant="secondary" as={Link} href="#" className="w-full sm:w-auto h-12 px-8 text-base group">
                         <Play className="w-4 h-4 mr-2 text-muted-foreground group-hover:text-primary transition-colors" />
                         Book a demo
                     </Button>

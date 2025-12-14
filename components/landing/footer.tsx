@@ -54,7 +54,7 @@ const Footer = () => {
 
                 <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-xs text-muted-foreground">
-                        © 2024 PressClass Inc. All rights reserved.
+                        © 2025 PressClass Inc. All rights reserved.
                     </p>
                     <div className="flex gap-6 text-xs text-muted-foreground">
                         <a href="#" className="hover:text-foreground">Privacy Policy</a>
