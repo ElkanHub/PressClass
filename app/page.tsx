@@ -1420,9 +1420,15 @@ import {
   School
 } from 'lucide-react';
 import FlowGradient from "@/components/unicornOrb"
+import Image from "next/image"
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'secondary' | 'dark' | 'link';
+  icon?: React.ElementType;
+}
 
 // Reusable Button Component
-const Button = ({ children, variant = 'primary', className = '', icon: Icon = null, ...props }) => {
+const Button = ({ children, variant = 'primary', className = '', icon: Icon, ...props }: ButtonProps) => {
   const baseStyles = "inline-flex items-center justify-center px-6 py-3 rounded-full font-medium transition-all duration-200 text-sm md:text-base";
 
   const variants = {
@@ -1496,10 +1502,16 @@ const Navbar = () => {
 };
 
 // Mock Dashboard Component for Hero
+
+interface MockDashboardProps {
+  images?: string[];
+  interval?: number;
+}
+
 const MockDashboard = ({
   images = ["/dashboard1.png"],
   interval = 3000
-}) => {
+}: MockDashboardProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -1532,10 +1544,12 @@ const MockDashboard = ({
             className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
               }`}
           >
-            <img
+            <Image
               src={img}
               alt={`Dashboard View ${index + 1}`}
-              className="w-full h-full object-cover object-center"
+              className="object-cover object-center"
+              fill
+              unoptimized
             />
           </div>
         ))}
