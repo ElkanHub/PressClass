@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRight, ChevronRight, Play } from 'lucide-react';
 import Button from './button';
+import Link from 'next/link';
 import MockDashboard from './mock-dashboard';
 
 const Hero = () => {
@@ -28,7 +29,7 @@ const Hero = () => {
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
                     <Button className="w-full sm:w-auto h-12 px-8 text-base">
-                        Start for free
+                        <Link href="/auth/login">Start for FREE</Link>
                         <ChevronRight className="w-4 h-4 ml-1" />
                     </Button>
                     <Button variant="secondary" className="w-full sm:w-auto h-12 px-8 text-base group">
