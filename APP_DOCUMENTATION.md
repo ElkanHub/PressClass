@@ -1,8 +1,7 @@
 # PressClass AI - Application Documentation
 
 ## 1. Project Overview
-**PressClass AI** is a comprehensive educational platform designed to assist teachers in generating, managing, and organizing classroom content. It leverages AI to create lesson plans, structured notes, and assessments, while providing productivity tools like study timers, interactive whiteboards, and calendar integration to streamline the entire teaching workflow.
-
+**PressClass AI** is a comprehensive educational platform designed to assist teachers and students in generating, managing, and organizing classroom content. It leverages AI to create lesson plans, structured notes, and assessments, while providing productivity tools like study timers, interactive whiteboards, and calendar integration to streamline the entire teaching workflow. ITs aim is to become the go-to trusted resource and active community platform for teachers and students.
 ### Technology Stack
 - **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript / React 19
