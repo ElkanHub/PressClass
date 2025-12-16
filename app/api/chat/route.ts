@@ -87,7 +87,7 @@ ${contextText}
                 { role: 'system', content: systemPrompt },
                 ...messages
             ],
-            model: 'llama3-8b-8192', // Or 'mixtral-8x7b-32768' for better reasoning
+            model: 'openai/gpt-oss-120b',
             temperature: 0.5,
             max_tokens: 1024,
             stream: true,
