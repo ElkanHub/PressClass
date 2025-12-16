@@ -1,24 +1,42 @@
 "use client";
 
+import { useState } from "react";
 import { Task, updateTask } from "@/actions/tasks";
-import { CheckCircle2, Circle, Clock } from "lucide-react";
+import { CheckCircle2, Circle, Clock, MoreVertical, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import { CalendarEvent } from "@/actions/calendar";
+import { WeeklyAnalytics } from "./weekly-analytics";
+import { EditTaskModal } from "./edit-task-modal";
 
 interface TaskSidebarProps {
     tasks: Task[];
+    events: CalendarEvent[];
     onAddClick: () => void;
 }
 
-export function TaskSidebar({ tasks, onAddClick }: TaskSidebarProps) {
+export function TaskSidebar({ tasks, events, onAddClick }: TaskSidebarProps) {
+    const [editingTask, setEditingTask] = useState<Task | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
     return (
         <div className="w-80 border-l bg-background flex flex-col h-full">
-            <div className="p-4 border-b flex items-center justify-between">
-                <h3 className="font-semibold">Tasks</h3>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onAddClick}>
-                    +
-                </Button>
+            <div className="p-4 border-b">
+                <WeeklyAnalytics events={events} tasks={tasks} />
+                <div className="flex items-center justify-between mt-4">
+                    <h3 className="font-semibold">Tasks</h3>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onAddClick}>
+                        +
+                    </Button>
+                </div>
             </div>
 
             <div className="flex-1 overflow-auto p-4 space-y-4">
@@ -27,7 +45,14 @@ export function TaskSidebar({ tasks, onAddClick }: TaskSidebarProps) {
                     <h4 className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">Today</h4>
                     <div className="space-y-2">
                         {tasks.filter(t => t.status !== 'completed').slice(0, 3).map(task => (
-                            <TaskItem key={task.id} task={task} />
+                            <TaskItem 
+                                key={task.id} 
+                                task={task} 
+                                onEdit={() => {
+                                    setEditingTask(task);
+                                    setIsEditModalOpen(true);
+                                }}
+                            />
                         ))}
                         {tasks.filter(t => t.status !== 'completed').length === 0 && (
                             <div className="text-sm text-muted-foreground italic">No tasks for today</div>
@@ -40,7 +65,14 @@ export function TaskSidebar({ tasks, onAddClick }: TaskSidebarProps) {
                     <h4 className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">Upcoming</h4>
                     <div className="space-y-2">
                         {tasks.filter(t => t.status !== 'completed').slice(3).map(task => (
-                            <TaskItem key={task.id} task={task} />
+                            <TaskItem 
+                                key={task.id} 
+                                task={task} 
+                                onEdit={() => {
+                                    setEditingTask(task);
+                                    setIsEditModalOpen(true);
+                                }}
+                            />
                         ))}
                         {tasks.filter(t => t.status !== 'completed').length <= 3 && (
                             <div className="text-sm text-muted-foreground italic">No upcoming tasks</div>
@@ -53,19 +85,32 @@ export function TaskSidebar({ tasks, onAddClick }: TaskSidebarProps) {
                     <h4 className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">Completed</h4>
                     <div className="space-y-2 opacity-60">
                         {tasks.filter(t => t.status === 'completed').map(task => (
-                            <TaskItem key={task.id} task={task} />
+                            <TaskItem 
+                                key={task.id} 
+                                task={task} 
+                                onEdit={() => {
+                                    setEditingTask(task);
+                                    setIsEditModalOpen(true);
+                                }}
+                            />
                         ))}
                     </div>
                 </div>
             </div>
+            <EditTaskModal
+                open={isEditModalOpen}
+                onOpenChange={setIsEditModalOpen}
+                task={editingTask}
+            />
         </div>
     );
 }
 
-function TaskItem({ task }: { task: Task }) {
+function TaskItem({ task, onEdit }: { task: Task; onEdit: () => void }) {
     const isCompleted = task.status === 'completed';
 
-    const handleToggle = async () => {
+    const handleToggle = async (e: React.MouseEvent) => {
+        e.stopPropagation(); // Prevent opening modal when clicking checkout
         const newStatus = isCompleted ? 'not_started' : 'completed';
         try {
             await updateTask(task.id, { status: newStatus });
@@ -80,6 +125,8 @@ function TaskItem({ task }: { task: Task }) {
             <button
                 onClick={handleToggle}
                 className="mt-0.5 text-muted-foreground hover:text-primary transition-colors"
+                role="checkbox"
+                aria-checked={isCompleted}
             >
                 {isCompleted ? (
                     <CheckCircle2 className="h-4 w-4 text-green-600" />
@@ -87,7 +134,7 @@ function TaskItem({ task }: { task: Task }) {
                     <Circle className="h-4 w-4" />
                 )}
             </button>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 cursor-pointer" onClick={onEdit}>
                 <div className={cn("text-sm font-medium truncate", isCompleted && "line-through text-muted-foreground")}>
                     {task.title}
                 </div>
@@ -110,6 +157,20 @@ function TaskItem({ task }: { task: Task }) {
                         </span>
                     )}
                 </div>
+            </div>
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                            <MoreVertical className="h-3 w-3" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(); }}>
+                            <Pencil className="mr-2 h-3 w-3" /> Edit
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
         </div>
     )

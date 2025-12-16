@@ -7,10 +7,10 @@ interface DraggableEventProps {
     event: any;
     children: React.ReactNode;
     className?: string;
-    style?: React.CSSProperties;
+    onClick?: () => void;
 }
 
-export function DraggableEvent({ event, children, className, style }: DraggableEventProps) {
+export function DraggableEvent({ event, children, className, style, onClick }: DraggableEventProps) {
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
         id: event.id,
         data: event,
@@ -27,6 +27,7 @@ export function DraggableEvent({ event, children, className, style }: DraggableE
             style={{ ...style, ...transformStyle }}
             {...listeners}
             {...attributes}
+            onClick={onClick}
             className={cn(className, isDragging && "opacity-50 cursor-grabbing", "cursor-grab")}
         >
             {children}

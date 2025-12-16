@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LessonPlan, updateLessonPlan, deleteLessonPlan } from "@/actions/lesson-plans";
 import { createAssessment } from "@/actions/assessments";
+import { AddToCalendarModal } from "@/components/calendar/add-to-calendar-modal";
 
 interface LessonPlanDetailProps {
     lessonPlan: LessonPlan;
@@ -265,6 +266,10 @@ export function LessonPlanDetail({ lessonPlan }: LessonPlanDetailProps) {
                         </>
                     ) : (
                         <>
+                            <Button variant="outline" onClick={() => setIsCalendarModalOpen(true)}>
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                Add to Calendar
+                            </Button>
                             <Button variant="outline" onClick={handleDownloadPDF}>
                                 <Download className="mr-2 h-4 w-4" />
                                 PDF
@@ -557,6 +562,14 @@ export function LessonPlanDetail({ lessonPlan }: LessonPlanDetailProps) {
                     </ul>
                 </section>
             </div>
+            <AddToCalendarModal
+                open={isCalendarModalOpen}
+                onOpenChange={setIsCalendarModalOpen}
+                defaultTitle={`Lesson: ${lessonPlan.title}`}
+                description={`Teach ${lessonPlan.subject} (${lessonPlan.class_level}) - ${lessonPlan.topic}.`}
+                relatedId={lessonPlan.id}
+                relatedType="lesson_plan"
+            />
         </div>
     );
 }

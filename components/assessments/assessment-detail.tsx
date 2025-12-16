@@ -14,10 +14,12 @@ import {
     X,
     ArrowUp,
     ArrowDown,
-    MoreVertical
+    MoreVertical,
+    CalendarPlus
 } from "lucide-react";
 import jsPDF from "jspdf";
 import { Assessment, updateAssessment, deleteAssessment } from "@/actions/assessments";
+import { AddToCalendarModal } from "@/components/calendar/add-to-calendar-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -37,6 +39,7 @@ interface AssessmentDetailProps {
 export function AssessmentDetail({ assessment }: AssessmentDetailProps) {
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
+    const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
     const [showAnswers, setShowAnswers] = useState(false);
     const [data, setData] = useState(assessment);
     const [editedTitle, setEditedTitle] = useState(assessment.title);
@@ -204,6 +207,10 @@ export function AssessmentDetail({ assessment }: AssessmentDetailProps) {
                         </>
                     ) : (
                         <>
+                            <Button variant="outline" onClick={() => setIsCalendarModalOpen(true)}>
+                                <CalendarPlus className="mr-2 h-4 w-4" />
+                                Add to Calendar
+                            </Button>
                             <Button variant="outline" onClick={() => setShowAnswers(!showAnswers)}>
                                 {showAnswers ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
                                 {showAnswers ? "Hide Answers" : "Show Answers"}
@@ -314,6 +321,14 @@ export function AssessmentDetail({ assessment }: AssessmentDetailProps) {
                     </Card>
                 ))}
             </div>
+            <AddToCalendarModal
+                open={isCalendarModalOpen}
+                onOpenChange={setIsCalendarModalOpen}
+                defaultTitle={`Assessment: ${assessment.title}`}
+                description={`Assessment for ${assessment.topic}.`}
+                relatedId={assessment.id}
+                relatedType="assessment"
+            />
         </div>
     );
 }

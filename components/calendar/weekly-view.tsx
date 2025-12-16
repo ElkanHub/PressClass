@@ -9,6 +9,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { DndContext, DragEndEvent, useDroppable } from "@dnd-kit/core";
 import { DraggableEvent } from "./draggable-event";
 import { toast } from "sonner";
+import { useState } from "react";
+import { EditEventModal } from "./edit-event-modal";
 
 interface WeeklyViewProps {
     events: CalendarEvent[];
@@ -31,6 +33,9 @@ function DroppableDay({ day, children }: { day: Date; children: React.ReactNode 
 export function WeeklyView({ events, onAddClick }: WeeklyViewProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
+
+    const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     const dateParam = searchParams.get("date");
     const currentDate = dateParam ? parseISO(dateParam) : new Date();
@@ -61,11 +66,6 @@ export function WeeklyView({ events, onAddClick }: WeeklyViewProps) {
         const targetDay = parseISO(targetDayIso);
 
         // Calculate new time
-        // delta.y is pixels moved. 80px = 1 hour.
-        // We need to calculate the new start time based on the original start time + delta
-        // OR based on the drop position relative to the container.
-        // For simplicity, let's assume we snap to 15 mins (20px).
-
         const originalStart = new Date(droppedEvent.start_time);
         const originalEnd = new Date(droppedEvent.end_time);
         const durationMs = originalEnd.getTime() - originalStart.getTime();
@@ -78,22 +78,7 @@ export function WeeklyView({ events, onAddClick }: WeeklyViewProps) {
         newStart.setHours(originalStart.getHours());
         newStart.setMinutes(originalStart.getMinutes() + minutesShift);
 
-        // If we moved to a different day, the date part is already updated by targetDay, 
-        // but we need to keep the original time-of-day + shift.
-        // Actually, `targetDay` is just the day (00:00).
-        // So we take `targetDay` and add the original hours/minutes + shift.
-
-        // Wait, `targetDay` is the day column we dropped on.
-        // `delta.y` is the movement relative to the START position of the drag.
-        // So if I drag from 9am to 10am, delta.y is +80.
-        // So newStart = originalStart + delta.y (converted to time) + (targetDay - originalDay)
-
-        const dayDiff = targetDay.getTime() - startOfWeek(originalStart, { weekStartsOn: 1 }).getTime(); // This is wrong if weeks differ
-        // Simpler:
-        // 1. Get the time of day of the original start
-        // 2. Add the time shift from delta.y
-        // 3. Set this new time on the targetDay
-
+        // Get logic for time:
         const originalHours = originalStart.getHours();
         const originalMinutes = originalStart.getMinutes();
         const totalMinutes = originalHours * 60 + originalMinutes + minutesShift;
@@ -193,6 +178,10 @@ export function WeeklyView({ events, onAddClick }: WeeklyViewProps) {
                                                     <DraggableEvent
                                                         key={event.id}
                                                         event={event}
+                                                        onClick={() => {
+                                                            setEditingEvent(event);
+                                                            setIsEditModalOpen(true);
+                                                        }}
                                                         className={cn(
                                                             "absolute left-1 right-1 rounded px-2 py-1 text-xs overflow-hidden border",
                                                             event.type === 'lesson' && "bg-blue-100 border-blue-200 text-blue-800 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-200",
@@ -216,6 +205,11 @@ export function WeeklyView({ events, onAddClick }: WeeklyViewProps) {
                     </div>
                 </div>
             </div>
+            <EditEventModal
+                open={isEditModalOpen}
+                onOpenChange={setIsEditModalOpen}
+                event={editingEvent}
+            />
         </DndContext>
     );
 }
