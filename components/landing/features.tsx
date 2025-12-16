@@ -22,7 +22,7 @@ const Features = () => {
                         </div>
                         <h3 className="text-xl font-bold text-foreground mb-2">AI Assessment Engine</h3>
                         <p className="text-muted-foreground mb-8 max-w-md">
-                            Grade essays, quizzes, and code in seconds. Our AI understands context, providing personalized feedback that mimics your teaching style.
+                            Generate assessments, quizzes, and other classroom content in seconds. Our AI understands context, providing personalized feedback that mimics your teaching style.
                         </p>
 
                         {/* Mock UI */}
@@ -30,8 +30,8 @@ const Features = () => {
                             <div className="bg-card rounded-lg p-4 shadow-sm border border-border flex items-start gap-4">
                                 <div className="flex-1 space-y-2">
                                     <div className="flex items-center gap-2 mb-2">
-                                        <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold px-2 py-0.5 rounded">GRADED</span>
-                                        <span className="text-xs text-muted-foreground">History Essay - 10th Grade</span>
+                                        <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold px-2 py-0.5 rounded">ASSESSMENT</span>
+                                        <span className="text-xs text-muted-foreground">History - BASIC 6</span>
                                     </div>
                                     <div className="h-2 w-3/4 bg-muted rounded" />
                                     <div className="h-2 w-full bg-muted rounded" />
@@ -75,9 +75,9 @@ const Features = () => {
                         <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center mb-6">
                             <BarChart3 className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                         </div>
-                        <h3 className="text-xl font-bold text-foreground mb-2">Campus Analytics</h3>
+                        <h3 className="text-xl font-bold text-foreground mb-2">Content Analytics</h3>
                         <p className="text-muted-foreground mb-8 text-sm">
-                            Real-time insights into attendance, grades, and resource utilization across the district.
+                            Real-time insights into personal resource utilization across the platform.
                         </p>
 
                         {/* Mock UI */}
@@ -97,9 +97,9 @@ const Features = () => {
                                 <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mb-6">
                                     <Users className="w-5 h-5 text-green-600 dark:text-green-400" />
                                 </div>
-                                <h3 className="text-xl font-bold text-foreground mb-2">Teacher & Student Collaboration</h3>
+                                <h3 className="text-xl font-bold text-foreground mb-2">Teacher & Student task organization</h3>
                                 <p className="text-muted-foreground">
-                                    A unified whiteboard and document space where classes come alive. Real-time sync, embedded video, and infinite canvas.
+                                    A unified whiteboard and document space where task organization is seamless
                                 </p>
                             </div>
 

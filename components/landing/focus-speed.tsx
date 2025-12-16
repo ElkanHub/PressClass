@@ -19,10 +19,10 @@ const FocusSpeed = () => {
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-foreground mb-1 flex items-center gap-2">
-                                        <Keyboard className="w-4 h-4 text-muted-foreground" /> Keyboard-first Navigation
+                                        <Keyboard className="w-4 h-4 text-muted-foreground" /> Universal Menu
                                     </h3>
                                     <p className="text-muted-foreground text-sm leading-relaxed">
-                                        Move through your gradebook and lesson plans without lifting your hands from the keyboard. Command palette included.
+                                        Move through your assessments and lesson plans without friction.
                                     </p>
                                 </div>
                             </div>
@@ -36,7 +36,7 @@ const FocusSpeed = () => {
                                         Instant Sync
                                     </h3>
                                     <p className="text-muted-foreground text-sm leading-relaxed">
-                                        Changes reflect instantly across all devices. Offline mode ensures you never lose work during spotty connectivity.
+                                        Changes reflect instantly across all devices. 
                                     </p>
                                 </div>
                             </div>
@@ -50,7 +50,7 @@ const FocusSpeed = () => {
                                         Enterprise-Grade Security
                                     </h3>
                                     <p className="text-muted-foreground text-sm leading-relaxed">
-                                        FERPA and COPPA compliant. Your data is encrypted at rest and in transit.
+                                        Your data is encrypted at rest and in transit. No one can access your data without your permission. 
                                     </p>
                                 </div>
                             </div>
@@ -68,19 +68,19 @@ const FocusSpeed = () => {
                                     <div className="bg-slate-950 border border-slate-800 rounded-lg shadow-2xl p-4">
                                         <div className="flex items-center gap-3 border-b border-slate-800 pb-3 mb-3">
                                             <Wand2 className="w-4 h-4 text-primary" />
-                                            <span className="text-slate-400 text-sm">Assign quiz to...</span>
+                                            <span className="text-slate-400 text-sm">Generate Lesson Plan...</span>
                                         </div>
                                         <div className="space-y-1">
                                             <div className="flex items-center justify-between px-2 py-1.5 bg-primary/20 text-primary-foreground rounded text-sm cursor-pointer">
-                                                <span>Grade 10 - History</span>
+                                                <span>BASIC 10 - History</span>
                                                 <span className="text-xs text-primary/60">Enter</span>
                                             </div>
-                                            <div className="px-2 py-1.5 text-slate-400 text-sm hover:bg-slate-800 rounded cursor-pointer">Grade 11 - History</div>
-                                            <div className="px-2 py-1.5 text-slate-400 text-sm hover:bg-slate-800 rounded cursor-pointer">Grade 9 - Civics</div>
+                                            <div className="px-2 py-1.5 text-slate-400 text-sm hover:bg-slate-800 rounded cursor-pointer">BASIC 11 - History</div>
+                                            <div className="px-2 py-1.5 text-slate-400 text-sm hover:bg-slate-800 rounded cursor-pointer">BASIC 9 - Civics</div>
                                         </div>
                                     </div>
                                     <div className="text-center mt-6">
-                                        <span className="text-slate-600 text-sm font-mono tracking-widest">command palette dark</span>
+                                        <span className="text-slate-600 text-sm font-mono tracking-widest">Adaptive theme</span>
                                     </div>
                                 </div>
                             </div>

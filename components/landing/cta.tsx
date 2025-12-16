@@ -21,9 +21,9 @@ const CTA = () => {
                             Experience the future of educational management. Free for individual teachers, powerful for districts.
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <Button as={Link} href="/auth/signup" variant="dark" className="h-12 px-8 w-full sm:w-auto">Get started</Button>
+                            <Button as={Link} href="/auth/sign-up" variant="dark" className="h-12 px-8 w-full sm:w-auto">Get started</Button>
                             <button className="text-background font-medium hover:text-primary transition-colors flex items-center gap-2">
-                                Learn more <ArrowRight className="w-4 h-4" />
+                                <Link href="/about">Learn more</Link> <ArrowRight className="w-4 h-4" />
                             </button>
                         </div>
                     </div>

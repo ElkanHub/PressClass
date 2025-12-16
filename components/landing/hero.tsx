@@ -12,7 +12,7 @@ const Hero = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <a href="#" className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-8 hover:bg-primary/20 transition-colors">
                     <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                    v2.0 is now live — Read the changelog
+                    Press Class is LIVE
                     <ArrowRight className="w-3 h-3" />
                 </a>
 
@@ -24,7 +24,7 @@ const Hero = () => {
                 </h1>
 
                 <p className="max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground mb-10 leading-relaxed">
-                    PressClass unifies AI grading, lesson planning, and administration into one seamless workflow. Stop wrestling with fragmented tools.
+                    PressClass is an AI driven platform designed to help you work faster, practice smarter, and retain what truly matters. No noise. No busywork. For teachers, for students, for everyone.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
@@ -34,7 +34,7 @@ const Hero = () => {
                     </Button>
                     <Button variant="secondary" as={Link} href="#" className="w-full sm:w-auto h-12 px-8 text-base group">
                         <Play className="w-4 h-4 mr-2 text-muted-foreground group-hover:text-primary transition-colors" />
-                        Book a demo
+                        Get a walkthrough
                     </Button>
                 </div>
 

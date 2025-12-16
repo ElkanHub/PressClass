@@ -19,10 +19,10 @@ const Navbar = () => {
 
                     {/* Desktop Nav */}
                     <div className="hidden md:flex items-center gap-8">
-                        <a href="#" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Product</a>
-                        <a href="#" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Solutions</a>
+                        <a href="#" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">About</a>
+                        <a href="#" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Features</a>
                         <a href="#" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
-                        <a href="#" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Changelog</a>
+                        <a href="#" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">FAQs</a>
                     </div>
 
                     <div className="hidden md:flex items-center gap-4 ">
@@ -42,10 +42,10 @@ const Navbar = () => {
             {/* Mobile Nav */}
             {isOpen && (
                 <div className="md:hidden bg-background border-t border-border px-4 py-4 space-y-4 shadow-lg">
-                    <a href="#" className="block text-base font-medium text-muted-foreground hover:text-foreground">Product</a>
-                    <a href="#" className="block text-base font-medium text-muted-foreground hover:text-foreground">Solutions</a>
+                    <a href="#" className="block text-base font-medium text-muted-foreground hover:text-foreground">About</a>
+                    <a href="#" className="block text-base font-medium text-muted-foreground hover:text-foreground">Features</a>
                     <a href="#" className="block text-base font-medium text-muted-foreground hover:text-foreground">Pricing</a>
-                    <a href="#" className="block text-base font-medium text-muted-foreground hover:text-foreground">Changelog</a>
+                    <a href="#" className="block text-base font-medium text-muted-foreground hover:text-foreground">FAQs</a>
                     <div className="pt-4 border-t border-border flex flex-col gap-3">
                         <Link href="/auth/login" className="text-center font-medium text-foreground">Log In</Link>
                         <Button as={Link} href="/auth/signup" className="w-full">Sign Up</Button>

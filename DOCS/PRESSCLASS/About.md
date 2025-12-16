@@ -24,9 +24,9 @@ Beyond content creation, PressClass AI acts as a central hub where teaching mate
 
 PressClass AI automates the creation of essential educational materials, allowing educators to focus on delivery rather than preparation. With minimal input, users can generate:
 
-* Lesson plans aligned with specific objectives and learning outcomes
+* Lesson plans aligned with specific objectives and learning outcomes which follows the Ghana Education Service (GES) curriculum and NaCCA's curriculum
 * Structured notes tailored to different comprehension levels
-* Quizzes, tests, and assessments designed to reinforce understanding
+* Assessments designed to reinforce understanding
 
 ---
 
@@ -44,7 +44,7 @@ These tools work together seamlessly, reducing the need for multiple disconnecte
 
 ### Community and Collaboration
 
-PressClass AI is more than software—it is a growing community. The platform provides a dedicated space for educators and students to:
+PressClass AI is more than software—it is aimed at being a growing community that provides a dedicated space for educators and students to:
 
 * Share lesson resources and teaching strategies
 * Collaborate across classrooms, schools, or regions
