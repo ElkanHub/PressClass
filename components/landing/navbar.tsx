@@ -25,9 +25,9 @@ const Navbar = () => {
                         <a href="#" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">FAQs</a>
                     </div>
 
-                    <div className="hidden md:flex items-center gap-4 ">
+                    <div className="hidden w-content md:flex items-center gap-4 ">
                         <Link href="/auth/login" className="text-sm font-medium text-foreground hover:text-primary transition-colors">Log In</Link>
-                        <Button as={Link} href="/auth/sign-up" className="w-full">Sign Up</Button>
+                        <Button as={Link} href="/auth/sign-up">Sign Up</Button>
                     </div>
 
                     {/* Mobile Menu Button */}
