@@ -150,17 +150,18 @@ export function Chatbot() {
                                 >
                                     <div
                                         className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${msg.role === 'user'
-                                                ? 'bg-primary text-primary-foreground rounded-tr-sm'
-                                                : 'bg-muted/50 text-foreground rounded-tl-sm'
+                                            ? 'bg-primary text-primary-foreground rounded-tr-sm'
+                                            : 'bg-muted/50 text-foreground rounded-tl-sm'
                                             }`}
                                     >
                                         {msg.role === 'assistant' ? (
-                                            <ReactMarkdown
-                                                className="prose prose-sm dark:prose-invert max-w-none [&>p]:mb-2 [&>p:last-child]:mb-0 [&>ul]:pl-4 [&>ul]:mb-2 [&>ol]:pl-4 [&>ol]:mb-2"
-                                                remarkPlugins={[remarkGfm]}
-                                            >
-                                                {msg.content}
-                                            </ReactMarkdown>
+                                            <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:mb-2 [&>p:last-child]:mb-0 [&>ul]:pl-4 [&>ul]:mb-2 [&>ol]:pl-4 [&>ol]:mb-2">
+                                                <ReactMarkdown
+                                                    remarkPlugins={[remarkGfm]}
+                                                >
+                                                    {msg.content}
+                                                </ReactMarkdown>
+                                            </div>
                                         ) : (
                                             msg.content
                                         )}

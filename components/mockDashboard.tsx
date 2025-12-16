@@ -1,10 +1,16 @@
 import { useState, useEffect } from "react";
+import Image from "next/image";
+
+interface MockDashboardProps {
+  images?: string[];
+  interval?: number;
+}
 
 // Mock Dashboard Component for Hero
 const MockDashboard = ({
   images = ["/dashboard1.png", "/dashboard2.png", "/dashboard3.png"],
   interval = 3000
-}) => {
+}: MockDashboardProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -34,14 +40,14 @@ const MockDashboard = ({
         {images.map((img, index) => (
           <div
             key={index}
-            className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
-              index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
-            }`}
+            className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+              }`}
           >
-            <img
+            <Image
               src={img}
               alt={`Dashboard View ${index + 1}`}
-              className="w-full h-full object-cover object-center"
+              fill
+              className="object-cover object-center"
             />
           </div>
         ))}
