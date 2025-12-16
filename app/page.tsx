@@ -7,6 +7,7 @@ import Features from "@/components/landing/features";
 import FocusSpeed from "@/components/landing/focus-speed";
 import CTA from "@/components/landing/cta";
 import Footer from "@/components/landing/footer";
+import { Chatbot } from "@/components/chatbot/chatbot";
 
 export default function LandingPage() {
   return (
@@ -18,6 +19,7 @@ export default function LandingPage() {
       <FocusSpeed />
       <CTA />
       <Footer />
+      <Chatbot />
     </div>
   );
 }
