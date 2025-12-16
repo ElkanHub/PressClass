@@ -28,7 +28,7 @@ const Hero = () => {
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
-                    <Button as={Link} href="/auth/signup" className="w-full sm:w-auto h-12 px-8 text-base">
+                    <Button as={Link} href="/auth/sign-up" className="w-full sm:w-auto h-12 px-8 text-base">
                         Start for FREE
                         <ChevronRight className="w-4 h-4 ml-1" />
                     </Button>
