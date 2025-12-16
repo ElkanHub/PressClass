@@ -10,7 +10,7 @@ We welcome questions, feedback, and partnership inquiries.
 
 For general questions about PressClass AI:
 
-**Email:** [Insert General Email]
+**Email:** crebexsolutions@gmail.com
 
 ---
 
@@ -19,7 +19,7 @@ For general questions about PressClass AI:
 Experiencing an issue or bug?
 
 - Submit a support ticket via the app  
-- Or email: **[Insert Support Email]**
+- Or email: **crebexsolutions@gmail.com**
 
 ---
 
@@ -27,15 +27,7 @@ Experiencing an issue or bug?
 
 For school licenses, institutional plans, or partnerships:
 
-**Email:** [Insert Sales Email]
-
----
-
-## Mailing Address
-
-PressClass AI  
-[Insert Street Address]  
-[Insert City, State, Zip]
+**Email:** crebexsolutions@gmail.com
 
 ---
 

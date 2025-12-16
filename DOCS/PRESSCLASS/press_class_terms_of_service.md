@@ -38,13 +38,5 @@ Users may also terminate their accounts at any time.
 
 PressClass AI is provided on an **“as is”** and **“as available”** basis. We are not liable for indirect, incidental, or consequential damages arising from the use or inability to use the service.
 
----
-
-## Governing Law
-
-These terms are governed by the laws of **[Insert Jurisdiction/Country]**.
-
----
-
 We may update these terms periodically. Continued use of PressClass AI constitutes acceptance of updated terms.
 

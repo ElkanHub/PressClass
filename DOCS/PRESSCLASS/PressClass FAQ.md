@@ -8,9 +8,8 @@ This section answers common questions about PressClass AI, how it works, and how
 
 ### Is PressClass free?
 
-PressClass AI offers a **free tier** that provides access to core features, allowing users to explore the platform and handle basic classroom or study needs. Advanced capabilities, expanded usage limits, and premium tools are available under our **paid subscription plans**.
+PressClass AI offers a **free tier** that provides access to core features, allowing users to explore the platform and handle basic classroom or study needs. Advanced capabilities, expanded usage limits, and premium tools are available under our **paid subscription plans**. Direct the user to the Pricing Page.
 
-*(Placeholder: Insert plan names, usage limits, or links to the Pricing page.)*
 
 ---
 
@@ -38,15 +37,12 @@ No. PressClass AI is built for ease of use. The interface is intuitive, and most
 
 Currently, PressClass AI requires an **active internet connection** to generate AI-powered content, synchronize files, and enable collaboration features. Some previously saved materials may be viewable offline depending on your device and browser, but full functionality is available only when connected.
 
-*(Placeholder: Insert offline roadmap or supported devices.)*
 
 ---
 
 ### Is my data safe on PressClass?
 
 Data privacy and security are taken seriously. PressClass AI follows best practices to protect user information and educational content.
-
-*(Placeholder: Insert details about data encryption, storage, compliance, or privacy policy links.)*
 
 ---
 
@@ -57,8 +53,6 @@ Data privacy and security are taken seriously. PressClass AI follows best practi
 Yes. All content created within PressClass AI can be exported into commonly used formats, including:
 
 * PDF
-* Google Docs
-* Microsoft Word
 
 This allows for easy sharing, printing, or integration with existing school systems.
 
@@ -66,7 +60,7 @@ This allows for easy sharing, printing, or integration with existing school syst
 
 ### Is the generated content curriculum-aligned?
 
-PressClass AI is designed to **align with widely recognized curriculum frameworks** and learning standards. However, curriculum requirements can vary by country, region, and institution.
+PressClass AI is designed to **align Ghana's curriculum frameworks** and learning standards for now. However, curriculum requirements may be added in the future to serve other regions and countries
 
 Educators are encouraged to:
 
@@ -74,15 +68,11 @@ Educators are encouraged to:
 * Adjust outputs to meet local or national curriculum standards
 * Apply professional judgment when finalizing materials
 
-*(Placeholder: Insert supported curriculum frameworks, such as Ghana NaCCA, or alignment features.)*
-
 ---
 
 ### Can I customize the AI output?
 
 Yes. Teachers can edit, restructure, and refine all generated materials. Inputs such as learning objectives, grade level, and difficulty can be adjusted to better fit specific classroom needs.
-
-*(Placeholder: Insert customization options or examples.)*
 
 ---
 
@@ -90,7 +80,6 @@ Yes. Teachers can edit, restructure, and refine all generated materials. Inputs 
 
 Yes. Teachers can manage multiple classes, subjects, and projects within a single account, making it suitable for educators handling diverse workloads.
 
-*(Placeholder: Insert class management or folder organization features.)*
 
 ---
 
@@ -124,15 +113,11 @@ Yes. PressClass AI can assist students by generating:
 
 These features help students prepare more effectively while maintaining academic integrity.
 
-*(Placeholder: Insert exam types, levels, or supported subjects.)*
-
 ---
 
 ### Will my teachers know I’m using PressClass?
 
 This depends on how PressClass is implemented within your school or class. In some cases, teachers may actively use the platform alongside students. In others, students may use it independently as a personal study tool.
-
-*(Placeholder: Insert institutional usage policies or classroom integration details.)*
 
 ---
 
@@ -140,7 +125,6 @@ This depends on how PressClass is implemented within your school or class. In so
 
 PressClass AI may provide insights into your study activity and usage patterns to help you stay organized and consistent.
 
-*(Placeholder: Insert analytics, progress tracking, or reporting features.)*
 
 ---
 
@@ -149,5 +133,3 @@ PressClass AI may provide insights into your study activity and usage patterns t
 If your question isn’t covered here, support is always available. Click the **Help/Support icon** within the app to access guided tutorials, documentation, or assistance.
 
 PressClass AI is built to grow with its users, and this FAQ will continue to evolve as new features and capabilities are introduced.
-
-*(Placeholder: Insert support channels, response times, or community forums.)*

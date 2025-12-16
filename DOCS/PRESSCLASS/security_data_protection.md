@@ -16,8 +16,6 @@ All data transmitted between your device and PressClass servers is encrypted usi
 
 Data stored on PressClass servers is encrypted using **AES-256 encryption standards**, which are widely recognized and used for securing sensitive information across industries.
 
-*(Placeholder: Insert cloud provider or hosting environment details.)*
-
 ---
 
 ## Access Control
@@ -32,24 +30,11 @@ Administrative access is logged and monitored to ensure accountability.
 
 ---
 
-## Compliance and Regulatory Alignment
-
-PressClass AI is designed to operate in alignment with applicable data protection and education-related regulations, including:
-
-- General Data Protection Regulation (GDPR)  
-- California Consumer Privacy Act (CCPA)  
-- Family Educational Rights and Privacy Act (FERPA)  
-- Children’s Online Privacy Protection Act (COPPA)
-
-*(Placeholder: Insert regional applicability or compliance certifications.)*
-
----
-
 ## Reporting Security Vulnerabilities
 
 We encourage responsible disclosure of security issues. If you believe you have discovered a vulnerability, please contact our security team immediately.
 
-**Security Contact:** [Insert Security Email]
+**Security Contact:** [crebexsolutions@gmail.com]
 
 All reports are reviewed promptly and handled with confidentiality.
 

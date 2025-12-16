@@ -14,13 +14,11 @@ The Dashboard serves as your central hub within PressClass AI. It provides a hig
 
 From the Dashboard, you can:
 
-- View upcoming classes, deadlines, and academic events through the integrated calendar  
+- View upcoming classes, and academic events through the integrated calendar  
 - Access recently created or edited files without navigating through menus  
 - Monitor quick activity statistics that reflect your recent usage and productivity  
 
 This overview helps you stay oriented and reduces the mental load of switching between tasks.
-
-*(Placeholder: Insert screenshots, dashboard widgets, or role-based views for teachers vs students.)*
 
 ---
 
@@ -35,8 +33,6 @@ Through the Sidebar, you can access:
 - The **Timer** for focused study sessions or classroom time management  
 
 The Sidebar remains visible across the platform, ensuring that essential tools are never more than one click away.
-
-*(Placeholder: Insert tool icons, labels, or customization options.)*
 
 ---
 
@@ -59,8 +55,6 @@ To begin:
 
 Once generated, the content remains fully editable. Users can refine, reorganize, and adapt the output to match their teaching style or learning needs.
 
-*(Placeholder: Insert supported formats, curriculum alignment options, or export features.)*
-
 ---
 
 ### Productivity Suite
@@ -69,7 +63,7 @@ PressClass AI includes a built-in Productivity Suite to support focused learning
 
 #### Timer
 
-The Timer is located in the top-right corner of the interface for quick access. It can be used for:
+The Timer is located on the sidebar for quick access. It can be used for:
 
 - Personal study sessions  
 - Classroom activities and time-boxed exercises  
@@ -77,21 +71,13 @@ The Timer is located in the top-right corner of the interface for quick access. 
 
 The Timer helps reinforce discipline, focus, and structured learning habits.
 
-*(Placeholder: Insert timer modes, analytics, or session history.)*
-
 ---
 
 #### Interactive Whiteboard
 
-The Whiteboard can be accessed directly from the Sidebar. It enables real-time collaboration and visual explanation, making it suitable for:
+The Whiteboard can be accessed directly from the Sidebar. It enables visual explanation, making it suitable for Concept mapping and problem-solving  
 
-- Live teaching sessions  
-- Group discussions and brainstorming  
-- Concept mapping and problem-solving  
-
-Changes made on the Whiteboard can be shared or saved, ensuring continuity across sessions.
-
-*(Placeholder: Insert collaboration features, device support, or export options.)*
+Changes made on the Whiteboard can be saved, ensuring continuity across sessions.
 
 ---
 
@@ -104,8 +90,6 @@ The Settings section allows you to manage your PressClass experience in one plac
 - Customize notification and communication preferences  
 
 These controls ensure that the platform adapts to your needs rather than the other way around.
-
-*(Placeholder: Insert role-based settings, privacy controls, or account security options.)*
 
 ---
 
@@ -120,6 +104,4 @@ This section provides:
 - Access to support resources and assistance
 
 PressClass AI is built to support you—not slow you down. When questions arise, help is immediate and accessible.
-
-*(Placeholder: Insert support channels, response times, or community help options.)*
 

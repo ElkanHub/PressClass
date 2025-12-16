@@ -36,24 +36,15 @@ This license exists **solely for the purpose of delivering PressClass services**
 
 PressClass AI does **not use individual user content to train or fine-tune AI models** without clear permission or appropriate safeguards.
 
-*(Placeholder: Insert policy on anonymized usage, opt-in mechanisms, or aggregated learning improvements.)*
-
 This ensures that your materials remain private and under your control.
 
 ---
 
 ## Data Portability and Export
 
-PressClass AI supports data portability. You may export your content at any time in commonly used, standard formats, including:
-
-* PDF (.pdf)
-* Microsoft Word (.docx)
-* Comma-Separated Values (.csv)
-* Other supported formats as made available within the platform
+PressClass AI supports data portability. You may export your content at any time in PDF (.pdf)
 
 This allows you to retain independent copies of your work and integrate it into other tools or systems.
-
-*(Placeholder: Insert export limitations, batch export options, or size constraints.)*
 
 ---
 
@@ -65,8 +56,7 @@ Upon account termination:
 
 * Your data will be scheduled for **deletion or anonymization**
 * This process will occur after a defined retention period
-
-*(Placeholder: Insert exact retention period, e.g., 30, 60, or 90 days.)*
+Retention period: 30 days
 
 This retention window allows users to recover data in case of accidental deletion while ensuring long-term privacy protection.
 
@@ -75,8 +65,6 @@ This retention window allows users to recover data in case of accidental deletio
 ## Institutional Accounts
 
 For schools or institutions using PressClass AI under organizational accounts, data ownership and management may be governed by additional agreements or institutional policies.
-
-*(Placeholder: Insert institutional data ownership terms or administrator controls.)*
 
 ---
 

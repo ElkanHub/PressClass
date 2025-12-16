@@ -10,14 +10,6 @@ PressClass AI is committed to providing a safe, respectful, and supportive digit
 
 For users under the age of **[13]** (or the applicable age defined by local law), additional safeguards apply.
 
-### Parental or School Consent
-
-Account creation for minors requires **verifiable parental consent or authorization from a school or educational institution**. This ensures that guardians and schools are aware of and approve platform usage.
-
-*(Placeholder: Insert consent verification method.)*
-
----
-
 ### Data Collection for Students
 
 PressClass AI minimizes data collection for student accounts. We:

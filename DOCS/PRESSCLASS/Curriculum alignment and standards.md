@@ -26,8 +26,6 @@ PressClass AI is structured to reflect:
 * Core competencies and skills
 * Appropriate depth and progression across grade levels
 
-*(Placeholder: Insert specific references to NaCCA documents, versions, or implementation years.)*
-
 ---
 
 ## Academic Levels Supported
@@ -41,8 +39,6 @@ PressClass AI supports curriculum alignment across multiple academic stages, inc
 
 Content generated within the platform can be adapted based on level, subject area, and instructional goals, ensuring relevance and age‑appropriate delivery.
 
-*(Placeholder: Insert subject coverage or specialization details.)*
-
 ---
 
 ## Additional Standards and Frameworks
@@ -53,8 +49,6 @@ While PressClass AI is currently optimized for the Ghanaian education system, th
 * Common Core State Standards
 * Next Generation Science Standards (NGSS)
 * Other country‑specific or international frameworks
-
-*(Placeholder: Insert roadmap or future expansion plans.)*
 
 ---
 
@@ -81,8 +75,6 @@ As official curriculum frameworks are updated, the platform aims to:
 * Incorporate revised standards and competencies
 * Adjust content generation logic accordingly
 * Maintain consistency with approved national guidelines
-
-*(Placeholder: Insert update frequency, versioning policy, or collaboration with educational authorities.)*
 
 ---
 

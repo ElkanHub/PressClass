@@ -20,8 +20,6 @@ This combined approach helps:
 * Reduce incorrect or generic outputs
 * Anchor responses to trusted educational sources
 
-*(Placeholder: Insert details on knowledge sources, curriculum repositories, or update mechanisms.)*
-
 ---
 
 ## Known Limitations of AI
@@ -87,8 +85,6 @@ PressClass AI is intended for **ethical and responsible educational use**. It sh
 * Circumvent academic integrity policies
 
 Students are expected to use PressClass AI as a learning aid, not as a substitute for independent thinking or original work.
-
-*(Placeholder: Insert academic integrity policies or institutional enforcement mechanisms.)*
 
 ---
 

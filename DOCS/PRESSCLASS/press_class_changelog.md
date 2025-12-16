@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 1.0.0 – [Insert Date]
+## Version 1.0.0 – 1st December 2025
 
 ### Launch
 
@@ -8,8 +8,12 @@
 
 ### Features
 
-- Lesson Plan Generator  
+- Content Generator  
+    - Assessment Generator
+    - Lesson Plan Generator
+    - Study Notes Generator
 - Study Timer  
+- Scheduling Calendar
 - Interactive Whiteboard
 
 ---
