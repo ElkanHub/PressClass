@@ -99,7 +99,7 @@ export function EditTaskModal({ task, open, onOpenChange }: EditTaskModalProps) 
             const result = await updateTask(task.id, {
                 title: values.title,
                 description: values.description,
-                due_date: values.dueDate?.toISOString() || null,
+                due_date: values.dueDate?.toISOString() || undefined,
                 priority: values.priority,
                 category: values.category,
             });
