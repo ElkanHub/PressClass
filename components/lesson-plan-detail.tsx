@@ -67,6 +67,7 @@ export function LessonPlanDetail({ lessonPlan }: LessonPlanDetailProps) {
     const [isSaving, setIsSaving] = useState(false);
     const [data, setData] = useState(lessonPlan);
     const [content, setContent] = useState(lessonPlan.content as LessonPlanContent);
+    const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
 
     // Helper function to format text with proper line breaks and paragraphs
     const formatText = (text: string | undefined) => {

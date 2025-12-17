@@ -8,6 +8,7 @@ interface DraggableEventProps {
     children: React.ReactNode;
     className?: string;
     onClick?: () => void;
+    style?: React.CSSProperties;
 }
 
 export function DraggableEvent({ event, children, className, style, onClick }: DraggableEventProps) {

@@ -11,6 +11,25 @@ import { DraggableEvent } from "./draggable-event";
 import { toast } from "sonner";
 import { useState } from "react";
 import { EditEventModal } from "./edit-event-modal";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { deleteCalendarEvent } from "@/actions/calendar";
+
 
 interface WeeklyViewProps {
     events: CalendarEvent[];
@@ -36,6 +55,9 @@ export function WeeklyView({ events, onAddClick }: WeeklyViewProps) {
 
     const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [eventToDelete, setEventToDelete] = useState<CalendarEvent | null>(null);
+    const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
+
 
     const dateParam = searchParams.get("date");
     const currentDate = dateParam ? parseISO(dateParam) : new Date();
@@ -99,6 +121,23 @@ export function WeeklyView({ events, onAddClick }: WeeklyViewProps) {
             toast.success("Event rescheduled");
         } else {
             toast.error("Failed to reschedule event");
+        }
+    };
+
+    const handleDeleteEvent = async () => {
+        if (!eventToDelete) return;
+        try {
+            const result = await deleteCalendarEvent(eventToDelete.id);
+            if (result.success) {
+                toast.success("Event deleted successfully");
+                setEventToDelete(null);
+            } else {
+                toast.error(result.error || "Failed to delete event");
+            }
+        } catch (error) {
+            toast.error("An error occurred during deletion");
+        } finally {
+            setIsDeleteAlertOpen(false);
         }
     };
 
@@ -183,17 +222,54 @@ export function WeeklyView({ events, onAddClick }: WeeklyViewProps) {
                                                             setIsEditModalOpen(true);
                                                         }}
                                                         className={cn(
-                                                            "absolute left-1 right-1 rounded px-2 py-1 text-xs overflow-hidden border",
-                                                            event.type === 'lesson' && "bg-blue-100 border-blue-200 text-blue-800 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-200",
-                                                            event.type === 'task' && "bg-green-100 border-green-200 text-green-800 dark:bg-green-900/30 dark:border-green-800 dark:text-green-200",
-                                                            event.type === 'assessment' && "bg-red-100 border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-800 dark:text-red-200",
-                                                            event.type === 'event' && "bg-gray-100 border-gray-200 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300",
+                                                            "absolute left-1 right-1 rounded px-2 py-1 text-xs overflow-hidden border group",
+                                                                event.type === 'lesson' && "bg-blue-100 border-blue-200 text-blue-800 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-200",
+                                                                event.type === 'task' && "bg-green-100 border-green-200 text-green-800 dark:bg-green-900/30 dark:border-green-800 dark:text-green-200",
+                                                                event.type === 'assessment' && "bg-red-100 border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-800 dark:text-red-200",
+                                                                event.type === 'event' && "bg-gray-100 border-gray-200 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300",
                                                         )}
                                                         style={{ top: `${top}px`, height: `${height}px` }}
                                                     >
-                                                        <div className="font-semibold truncate">{event.title}</div>
-                                                        <div className="truncate opacity-80">
-                                                            {format(start, "h:mm a")} - {format(end, "h:mm a")}
+                                                        <div className="flex justify-between items-start">
+                                                            <div className="flex flex-col min-w-0 flex-1">
+                                                                <div className="font-semibold truncate">{event.title}</div>
+                                                                <div className="truncate opacity-80">
+                                                                    {format(start, "h:mm a")} - {format(end, "h:mm a")}
+                                                                </div>
+                                                            </div>
+                                                            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                <DropdownMenu>
+                                                                    <DropdownMenuTrigger asChild>
+                                                                        <Button
+                                                                            variant="ghost"
+                                                                            size="sm"
+                                                                            className="h-6 w-6 p-0 hover:bg-black/10 dark:hover:bg-white/20"
+                                                                            onClick={(e) => e.stopPropagation()}
+                                                                        >
+                                                                            <MoreHorizontal className="h-4 w-4" />
+                                                                        </Button>
+                                                                    </DropdownMenuTrigger>
+                                                                    <DropdownMenuContent align="end">
+                                                                        <DropdownMenuItem onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            setEditingEvent(event);
+                                                                            setIsEditModalOpen(true);
+                                                                        }}>
+                                                                            <Pencil className="mr-2 h-3 w-3" /> Edit
+                                                                        </DropdownMenuItem>
+                                                                        <DropdownMenuItem
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                setEventToDelete(event);
+                                                                                setIsDeleteAlertOpen(true);
+                                                                            }}
+                                                                            className="text-destructive focus:text-destructive"
+                                                                        >
+                                                                            <Trash2 className="mr-2 h-3 w-3" /> Delete
+                                                                        </DropdownMenuItem>
+                                                                    </DropdownMenuContent>
+                                                                </DropdownMenu>
+                                                            </div>
                                                         </div>
                                                     </DraggableEvent>
                                                 );
@@ -210,6 +286,29 @@ export function WeeklyView({ events, onAddClick }: WeeklyViewProps) {
                 onOpenChange={setIsEditModalOpen}
                 event={editingEvent}
             />
+
+            <AlertDialog open={isDeleteAlertOpen} onOpenChange={setIsDeleteAlertOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete existing event "{eventToDelete?.title}".
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setEventToDelete(null)}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleDeleteEvent();
+                            }}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            Delete
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </DndContext>
     );
 }
