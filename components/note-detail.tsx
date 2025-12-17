@@ -40,7 +40,7 @@ import {
 import { Note, updateNote, deleteNote } from "@/actions/notes";
 import { createAssessment } from "@/actions/assessments";
 
-import { AddToCalendarModal } from "@/components/calendar/add-to-calendar-modal";
+import { AddItemModal } from "@/components/calendar/add-item-modal";
 
 interface NoteDetailProps {
     note: Note;
@@ -505,14 +505,7 @@ export function NoteDetail({ note }: NoteDetailProps) {
                     </ul>
                 </section>
             </div>
-            <AddToCalendarModal
-                open={isCalendarOpen}
-                onOpenChange={setIsCalendarOpen}
-                defaultTitle={`Note: ${note.title}`}
-                description={`Review notes for ${note.subject} (${note.class_level}).`}
-                relatedId={note.id}
-                relatedType="note"
-            />
+
         </div>
     );
 }
