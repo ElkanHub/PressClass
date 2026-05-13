@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { callGenerate, reportGenerateError } from "@/lib/api/generate-client";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
@@ -68,22 +69,10 @@ export default function NotesGeneratorPage() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
         try {
-            const response = await fetch("/api/generate/notes", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    ...values,
-                    date: format(values.date, "yyyy-MM-dd"),
-                }),
+            const data = await callGenerate("/api/generate/notes", {
+                ...values,
+                date: format(values.date, "yyyy-MM-dd"),
             });
-
-            if (!response.ok) {
-                throw new Error("Failed to generate notes");
-            }
-
-            const data = await response.json();
 
             // Store the generated data in localStorage to pass to the result page
             // In a real app, we might want to save to DB immediately or use a state management library
@@ -121,8 +110,7 @@ export default function NotesGeneratorPage() {
             router.push("/generator/notes/result");
 
         } catch (error) {
-            console.error(error);
-            toast.error("Failed to generate notes. Please try again.");
+            reportGenerateError(error);
         } finally {
             setIsLoading(false);
         }

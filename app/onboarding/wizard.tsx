@@ -9,18 +9,18 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ColorPicker } from "@/components/ui/color-picker";
 import { CheckCircle2, Loader2, Sparkles, ArrowRight, ArrowLeft } from "lucide-react";
 import { ALL_COUNTRIES, getCountry } from "@/lib/countries";
+import { CURATED_SCHOOL_COLORS, CURATED_PERSONAL_COLORS, buildPalette } from "@/lib/brand";
 import { completeOnboarding, type OnboardingPayload } from "@/actions/onboarding";
 import { toast } from "sonner";
-
-type UserType = "school" | "teacher" | "student" | "regular";
 
 interface Props {
   userId: string;
   email: string;
   initialFullName: string;
-  userType: UserType;
+  userType: "school" | "teacher" | "student" | "regular";
   initialCountryCode: string;
 }
 
@@ -45,15 +45,14 @@ const EXPERIENCE_OPTIONS = [
 ];
 
 const USE_CASES = [
-  { value: "lesson_plans", label: "Build lesson plans faster", emoji: "📋" },
+  { value: "lesson_plans", label: "Build lesson plans faster",   emoji: "📋" },
   { value: "notes",        label: "Create study notes for my students", emoji: "📝" },
-  { value: "assessments",  label: "Generate quizzes & assessments", emoji: "🎯" },
-  { value: "all",          label: "All of the above", emoji: "✨" },
+  { value: "assessments",  label: "Generate quizzes & assessments",     emoji: "🎯" },
+  { value: "all",          label: "All of the above",                   emoji: "✨" },
 ];
 
 const REFERRALS = ["A colleague", "Social media", "Google search", "School", "Other"];
 
-// Lightweight device fingerprint — deters casual signup farming without 3rd-party deps.
 function generateDeviceHash(): string {
   if (typeof window === "undefined") return "";
   const raw = [
@@ -68,13 +67,7 @@ function generateDeviceHash(): string {
   return `dh_${h.toString(36)}`;
 }
 
-export default function OnboardingWizard({
-  userId: _userId,
-  email: _email,
-  initialFullName,
-  userType,
-  initialCountryCode,
-}: Props) {
+export default function OnboardingWizard({ initialFullName, initialCountryCode }: Props) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [pending, startTransition] = useTransition();
@@ -83,6 +76,9 @@ export default function OnboardingWizard({
     fullName: initialFullName,
     countryCode: initialCountryCode,
     phone: "",
+    currentSchool: "",
+    schoolColor: CURATED_SCHOOL_COLORS[0],
+    personalColor: CURATED_PERSONAL_COLORS[0],
     preferredSubjects: [],
     preferredClassLevels: [],
     teachingExperience: "",
@@ -92,18 +88,19 @@ export default function OnboardingWizard({
     deviceHash: "",
   });
 
-  const isTeacherish = userType === "teacher" || userType === "school";
   const steps = useMemo(
     () => [
-      { id: "welcome",     title: "Welcome!",           subtitle: "Let's set up your PressClass.", required: () => true },
-      { id: "identity",    title: "Tell us about you",  subtitle: "We use this to personalize your dashboard.", required: () => !!form.fullName.trim() && !!form.countryCode },
-      { id: "teaching",    title: isTeacherish ? "What do you teach?" : "What do you study?", subtitle: "Pick what's relevant — you can change this later.", required: () => form.preferredSubjects.length > 0 && form.preferredClassLevels.length > 0 },
-      { id: "experience",  title: isTeacherish ? "Your experience" : "How long have you been studying?", subtitle: "Helps us calibrate the difficulty of generations.", required: () => !!form.teachingExperience },
-      { id: "use_case",    title: "What will you use PressClass for?", subtitle: "We'll surface the right tools first.", required: () => !!form.primaryUseCase },
-      { id: "referral",    title: "How did you hear about us?", subtitle: "Last question — promise.", required: () => true },
-      { id: "done",        title: "You're in!",         subtitle: "Your free credits are loaded. Let's go.", required: () => true },
+      { id: "welcome",    title: "Welcome aboard!",                 subtitle: "Let's set up PressClass for the way you teach.", required: () => true },
+      { id: "identity",   title: "Tell us about you",               subtitle: "We use this to personalize your dashboard.",   required: () => !!form.fullName.trim() && !!form.countryCode },
+      { id: "school",     title: "Where do you teach?",             subtitle: "We'll add your school's name to the PDFs you export.", required: () => !!form.currentSchool.trim() },
+      { id: "colors",     title: "Pick your colors",                subtitle: "These brand the PDFs you'll share with students.", required: () => /^#[0-9A-Fa-f]{6}$/.test(form.schoolColor) && /^#[0-9A-Fa-f]{6}$/.test(form.personalColor) },
+      { id: "teaching",   title: "What do you teach?",              subtitle: "Pick what's relevant — you can change this later.", required: () => form.preferredSubjects.length > 0 && form.preferredClassLevels.length > 0 },
+      { id: "experience", title: "Your experience",                 subtitle: "Helps us calibrate the difficulty of generations.", required: () => !!form.teachingExperience },
+      { id: "use_case",   title: "What will you use PressClass for?", subtitle: "We'll surface the right tools first.",         required: () => !!form.primaryUseCase },
+      { id: "referral",   title: "How did you hear about us?",      subtitle: "Last question — promise.",                       required: () => true },
+      { id: "done",       title: "You're in!",                      subtitle: "Your free credits are loaded. Let's go.",        required: () => true },
     ],
-    [form, isTeacherish]
+    [form]
   );
 
   const totalSteps = steps.length;
@@ -125,13 +122,12 @@ export default function OnboardingWizard({
   function next() {
     if (!canAdvance) return;
     if (step === totalSteps - 2) {
-      // About to enter the "done" step → submit
       const payload: OnboardingPayload = { ...form, deviceHash: generateDeviceHash() };
       startTransition(async () => {
         try {
           const result = await completeOnboarding(payload);
           if (result.duplicateFingerprint) {
-            toast.warning("Welcome back! We noticed an existing account fingerprint, so the signup bonus was not applied.");
+            toast.warning("Welcome back! We noticed an existing account, so the signup bonus wasn't applied.");
           } else {
             toast.success(`🎉 ${result.creditsGranted} free credits added to your account!`);
           }
@@ -149,6 +145,8 @@ export default function OnboardingWizard({
     setStep((s) => Math.max(0, s - 1));
   }
 
+  const palette = buildPalette(form.schoolColor, form.personalColor);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10 flex items-center justify-center p-4">
       <Card className="w-full max-w-2xl p-8 shadow-xl">
@@ -165,19 +163,19 @@ export default function OnboardingWizard({
           <p className="mt-2 text-muted-foreground">{current.subtitle}</p>
         </div>
 
-        <div className="min-h-[280px]">
+        <div className="min-h-[300px]">
           {current.id === "welcome" && (
             <div className="space-y-4 text-center py-6">
               <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
                 <Sparkles className="h-8 w-8 text-primary" />
               </div>
               <p className="text-lg">
-                Hey {initialFullName?.split(" ")[0] || "there"} 👋 — PressClass helps African educators
+                Hey {initialFullName?.split(" ")[0] || "there"} 👋 — PressClass helps African teachers
                 build lesson plans, notes and assessments in seconds.
               </p>
               <p className="text-sm text-muted-foreground">
-                We'll ask you a few quick questions (90 seconds, tops) and drop
-                <strong> 25 free credits </strong>into your account to get you started.
+                Quick setup (90 seconds, tops) and we'll drop
+                <strong> 25 free credits </strong>into your account.
               </p>
             </div>
           )}
@@ -214,10 +212,59 @@ export default function OnboardingWizard({
             </div>
           )}
 
+          {current.id === "school" && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="school">School you currently teach at</Label>
+                <Input
+                  id="school"
+                  value={form.currentSchool}
+                  onChange={(e) => update("currentSchool", e.target.value)}
+                  placeholder="e.g. Accra Academy"
+                  autoFocus
+                />
+                <p className="text-xs text-muted-foreground">
+                  This appears on the PDFs you download, so spell it the way you'd like it to look.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {current.id === "colors" && (
+            <div className="space-y-6">
+              <ColorPicker
+                label="School color"
+                description="Usually your school's main brand color. Used as the primary accent in your PDFs."
+                value={form.schoolColor}
+                onChange={(v) => update("schoolColor", v)}
+                swatches={CURATED_SCHOOL_COLORS}
+              />
+              <ColorPicker
+                label="Your personal color"
+                description="A secondary accent. Pick something that feels like you."
+                value={form.personalColor}
+                onChange={(v) => update("personalColor", v)}
+                swatches={CURATED_PERSONAL_COLORS}
+              />
+              <div className="rounded-lg border overflow-hidden">
+                <div className="px-3 py-1 text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Preview</div>
+                <div className="h-2" style={{ backgroundColor: palette.primary }} />
+                <div className="h-1" style={{ backgroundColor: palette.accent }} />
+                <div className="px-4 py-3 bg-white">
+                  <div className="text-sm font-bold" style={{ color: palette.primaryInk }}>Sample Lesson Plan</div>
+                  <div className="text-xs text-neutral-500 mt-0.5">Mathematics • JHS 2</div>
+                  <div className="mt-3 inline-block rounded-md px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: palette.primarySoft, color: palette.primary }}>
+                    OBJECTIVES
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {current.id === "teaching" && (
             <div className="space-y-6">
               <div>
-                <Label className="mb-3 block">Subjects {isTeacherish ? "you teach" : "you study"}</Label>
+                <Label className="mb-3 block">Subjects you teach</Label>
                 <div className="flex flex-wrap gap-2">
                   {SUBJECTS.map((s) => {
                     const active = form.preferredSubjects.includes(s);

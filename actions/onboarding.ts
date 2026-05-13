@@ -13,6 +13,9 @@ export interface OnboardingPayload {
   fullName: string;
   countryCode: string;
   phone?: string;
+  currentSchool: string;
+  schoolColor: string;
+  personalColor: string;
   preferredSubjects: string[];
   preferredClassLevels: string[];
   teachingExperience: "less_than_1" | "1_3" | "3_7" | "7_plus" | "";
@@ -45,6 +48,8 @@ export async function completeOnboarding(
   const admin = createAdminClient();
   const country = getCountry(payload.countryCode);
 
+  const hexOrNull = (v: string) => (/^#[0-9A-Fa-f]{6}$/.test(v) ? v : null);
+
   // 1. Update profile with onboarding data
   const { error: profileErr } = await admin
     .from("profiles")
@@ -54,6 +59,9 @@ export async function completeOnboarding(
       country_name: country?.name ?? null,
       currency: country?.currency ?? "USD",
       phone: payload.phone || null,
+      current_school: payload.currentSchool || null,
+      school_color: hexOrNull(payload.schoolColor),
+      personal_color: hexOrNull(payload.personalColor),
       preferred_subjects: payload.preferredSubjects,
       preferred_class_levels: payload.preferredClassLevels,
       teaching_experience: payload.teachingExperience || null,

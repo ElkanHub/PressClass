@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Loader2, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { callGenerate, reportGenerateError } from "@/lib/api/generate-client";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -100,30 +101,17 @@ export function AssessmentForm() {
     const onSubmit: SubmitHandler<AssessmentFormValues> = async (values) => {
         setIsLoading(true);
         try {
-            const response = await fetch("/api/generate", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(values),
-            });
-
-            if (!response.ok) throw new Error("Failed to generate questions");
-
-            const data = await response.json();
-
-            // Ensure all questions have IDs (fallback if API doesn't provide them)
+            const data = await callGenerate<any>("/api/generate", values);
             if (data.questions && Array.isArray(data.questions)) {
                 data.questions = data.questions.map((q: any, index: number) => ({
                     ...q,
-                    id: q.id || index + 1, // Use API id if available, otherwise use index
+                    id: q.id || index + 1,
                 }));
             }
-
-            // Store results in localStorage or state management to display on results page
             localStorage.setItem("generatedAssessment", JSON.stringify(data));
             router.push("/results");
         } catch (error) {
-            console.error(error);
-            alert("Something went wrong. Please try again.");
+            reportGenerateError(error);
         } finally {
             setIsLoading(false);
         }

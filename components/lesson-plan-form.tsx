@@ -32,6 +32,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { createLessonPlan } from "@/actions/lesson-plans";
 import { toast } from "sonner";
+import { callGenerate, reportGenerateError } from "@/lib/api/generate-client";
 
 const formSchema = z.object({
     schoolName: z.string().optional(),
@@ -66,23 +67,12 @@ export function LessonPlanForm() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsGenerating(true);
         try {
-            // 1. Generate content via API
-            const response = await fetch("/api/generate/lesson-plan", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    ...values,
-                    date: format(values.date, "PPP"),
-                }),
+            const generatedContent = await callGenerate("/api/generate/lesson-plan", {
+                ...values,
+                date: format(values.date, "PPP"),
             });
 
-            if (!response.ok) {
-                throw new Error("Failed to generate lesson plan");
-            }
-
-            const generatedContent = await response.json();
-
-            // 2. Save to Database
+            // Save to Database
             const result = await createLessonPlan({
                 title: `${values.subject}: ${values.topic}`,
                 subject: values.subject,
@@ -103,8 +93,7 @@ export function LessonPlanForm() {
             toast.success("Lesson plan generated successfully!");
             router.push(`/lesson-plans/${result.lessonPlan?.id}`);
         } catch (error) {
-            console.error(error);
-            toast.error("Something went wrong. Please try again.");
+            reportGenerateError(error);
         } finally {
             setIsGenerating(false);
         }

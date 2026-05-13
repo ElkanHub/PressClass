@@ -1,83 +1,124 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { School, GraduationCap, BookOpen, User, Zap } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2, GraduationCap, Sparkles } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
+export default function SignupPage() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-export default function SignupRoleSelection() {
-    const roles = [
-        {
-            title: "School",
-            description: "Register your institution to manage teachers and students.",
-            icon: School,
-            href: "/auth/signup/school",
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    const fd = new FormData(event.currentTarget);
+    const fullName = String(fd.get("fullName") ?? "").trim();
+    const email = String(fd.get("email") ?? "").trim();
+    const password = String(fd.get("password") ?? "");
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const supabase = createClient();
+      const { error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${location.origin}/auth/confirm?next=/onboarding`,
+          data: { full_name: fullName, user_type: "teacher", onboarding_completed: false },
         },
-        {
-            title: "Teacher",
-            description: "Join your school and create assessments.",
-            icon: GraduationCap,
-            href: "/auth/signup/teacher",
-        },
-        {
-            title: "Student",
-            description: "Take assessments and track your progress.",
-            icon: BookOpen,
-            href: "/auth/signup/student",
-        },
-        {
-            title: "Regular User",
-            description: "Personal use access to the platform.",
-            icon: User,
-            href: "/auth/signup/regular",
-        },
-    ];
+      });
+      if (authError) throw authError;
+      router.push("/auth/sign-up-success");
+    } catch (err: any) {
+      setError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
-    return (
-        <div className="flex min-h-screen items-center justify-center bg-muted/50 p-4">
-            <div className="w-full max-w-4xl space-y-8">
-                <div className="text-center space-y-2">
-                    <div className="h-16 flex items-center justify-center px-6 border-b border-border/50">
-                        <Link href="/" className="flex items-center justify-center gap-2 font-bold text-3xl text-primary">
-                            <div className="bg-primary/10 p-1.5 rounded-lg">
-                                <Zap className="h-5 w-5 text-primary" />
-                            </div>
-                            <span>PressClass</span>
-                        </Link>
-                    </div>
-                    <h1 className="text-3xl font-bold tracking-tight">Join PressClass AI</h1>
-                    <p className="text-muted-foreground">Choose how you want to use the platform.</p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {roles.map((role) => (
-                        <Link key={role.title} href={role.href} className="block group">
-                            <Card className="h-full transition-all hover:border-primary hover:shadow-md">
-                                <CardHeader>
-                                    <div className="flex items-center gap-4">
-                                        <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                                            <role.icon className="h-6 w-6" />
-                                        </div>
-                                        <div>
-                                            <CardTitle>{role.title}</CardTitle>
-                                        </div>
-                                    </div>
-                                </CardHeader>
-                                <CardContent>
-                                    <CardDescription className="text-base">
-                                        {role.description}
-                                    </CardDescription>
-                                </CardContent>
-                            </Card>
-                        </Link>
-                    ))}
-                </div>
-
-                <div className="text-center text-sm text-muted-foreground">
-                    Already have an account?{" "}
-                    <Link href="/auth/login" className="text-primary hover:underline">
-                        Sign in
-                    </Link>
-                </div>
-            </div>
+  return (
+    <div className="min-h-screen grid lg:grid-cols-2">
+      <div className="hidden lg:flex flex-col justify-between bg-primary text-primary-foreground p-12">
+        <Link href="/" className="text-2xl font-bold">PressClass</Link>
+        <div className="space-y-6">
+          <div className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 px-3 py-1 text-sm">
+            <Sparkles className="h-4 w-4" />
+            Built for African teachers
+          </div>
+          <h1 className="text-4xl font-bold leading-tight">
+            Plan lessons. Generate notes. Build assessments — in seconds.
+          </h1>
+          <p className="text-lg opacity-90">
+            Join thousands of teachers using PressClass to reclaim their evenings.
+            Get <span className="font-semibold">25 free credits</span> when you finish setup.
+          </p>
         </div>
-    );
+        <p className="text-sm opacity-70">© {new Date().getFullYear()} PressClass</p>
+      </div>
+
+      <div className="flex items-center justify-center p-6 lg:p-12 bg-background">
+        <div className="w-full max-w-md space-y-8">
+          <div>
+            <div className="inline-flex items-center gap-2 mb-4">
+              <GraduationCap className="h-6 w-6 text-primary" />
+              <span className="font-medium text-muted-foreground">Teacher signup</span>
+            </div>
+            <h2 className="text-3xl font-bold tracking-tight">Create your account</h2>
+            <p className="text-muted-foreground mt-2">90 seconds. No credit card.</p>
+          </div>
+
+          <form onSubmit={onSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full name</Label>
+              <Input id="fullName" name="fullName" placeholder="Ama Mensah" required autoComplete="name" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" name="email" type="email" placeholder="you@example.com" required autoComplete="email" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" name="password" type="password" required minLength={8} autoComplete="new-password" />
+              <p className="text-xs text-muted-foreground">At least 8 characters.</p>
+            </div>
+
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            <Button type="submit" className="w-full h-11" disabled={isLoading}>
+              {isLoading ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Creating account…</>
+              ) : (
+                "Create account"
+              )}
+            </Button>
+          </form>
+
+          <div className="text-sm text-muted-foreground text-center">
+            Already have an account?{" "}
+            <Link href="/auth/login" className="text-primary font-medium hover:underline">
+              Sign in
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

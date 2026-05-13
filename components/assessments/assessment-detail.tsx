@@ -17,7 +17,7 @@ import {
     MoreVertical,
     CalendarPlus
 } from "lucide-react";
-import jsPDF from "jspdf";
+import { PdfDownloadButton } from "@/components/pdf-download-button";
 import { Assessment, updateAssessment, deleteAssessment } from "@/actions/assessments";
 import { AddToCalendarModal } from "@/components/calendar/add-to-calendar-modal";
 import { Button } from "@/components/ui/button";
@@ -102,74 +102,6 @@ export function AssessmentDetail({ assessment }: AssessmentDetailProps) {
         setData({ ...data, questions: newQuestions });
     };
 
-    const handleDownloadPDF = () => {
-        const doc = new jsPDF();
-        const margin = 20;
-        let y = 20;
-
-        // Title
-        doc.setFontSize(18);
-        doc.text(data.title || "Classroom Assessment", margin, y);
-        y += 10;
-
-        // Details
-        doc.setFontSize(12);
-        doc.text(`Class: ${data.class_level || 'N/A'}`, margin, y);
-        y += 7;
-        doc.text(`Topic: ${data.topic || 'N/A'}`, margin, y);
-        y += 15;
-
-        // Questions
-        doc.setFontSize(11);
-        data.questions.forEach((q, index) => {
-            if (y > 270) {
-                doc.addPage();
-                y = 20;
-            }
-
-            const questionText = `${index + 1}. ${q.question}`;
-            const splitQuestion = doc.splitTextToSize(questionText, 170);
-            doc.text(splitQuestion, margin, y);
-            y += splitQuestion.length * 7;
-
-            if (q.type === "objective" && q.options) {
-                q.options.forEach((opt: string, i: number) => {
-                    if (y > 280) {
-                        doc.addPage();
-                        y = 20;
-                    }
-                    const optionText = `${String.fromCharCode(65 + i)}. ${opt}`;
-                    doc.text(optionText, margin + 10, y);
-                    y += 6;
-                });
-                y += 5;
-            } else {
-                y += 15; // Space for written answer
-            }
-        });
-
-        // Answers Page
-        if (showAnswers) {
-            doc.addPage();
-            y = 20;
-            doc.setFontSize(16);
-            doc.text("Answer Key", margin, y);
-            y += 15;
-            doc.setFontSize(11);
-
-            data.questions.forEach((q, index) => {
-                if (y > 270) {
-                    doc.addPage();
-                    y = 20;
-                }
-                doc.text(`${index + 1}. ${q.answer}`, margin, y);
-                y += 7;
-            });
-        }
-
-        doc.save(`${data.title.replace(/\s+/g, '_')}.pdf`);
-    };
-
     return (
         <div className="space-y-6">
             {/* Header Actions */}
@@ -215,9 +147,19 @@ export function AssessmentDetail({ assessment }: AssessmentDetailProps) {
                                 {showAnswers ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
                                 {showAnswers ? "Hide Answers" : "Show Answers"}
                             </Button>
-                            <Button variant="outline" onClick={handleDownloadPDF}>
-                                <Download className="mr-2 h-4 w-4" /> PDF
-                            </Button>
+                            <PdfDownloadButton
+                                input={{
+                                    kind: "assessment",
+                                    data: {
+                                        title: data.title,
+                                        class_level: data.class_level,
+                                        topic: data.topic,
+                                        questions: data.questions,
+                                    },
+                                    includeAnswers: showAnswers,
+                                }}
+                                label="PDF"
+                            />
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="outline" size="icon">

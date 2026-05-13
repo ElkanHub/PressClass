@@ -23,9 +23,8 @@ import {
     Minus
 } from "lucide-react";
 import { toast } from "sonner";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
-
+import { PdfDownloadButton } from "@/components/pdf-download-button";
+import { callGenerate, reportGenerateError } from "@/lib/api/generate-client";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -157,81 +156,33 @@ export function LessonPlanDetail({ lessonPlan }: LessonPlanDetailProps) {
         setContent({ ...content, [field]: newList });
     };
 
-    const handleDownloadPDF = async () => {
-        const element = document.getElementById("lesson-plan-content");
-        if (!element) return;
-
-        try {
-            toast.loading("Generating PDF...");
-            const canvas = await html2canvas(element, {
-                scale: 2,
-                logging: false,
-                useCORS: true,
-            });
-            const imgData = canvas.toDataURL("image/png");
-            const pdf = new jsPDF("p", "mm", "a4");
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            const imgWidth = canvas.width;
-            const imgHeight = canvas.height;
-            const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-            const imgX = (pdfWidth - imgWidth * ratio) / 2;
-            const imgY = 30;
-
-            pdf.addImage(imgData, "PNG", imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-            pdf.save(`${lessonPlan.title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.pdf`);
-            toast.dismiss();
-            toast.success("PDF downloaded successfully");
-        } catch (error) {
-            console.error("PDF generation error:", error);
-            toast.dismiss();
-            toast.error("Failed to generate PDF");
-        }
-    };
-
     const handleGenerateAssessment = async () => {
         setIsGeneratingAssessment(true);
         try {
-            // 1. Generate assessment content via API using lesson plan context
-            const response = await fetch("/api/generate", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    subject: lessonPlan.subject,
-                    strand: lessonPlan.topic,
-                    subStrand: lessonPlan.sub_topic || "",
-                    classLevel: lessonPlan.class_level,
-                    questionType: "mixed", // Default to mixed for lesson plan assessments
-                    quantity: 10, // Default quantity
-                    difficulty: "mixed",
-                    difficultyConfig: { easy: 30, normal: 40, hard: 30 },
-                }),
+            const generated = await callGenerate<any>("/api/generate", {
+                subject: lessonPlan.subject,
+                strand: lessonPlan.topic,
+                subStrand: lessonPlan.sub_topic || "",
+                classLevel: lessonPlan.class_level,
+                questionType: "mixed",
+                quantity: 10,
+                difficulty: "mixed",
+                difficultyConfig: { easy: 30, normal: 40, hard: 30 },
             });
-
-            if (!response.ok) {
-                throw new Error("Failed to generate assessment");
-            }
-
-            const generatedContent = await response.json();
-
-            // 2. Save to Database
             const result = await createAssessment({
                 title: `Assessment: ${lessonPlan.title}`,
                 class_level: lessonPlan.class_level,
                 topic: lessonPlan.topic,
-                questions: generatedContent.questions,
+                questions: generated.questions,
             });
-
             if (!result.success) {
                 toast.error(result.error || "Failed to save assessment");
                 return;
             }
-
-            toast.success("Assessment generated successfully!");
+            toast.success("Assessment generated");
             router.push(`/assessments/${result.assessment?.id}`);
         } catch (error) {
-            console.error(error);
-            toast.error("Failed to generate assessment");
+            reportGenerateError(error);
         } finally {
             setIsGeneratingAssessment(false);
         }
@@ -271,10 +222,23 @@ export function LessonPlanDetail({ lessonPlan }: LessonPlanDetailProps) {
                                 <CalendarIcon className="mr-2 h-4 w-4" />
                                 Add to Calendar
                             </Button>
-                            <Button variant="outline" onClick={handleDownloadPDF}>
-                                <Download className="mr-2 h-4 w-4" />
-                                PDF
-                            </Button>
+                            <PdfDownloadButton
+                                input={{
+                                    kind: "lesson_plan",
+                                    data: {
+                                        title: data.title,
+                                        subject: data.subject,
+                                        class_level: data.class_level,
+                                        topic: data.topic,
+                                        sub_topic: data.sub_topic,
+                                        date: data.date,
+                                        duration: data.duration,
+                                        week_term: data.week_term,
+                                        content: content,
+                                    },
+                                }}
+                                label="PDF"
+                            />
                             <Button
                                 onClick={handleGenerateAssessment}
                                 disabled={isGeneratingAssessment}
