@@ -14,6 +14,7 @@ const PROTECTED_PREFIXES = [
   "/results",
   "/credits",
   "/account",
+  "/search",
 ];
 
 function isProtectedPath(pathname: string) {

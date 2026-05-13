@@ -30,7 +30,7 @@ export function PageShell({ title, description, actions, children, className }: 
 }
 
 interface SectionProps {
-  title?: string;
+  title?: ReactNode;
   description?: string;
   actions?: ReactNode;
   children: ReactNode;

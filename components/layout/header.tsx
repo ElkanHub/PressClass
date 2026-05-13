@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Search, Menu, Zap, LogOut } from "lucide-react";
+import { Bell, Search, Menu } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeSwitcher } from "@/components/theme-switcher";
@@ -53,13 +54,7 @@ export default function Header() {
                     </SheetContent>
                 </Sheet>
 
-                <div className="relative w-full max-w-md hidden md:block">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Search assessments, classes..."
-                        className="pl-10 bg-muted/50 border-transparent focus:bg-background rounded-full transition-all duration-200"
-                    />
-                </div>
+                <HeaderSearch />
             </div>
 
             {/* Right: Actions */}
@@ -100,5 +95,36 @@ export default function Header() {
                 </DropdownMenu>
             </div>
         </header>
+    );
+}
+
+function HeaderSearch() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const initial = searchParams.get("q") ?? "";
+    const [value, setValue] = useState(initial);
+
+    useEffect(() => {
+        setValue(searchParams.get("q") ?? "");
+    }, [searchParams]);
+
+    return (
+        <form
+            role="search"
+            className="relative w-full max-w-md hidden md:block"
+            onSubmit={(e) => {
+                e.preventDefault();
+                const q = value.trim();
+                router.push(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
+            }}
+        >
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <Input
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder="Search your lesson plans, notes, assessments…"
+                className="pl-10 bg-muted/50 border-transparent focus:bg-background rounded-full transition-all duration-200"
+            />
+        </form>
     );
 }

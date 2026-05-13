@@ -84,24 +84,32 @@ export async function saveNote(noteData: any) {
     return { success: true };
 }
 
-export async function getNotes(page = 1, limit = 10) {
+export async function getNotes(page = 1, limit = 10, query?: string) {
     const supabase = await createClient();
 
     const {
         data: { user },
     } = await supabase.auth.getUser();
 
-    if (!user) {
-        return { data: [], count: 0 };
-    }
+    if (!user) return { data: [], count: 0 };
 
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
-    const { data, error, count } = await supabase
+    let q = supabase
         .from("notes")
         .select("*", { count: "exact" })
-        .eq("user_id", user.id)
+        .eq("user_id", user.id);
+
+    const trimmed = query?.trim();
+    if (trimmed) {
+        const safe = trimmed.replace(/[%,()]/g, " ");
+        q = q.or(
+            `title.ilike.%${safe}%,subject.ilike.%${safe}%,strand.ilike.%${safe}%,sub_strand.ilike.%${safe}%,class_level.ilike.%${safe}%`
+        );
+    }
+
+    const { data, error, count } = await q
         .order("created_at", { ascending: false })
         .range(from, to);
 
