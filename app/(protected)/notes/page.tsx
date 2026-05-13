@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { Plus, FileText, Calendar, Clock, Search } from "lucide-react";
+import { Plus, FileText, Search } from "lucide-react";
 import { getNotes } from "@/actions/notes";
 import { Button } from "@/components/ui/button";
 import { PageShell } from "@/components/ui/page-shell";
 import { EmptyState } from "@/components/ui/empty-state";
-import { ItemCard } from "@/components/ui/item-card";
+import { RecordList, type RecordColumn } from "@/components/ui/record-list";
 import { ListSearchBar } from "@/components/ui/list-search-bar";
 import { ListPagination } from "@/components/ui/list-pagination";
 
@@ -12,23 +12,37 @@ export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 12;
 
-interface SP {
-  page?: string;
-  q?: string;
+interface SP { page?: string; q?: string; }
+
+interface NoteRow {
+  id: string;
+  title: string;
+  subject?: string;
+  strand?: string;
+  sub_strand?: string;
+  class_level?: string;
+  date?: string;
+  duration?: string;
+  created_at: string;
 }
 
-export default async function NotesPage({
-  searchParams,
-}: {
-  searchParams: Promise<SP>;
-}) {
+const columns: RecordColumn<NoteRow>[] = [
+  { key: "title", label: "Title", primary: true, render: (r) => r.title, className: "w-2/5" },
+  { key: "subject", label: "Subject", render: (r) => r.subject },
+  { key: "strand", label: "Topic", render: (r) => [r.strand, r.sub_strand].filter(Boolean).join(" · ") },
+  { key: "class", label: "Class", badge: true, render: (r) => r.class_level },
+  { key: "date", label: "Date", className: "w-32", render: (r) => r.date || new Date(r.created_at).toLocaleDateString(), hideOnMobile: false },
+];
+
+export default async function NotesPage({ searchParams }: { searchParams: Promise<SP> }) {
   const sp = await searchParams;
   const page = Math.max(1, Number(sp.page ?? "1") || 1);
   const query = (sp.q ?? "").trim();
 
-  const { data: notes, count } = await getNotes(page, PAGE_SIZE, query);
+  const { data, count } = await getNotes(page, PAGE_SIZE, query);
+  const records = (data ?? []) as NoteRow[];
   const hasQuery = !!query;
-  const isEmpty = !notes || notes.length === 0;
+  const isEmpty = records.length === 0;
 
   return (
     <PageShell
@@ -36,9 +50,7 @@ export default async function NotesPage({
       description="Topic notes you can share or print for students."
       actions={
         <Button asChild>
-          <Link href="/generator/notes">
-            <Plus className="mr-2 h-4 w-4" /> Create new
-          </Link>
+          <Link href="/generator/notes"><Plus className="mr-2 h-4 w-4" /> Create new</Link>
         </Button>
       }
     >
@@ -69,21 +81,12 @@ export default async function NotesPage({
         )
       ) : (
         <>
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {notes.map((note: any) => (
-              <ItemCard
-                key={note.id}
-                href={`/notes/${note.id}`}
-                title={note.title}
-                subtitle={[note.strand, note.sub_strand].filter(Boolean).join(" · ")}
-                badge={note.class_level}
-                meta={[
-                  { icon: Calendar, label: note.date || new Date(note.created_at).toLocaleDateString() },
-                  note.duration ? { icon: Clock, label: note.duration } : null,
-                ].filter(Boolean) as any}
-              />
-            ))}
-          </div>
+          <RecordList
+            records={records}
+            columns={columns}
+            rowHref={(r) => `/notes/${r.id}`}
+            rowKey={(r) => r.id}
+          />
           <ListPagination
             page={page}
             pageSize={PAGE_SIZE}
