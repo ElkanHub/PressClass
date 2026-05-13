@@ -12,6 +12,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/s
 import { cn } from "@/lib/utils";
 import SidebarContent from "@/components/layout/sidebar-content";
 import { LogoutButton } from "@/components/logout-button";
+import CreditsPill from "@/components/credits-pill";
 
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
@@ -63,6 +64,7 @@ export default function Header() {
 
             {/* Right: Actions */}
             <div className="flex items-center gap-3">
+                <CreditsPill />
                 <ThemeSwitcher />
 
                 <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:bg-muted">

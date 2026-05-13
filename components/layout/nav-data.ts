@@ -1,4 +1,4 @@
-import { Home, BookOpen, Settings, Zap, FileText, Calendar, Pen, Clock } from "lucide-react";
+import { Home, BookOpen, Zap, Calendar, Pen, Clock, Coins } from "lucide-react";
 
 export const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: Home },
@@ -7,4 +7,5 @@ export const navItems = [
     { href: "/study-time", label: "Study Time", icon: Clock },
     { href: "/calendar", label: "Calendar", icon: Calendar },
     { href: "/whiteboard", label: "Planning Board", icon: Pen },
+    { href: "/credits", label: "Credits", icon: Coins },
 ];
