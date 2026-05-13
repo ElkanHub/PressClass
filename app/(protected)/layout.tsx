@@ -1,6 +1,7 @@
 // app/(protected)/layout.tsx
 import Sidebar from "@/components/layout/sidebar";
 import Header from "@/components/layout/header";
+import { BottomNav } from "@/components/layout/bottom-nav";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -35,9 +36,10 @@ export default async function ProtectedLayout({
     <div className="min-h-screen bg-muted/30">
       <Sidebar />
       <Header />
-      <main className="md:ml-64 p-6 transition-all duration-300">
+      <main className="md:ml-64 p-4 sm:p-6 transition-all duration-300">
         <div className="max-w-6xl mx-auto space-y-6">{children}</div>
       </main>
+      <BottomNav />
     </div>
   );
 }

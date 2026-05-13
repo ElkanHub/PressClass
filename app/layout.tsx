@@ -4,6 +4,8 @@ import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { siteUrl } from "@/lib/seo";
+import { OfflineBanner } from "@/components/offline-banner";
+import { AppleSplashLinks } from "@/components/apple-splash-links";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,29 +35,47 @@ export const metadata: Metadata = {
     "teacher productivity",
     "study notes generator",
   ],
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "PressClass",
+    statusBarStyle: "default",
+  },
+  formatDetection: { telephone: false },
   openGraph: {
     type: "website",
     siteName: "PressClass",
     url: siteUrl,
   },
   twitter: { card: "summary_large_image" },
-  icons: { icon: "/favicon.ico" },
+  icons: {
+    icon: [
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+    { media: "(prefers-color-scheme: light)", color: "#FFFFFF" },
+    { media: "(prefers-color-scheme: dark)", color: "#0F766E" },
   ],
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <AppleSplashLinks />
+      </head>
       <body className={`${geistSans.className} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+          <OfflineBanner />
           {children}
           <Toaster richColors closeButton />
         </ThemeProvider>

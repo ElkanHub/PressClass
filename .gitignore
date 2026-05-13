@@ -44,3 +44,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# PWA — service worker is generated at build time
+public/sw.js
+public/sw.js.map
+public/swe-worker-*.js
+public/worker-*.js
+public/worker-*.js.map
