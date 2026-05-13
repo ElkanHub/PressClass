@@ -35,6 +35,11 @@ export interface OnboardingResult {
  * Persists onboarding answers, records signup fingerprint, and grants the
  * signup bonus iff the fingerprint isn't a known duplicate. Idempotent on
  * the per-user signup_bonus grant.
+ *
+ * Strategy: profile UPDATE is done via the user-scoped client (RLS allows
+ * owners to update). The fingerprint write + grant_credits RPC need the
+ * admin client. We isolate those so a missing service-role key never
+ * silently swallows the profile update.
  */
 export async function completeOnboarding(
   payload: OnboardingPayload
@@ -45,13 +50,12 @@ export async function completeOnboarding(
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
-  const admin = createAdminClient();
   const country = getCountry(payload.countryCode);
-
   const hexOrNull = (v: string) => (/^#[0-9A-Fa-f]{6}$/.test(v) ? v : null);
 
-  // 1. Update profile with onboarding data
-  const { error: profileErr } = await admin
+  // 1. Update profile via the user-scoped client — RLS allows owners to update
+  //    their own row, so this works even without SUPABASE_SERVICE_ROLE_KEY.
+  const { error: profileErr } = await supabase
     .from("profiles")
     .update({
       full_name: payload.fullName,
@@ -71,51 +75,58 @@ export async function completeOnboarding(
       onboarding_completed: true,
       onboarding_step: 999,
       updated_at: new Date().toISOString(),
-    })
+    } as never)
     .eq("id", user.id);
-  if (profileErr) throw new Error(profileErr.message);
+  if (profileErr) throw new Error(`Could not save profile: ${profileErr.message}`);
 
-  // 2. Record fingerprint
-  const hdrs = await headers();
-  const ip = extractClientIp(hdrs);
-  const ua = hdrs.get("user-agent") || null;
-  const emailNorm = user.email ? normalizeEmail(user.email) : null;
-  const ipHash = ip ? hashValue(ip) : null;
-
-  // 3. Detect duplicate fingerprint to suppress bonus
-  let duplicate = false;
-  if (emailNorm || ipHash || payload.deviceHash) {
-    const filters: string[] = [];
-    if (emailNorm) filters.push(`email_normalized.eq.${emailNorm}`);
-    if (ipHash) filters.push(`ip_hash.eq.${ipHash}`);
-    if (payload.deviceHash) filters.push(`device_hash.eq.${payload.deviceHash}`);
-    const { data: existing } = await admin
-      .from("signup_fingerprints")
-      .select("user_id, signup_bonus_granted")
-      .or(filters.join(","))
-      .neq("user_id", user.id)
-      .limit(1);
-    duplicate = Array.isArray(existing) && existing.length > 0;
-  }
-
-  await admin.from("signup_fingerprints").insert({
-    user_id: user.id,
-    email: user.email,
-    email_normalized: emailNorm,
-    ip_hash: ipHash,
-    user_agent: ua,
-    device_hash: payload.deviceHash || null,
-    country_code: payload.countryCode,
-    signup_bonus_granted: !duplicate,
-  });
-
-  // 4. Grant signup bonus (idempotent on user_id reference)
+  // 2. Fingerprint + credit grant. If the service-role key is missing, log
+  //    and proceed — onboarding shouldn't fail just because the bonus path
+  //    isn't fully configured yet. The user can still use the app.
   let creditsGranted = 0;
-  if (!duplicate) {
-    await grantCredits(user.id, SIGNUP_BONUS, "signup_bonus", user.id, {
-      country: payload.countryCode,
-    });
-    creditsGranted = SIGNUP_BONUS;
+  let duplicate = false;
+  try {
+    const admin = createAdminClient();
+    const hdrs = await headers();
+    const ip = extractClientIp(hdrs);
+    const ua = hdrs.get("user-agent") || null;
+    const emailNorm = user.email ? normalizeEmail(user.email) : null;
+    const ipHash = ip ? hashValue(ip) : null;
+
+    if (emailNorm || ipHash || payload.deviceHash) {
+      const filters: string[] = [];
+      if (emailNorm) filters.push(`email_normalized.eq.${emailNorm}`);
+      if (ipHash) filters.push(`ip_hash.eq.${ipHash}`);
+      if (payload.deviceHash) filters.push(`device_hash.eq.${payload.deviceHash}`);
+      const { data: existing } = await admin
+        .from("signup_fingerprints")
+        .select("user_id, signup_bonus_granted")
+        .or(filters.join(","))
+        .neq("user_id", user.id)
+        .limit(1);
+      duplicate = Array.isArray(existing) && existing.length > 0;
+    }
+
+    await admin.from("signup_fingerprints").insert({
+      user_id: user.id,
+      email: user.email,
+      email_normalized: emailNorm,
+      ip_hash: ipHash,
+      user_agent: ua,
+      device_hash: payload.deviceHash || null,
+      country_code: payload.countryCode,
+      signup_bonus_granted: !duplicate,
+    } as never);
+
+    if (!duplicate) {
+      await grantCredits(user.id, SIGNUP_BONUS, "signup_bonus", user.id, {
+        country: payload.countryCode,
+      });
+      creditsGranted = SIGNUP_BONUS;
+    }
+  } catch (err) {
+    // Profile was saved — the user can still use the app. Surface the issue
+    // in logs but keep going.
+    console.error("[onboarding] signup-bonus path failed:", err);
   }
 
   return { ok: true, creditsGranted, duplicateFingerprint: duplicate };

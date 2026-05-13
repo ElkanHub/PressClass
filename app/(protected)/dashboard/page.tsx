@@ -47,7 +47,7 @@ export default async function DashboardPage() {
         </Button>
       }
     >
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 grid-cols-2 sm:gap-4 lg:grid-cols-4">
         <StatCard label="Credits" value={balanceRow?.balance ?? 0} icon={Sparkles} tone="primary" href="/credits" />
         <StatCard label="Lesson plans" value={lessonPlansCount ?? 0} icon={BookOpen} href="/lesson-plans" />
         <StatCard label="Notes" value={notesCount ?? 0} icon={FileText} href="/notes" />

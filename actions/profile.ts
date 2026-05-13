@@ -1,7 +1,6 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { getCountry } from "@/lib/countries";
 
@@ -27,6 +26,9 @@ export interface ProfileTeachingInput {
   marketingOptIn: boolean;
 }
 
+// We use the user-scoped Supabase client throughout — RLS already allows users
+// to update their own profiles row (see migration 01_base_users_profiles_schools).
+// This avoids depending on SUPABASE_SERVICE_ROLE_KEY being set in production.
 async function requireUser() {
   const supabase = await createClient();
   const {
@@ -37,11 +39,10 @@ async function requireUser() {
 }
 
 export async function updateProfileBasic(input: ProfileBasicInput) {
-  const { user } = await requireUser();
+  const { user, supabase } = await requireUser();
   const country = getCountry(input.countryCode);
 
-  const admin = createAdminClient();
-  const { error } = await admin
+  const { error } = await supabase
     .from("profiles")
     .update({
       full_name: input.fullName.trim() || null,
@@ -50,7 +51,7 @@ export async function updateProfileBasic(input: ProfileBasicInput) {
       currency: country?.currency ?? "USD",
       phone: input.phone?.trim() || null,
       updated_at: new Date().toISOString(),
-    })
+    } as never)
     .eq("id", user.id);
   if (error) throw new Error(error.message);
 
@@ -60,16 +61,15 @@ export async function updateProfileBasic(input: ProfileBasicInput) {
 }
 
 export async function updateProfileBrand(input: ProfileBrandInput) {
-  const { user } = await requireUser();
-  const admin = createAdminClient();
-  const { error } = await admin
+  const { user, supabase } = await requireUser();
+  const { error } = await supabase
     .from("profiles")
     .update({
       current_school: input.currentSchool.trim() || null,
       school_color: HEX.test(input.schoolColor) ? input.schoolColor : null,
       personal_color: HEX.test(input.personalColor) ? input.personalColor : null,
       updated_at: new Date().toISOString(),
-    })
+    } as never)
     .eq("id", user.id);
   if (error) throw new Error(error.message);
 
@@ -81,9 +81,8 @@ export async function updateProfileBrand(input: ProfileBrandInput) {
 }
 
 export async function updateProfileTeaching(input: ProfileTeachingInput) {
-  const { user } = await requireUser();
-  const admin = createAdminClient();
-  const { error } = await admin
+  const { user, supabase } = await requireUser();
+  const { error } = await supabase
     .from("profiles")
     .update({
       preferred_subjects: input.preferredSubjects,
@@ -92,7 +91,7 @@ export async function updateProfileTeaching(input: ProfileTeachingInput) {
       primary_use_case: input.primaryUseCase || null,
       marketing_opt_in: input.marketingOptIn,
       updated_at: new Date().toISOString(),
-    })
+    } as never)
     .eq("id", user.id);
   if (error) throw new Error(error.message);
 
@@ -104,9 +103,9 @@ export async function updateUserPassword(currentPassword: string, newPassword: s
   if (newPassword.length < 8) throw new Error("Password must be at least 8 characters.");
 
   const { user, supabase } = await requireUser();
+  if (!user.email) throw new Error("Account has no email.");
 
   // Re-authenticate first so a stolen session can't silently rotate the password.
-  if (!user.email) throw new Error("Account has no email.");
   const { error: signInError } = await supabase.auth.signInWithPassword({
     email: user.email,
     password: currentPassword,

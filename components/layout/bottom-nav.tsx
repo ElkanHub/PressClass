@@ -29,46 +29,41 @@ export function BottomNav() {
   const generatorActive = pathname.startsWith("/generator");
 
   return (
-    <>
-      {/* Spacer so content isn't hidden behind the bar */}
-      <div aria-hidden className="md:hidden h-20 w-full" />
+    <nav
+      aria-label="Primary"
+      className="md:hidden fixed bottom-0 inset-x-0 z-40 pb-[max(0px,env(safe-area-inset-bottom))]"
+    >
+      {/* subtle top fade so cards behind the bar don't feel cut off */}
+      <div className="pointer-events-none absolute -top-6 inset-x-0 h-6 bg-gradient-to-t from-background to-transparent" />
 
-      <nav
-        aria-label="Primary"
-        className="md:hidden fixed bottom-0 inset-x-0 z-40 pb-[max(0px,env(safe-area-inset-bottom))]"
-      >
-        {/* subtle top fade so cards behind the bar don't feel cut off */}
-        <div className="pointer-events-none absolute -top-6 inset-x-0 h-6 bg-gradient-to-t from-background to-transparent" />
+      <div className="relative bg-background/90 backdrop-blur-xl border-t border-border/70">
+        <ul className="grid grid-cols-5 items-end px-2 pt-2">
+          {tabs.slice(0, 2).map((t) => (
+            <li key={t.href}><TabLink tab={t} active={t.matches(pathname)} /></li>
+          ))}
 
-        <div className="relative bg-background/90 backdrop-blur-xl border-t border-border/70">
-          <ul className="grid grid-cols-5 items-end px-2 pt-2">
-            {tabs.slice(0, 2).map((t) => (
-              <li key={t.href}><TabLink tab={t} active={t.matches(pathname)} /></li>
-            ))}
+          {/* Elevated Generate button */}
+          <li className="flex justify-center">
+            <Link
+              href="/generator"
+              aria-label="Generate"
+              className={cn(
+                "relative inline-flex h-14 w-14 -translate-y-3 items-center justify-center rounded-full shadow-lg shadow-primary/30 transition-transform active:scale-95",
+                generatorActive
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-primary text-primary-foreground hover:brightness-110"
+              )}
+            >
+              <Plus className="h-6 w-6" strokeWidth={2.5} />
+            </Link>
+          </li>
 
-            {/* Elevated Generate button */}
-            <li className="flex justify-center">
-              <Link
-                href="/generator"
-                aria-label="Generate"
-                className={cn(
-                  "relative inline-flex h-14 w-14 -translate-y-3 items-center justify-center rounded-full shadow-lg shadow-primary/30 transition-transform active:scale-95",
-                  generatorActive
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-primary text-primary-foreground hover:brightness-110"
-                )}
-              >
-                <Plus className="h-6 w-6" strokeWidth={2.5} />
-              </Link>
-            </li>
-
-            {tabs.slice(2).map((t) => (
-              <li key={t.href}><TabLink tab={t} active={t.matches(pathname)} /></li>
-            ))}
-          </ul>
-        </div>
-      </nav>
-    </>
+          {tabs.slice(2).map((t) => (
+            <li key={t.href}><TabLink tab={t} active={t.matches(pathname)} /></li>
+          ))}
+        </ul>
+      </div>
+    </nav>
   );
 }
 
