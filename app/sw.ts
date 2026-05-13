@@ -1,3 +1,4 @@
+/// <reference lib="webworker" />
 // app/sw.ts — Serwist service worker source.
 // Compiled to public/sw.js at build time by @serwist/next.
 
@@ -19,9 +20,18 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope;
 
+// Listen for a SKIP_WAITING message from the client so the user controls
+// when the new version activates — gives us a chance to show an "Update ready"
+// toast in the UI instead of silently replacing the SW mid-session.
+self.addEventListener("message", (event) => {
+  if ((event as ExtendableMessageEvent).data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
+
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
-  skipWaiting: true,
+  skipWaiting: false,
   clientsClaim: true,
   navigationPreload: true,
   runtimeCaching: [

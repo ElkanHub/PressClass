@@ -2,6 +2,7 @@
 import Sidebar from "@/components/layout/sidebar";
 import Header from "@/components/layout/header";
 import { BottomNav } from "@/components/layout/bottom-nav";
+import { PwaPrompts } from "@/components/pwa-prompts";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -40,6 +41,7 @@ export default async function ProtectedLayout({
         <div className="max-w-6xl mx-auto space-y-6">{children}</div>
       </main>
       <BottomNav />
+      <PwaPrompts />
     </div>
   );
 }
