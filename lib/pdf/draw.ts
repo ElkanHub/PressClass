@@ -128,18 +128,20 @@ export function drawDocumentTitle(ctx: PageContext, title: string, subtitle?: st
   ctx.doc.setFont("helvetica", "bold");
   ctx.doc.setFontSize(22);
   setTextFromHex(ctx, ctx.palette.primaryInk);
-  const titleLines = ctx.doc.splitTextToSize(title, pageWidthInner(ctx));
+  const cleanTitle = normalizeText(title).replace(/\n+/g, " ");
+  const titleLines = ctx.doc.splitTextToSize(cleanTitle, pageWidthInner(ctx));
   ctx.doc.text(titleLines, ctx.marginX, ctx.y);
-  ctx.y += titleLines.length * 8;
+  ctx.y += titleLines.length * 9;
 
   if (subtitle) {
     ctx.doc.setFont("helvetica", "normal");
     ctx.doc.setFontSize(11);
     setTextFromHex(ctx, ctx.palette.muted);
-    ctx.doc.text(subtitle, ctx.marginX, ctx.y + 3);
+    const cleanSubtitle = normalizeText(subtitle).replace(/\n+/g, " ");
+    ctx.doc.text(cleanSubtitle, ctx.marginX, ctx.y + 3);
     ctx.y += 8;
   }
-  ctx.y += 4;
+  ctx.y += 5;
 }
 
 export function drawSectionHeading(ctx: PageContext, label: string) {
@@ -156,24 +158,62 @@ export function drawSectionHeading(ctx: PageContext, label: string) {
   ctx.y += 6;
 }
 
+/**
+ * Strip markdown noise the AI sometimes returns (**bold**, *italic*,
+ * leading "- " or "* " bullets, smart quotes). The PDF renderer can't
+ * apply markdown styling anyway — better to show clean text.
+ */
+export function normalizeText(text: string): string {
+  return text
+    // Strip bold/italic markers but keep the inner text
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/__(.+?)__/g, "$1")
+    .replace(/\*(.+?)\*/g, "$1")
+    .replace(/_(.+?)_/g, "$1")
+    // Remove leading list markers — we'll render bullets ourselves
+    .replace(/^[\s]*[-*•]\s+/gm, "")
+    // Smart quotes / em-dashes → ASCII (jsPDF's helvetica has limited glyphs)
+    .replace(/[“”]/g, '"')
+    .replace(/[‘’]/g, "'")
+    .replace(/—/g, "-")
+    .replace(/–/g, "-")
+    .replace(/…/g, "...")
+    // Collapse trailing whitespace on each line
+    .replace(/[ \t]+$/gm, "");
+}
+
+/**
+ * Render a block of text with proper paragraph + line-break handling.
+ *  - Blank lines (`\n\n+`) split paragraphs (extra vertical gap)
+ *  - Single newlines (`\n`) become soft line breaks (no gap)
+ *  - Long lines wrap to fit the page width via splitTextToSize
+ */
 export function drawParagraph(ctx: PageContext, text: string, opts?: { size?: number; bold?: boolean }) {
   if (!text) return;
+  const cleaned = normalizeText(text);
   const size = opts?.size ?? 10.5;
   ctx.doc.setFont("helvetica", opts?.bold ? "bold" : "normal");
   ctx.doc.setFontSize(size);
   setTextFromHex(ctx, ctx.palette.text);
-  const lineHeight = size * 0.45;
-  const paragraphs = text.split(/\n\n+/);
-  for (const para of paragraphs) {
-    const normalised = para.replace(/\n/g, " ").trim();
-    if (!normalised) continue;
-    const lines = ctx.doc.splitTextToSize(normalised, pageWidthInner(ctx));
-    for (const line of lines) {
-      ensureSpace(ctx, lineHeight + 1);
-      ctx.doc.text(line, ctx.marginX, ctx.y);
-      ctx.y += lineHeight;
+  const lineHeight = size * 0.5;
+  const width = pageWidthInner(ctx);
+
+  const paragraphs = cleaned.split(/\n\s*\n+/);
+  for (let p = 0; p < paragraphs.length; p++) {
+    const para = paragraphs[p].trim();
+    if (!para) continue;
+
+    // Each "soft line" (\n) becomes its own wrap group.
+    const softLines = para.split(/\n/).map((l) => l.trim()).filter(Boolean);
+    for (const soft of softLines) {
+      const wrapped = ctx.doc.splitTextToSize(soft, width);
+      for (const line of wrapped) {
+        ensureSpace(ctx, lineHeight + 1);
+        ctx.doc.text(line, ctx.marginX, ctx.y);
+        ctx.y += lineHeight;
+      }
     }
-    ctx.y += 2;
+    if (p < paragraphs.length - 1) ctx.y += 2.5; // gap between paragraphs
   }
 }
 
@@ -181,18 +221,30 @@ export function drawBulletList(ctx: PageContext, items: string[]) {
   if (!items?.length) return;
   ctx.doc.setFont("helvetica", "normal");
   ctx.doc.setFontSize(10.5);
-  setTextFromHex(ctx, ctx.palette.text);
   const indent = 6;
   const lineHeight = 5.2;
-  for (const item of items) {
+  const width = pageWidthInner(ctx) - indent;
+
+  for (const raw of items) {
+    if (!raw) continue;
+    const item = normalizeText(raw).trim();
     if (!item) continue;
-    const lines = ctx.doc.splitTextToSize(item, pageWidthInner(ctx) - indent);
-    ensureSpace(ctx, lineHeight * lines.length + 1);
+
+    // Bullet items themselves may have internal line breaks (rare but seen)
+    const softLines = item.split(/\n/).map((l) => l.trim()).filter(Boolean);
+    const wrappedLines: string[] = [];
+    for (const soft of softLines) {
+      const w = ctx.doc.splitTextToSize(soft, width);
+      wrappedLines.push(...w);
+    }
+
+    ensureSpace(ctx, lineHeight * wrappedLines.length + 1);
+    // Bullet dot on the first line
     setTextFromHex(ctx, ctx.palette.primary);
     ctx.doc.text("•", ctx.marginX, ctx.y);
     setTextFromHex(ctx, ctx.palette.text);
-    ctx.doc.text(lines, ctx.marginX + indent, ctx.y);
-    ctx.y += lines.length * lineHeight + 1;
+    ctx.doc.text(wrappedLines, ctx.marginX + indent, ctx.y);
+    ctx.y += wrappedLines.length * lineHeight + 1.5;
   }
 }
 

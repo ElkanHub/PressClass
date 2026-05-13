@@ -9,6 +9,7 @@ import {
   drawParagraph,
   drawSectionHeading,
   ensureSpace,
+  normalizeText,
   pageWidthInner,
   safeFileName,
 } from "@/lib/pdf/draw";
@@ -239,7 +240,8 @@ export function renderAssessment(data: AssessmentPayload, opts: RenderOptions) {
     ctx.doc.setFont("helvetica", "bold");
     ctx.doc.setFontSize(10.5);
     const indexLabel = `${i + 1}.`;
-    const questionLines = ctx.doc.splitTextToSize(q.question, pageWidthInner(ctx) - 8);
+    const questionText = normalizeText(q.question).replace(/\n+/g, " ");
+    const questionLines = ctx.doc.splitTextToSize(questionText, pageWidthInner(ctx) - 8);
     ensureSpace(ctx, questionLines.length * 5 + 6);
     ctx.doc.setTextColor(17, 24, 39);
     ctx.doc.text(indexLabel, ctx.marginX, ctx.y);
@@ -251,7 +253,8 @@ export function renderAssessment(data: AssessmentPayload, opts: RenderOptions) {
       ctx.doc.setFontSize(10);
       q.options.forEach((opt, oi) => {
         const letter = String.fromCharCode(65 + oi);
-        const optLines = ctx.doc.splitTextToSize(`${letter}.  ${opt}`, pageWidthInner(ctx) - 12);
+        const optText = normalizeText(opt).replace(/\n+/g, " ");
+        const optLines = ctx.doc.splitTextToSize(`${letter}.  ${optText}`, pageWidthInner(ctx) - 12);
         ensureSpace(ctx, optLines.length * 5);
         ctx.doc.setTextColor(55, 65, 81);
         ctx.doc.text(optLines, ctx.marginX + 8, ctx.y);
@@ -278,7 +281,7 @@ export function renderAssessment(data: AssessmentPayload, opts: RenderOptions) {
       ctx.doc.setFont("helvetica", "bold");
       ctx.doc.setFontSize(10);
       ctx.doc.setTextColor(17, 24, 39);
-      const answer = q.answer || "—";
+      const answer = normalizeText(q.answer || "—").replace(/\n+/g, " ");
       const lines = ctx.doc.splitTextToSize(`${i + 1}. ${answer}`, pageWidthInner(ctx));
       ensureSpace(ctx, lines.length * 5 + 2);
       ctx.doc.text(lines, ctx.marginX, ctx.y);
