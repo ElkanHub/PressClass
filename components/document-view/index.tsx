@@ -3,37 +3,49 @@
 // components/document-view/index.tsx
 // Shared primitives for the in-app document reader. Mirrors lib/pdf/templates.ts
 // so what teachers edit on screen visually matches what they download as a PDF.
-// Supports inline edit mode + light/dark themes + responsive layout.
+// Supports inline edit mode + light/dark themes + responsive layout + the user's
+// chosen school / personal colors.
 
-import { ReactNode, useId } from "react";
+import { CSSProperties, ReactNode, useId } from "react";
 import { Plus, Trash2, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import type { BrandPalette } from "@/lib/brand";
 
 // ---------------------------------------------------------------------------
-// Paper — outer "page" container. Uses card token so it adapts to dark mode
-// while still feeling like a sheet of paper. Header bar at the top echoes the
-// branded-PDF header.
+// Paper — outer "page" container. Emits the user's school + personal colors
+// as CSS custom properties so children can pick them up without prop drilling.
 // ---------------------------------------------------------------------------
 
 interface DocumentPaperProps {
   children: ReactNode;
   className?: string;
+  /** Brand palette. Falls back to site primary/accent if omitted. */
+  palette?: BrandPalette;
 }
 
-export function DocumentPaper({ children, className }: DocumentPaperProps) {
+export function DocumentPaper({ children, className, palette }: DocumentPaperProps) {
+  const style: CSSProperties = {};
+  if (palette) {
+    (style as any)["--doc-primary"] = palette.primary;
+    (style as any)["--doc-primary-soft"] = palette.primarySoft;
+    (style as any)["--doc-accent"] = palette.accent;
+    (style as any)["--doc-accent-soft"] = palette.accentSoft;
+  }
+
   return (
     <article
+      style={style}
       className={cn(
-        "relative overflow-hidden rounded-2xl border bg-card text-card-foreground shadow-sm",
+        "doc-root relative overflow-hidden rounded-2xl border bg-card text-card-foreground shadow-sm",
         "max-w-4xl mx-auto",
         className
       )}
     >
-      <div className="h-2 bg-primary" />
-      <div className="h-[3px] bg-accent" />
+      <div className="h-2 bg-[var(--doc-primary,theme(colors.primary.DEFAULT))]" />
+      <div className="h-[3px] bg-[var(--doc-accent,theme(colors.accent.DEFAULT))]" />
       <div className="px-5 py-8 sm:px-10 sm:py-12 space-y-10">{children}</div>
     </article>
   );
@@ -130,6 +142,7 @@ function MetaCell({
 
 // ---------------------------------------------------------------------------
 // Section — eyebrow heading + underline + content. Mirrors PDF section heading.
+// Uses the document's primary brand color (school color).
 // ---------------------------------------------------------------------------
 
 interface DocumentSectionProps {
@@ -143,10 +156,16 @@ export function DocumentSection({ label, actions, children }: DocumentSectionPro
     <section className="space-y-3">
       <div className="flex items-end justify-between gap-3">
         <div className="space-y-1.5">
-          <div className="text-xs font-semibold uppercase tracking-widest text-primary">
+          <div
+            className="text-xs font-semibold uppercase tracking-widest"
+            style={{ color: "var(--doc-primary, hsl(var(--primary)))" }}
+          >
             {label}
           </div>
-          <div className="h-[2px] w-10 bg-primary" />
+          <div
+            className="h-[2px] w-10"
+            style={{ backgroundColor: "var(--doc-primary, hsl(var(--primary)))" }}
+          />
         </div>
         {actions && <div className="flex items-center gap-1">{actions}</div>}
       </div>
@@ -189,7 +208,6 @@ export function DocumentParagraph({
   }
   if (!value) return <p className="text-sm text-muted-foreground italic">{placeholder}</p>;
 
-  // Preserve paragraph breaks like the PDF does.
   const paragraphs = value.split(/\n\n+/).filter(Boolean);
   return (
     <div className={cn("space-y-3 leading-relaxed", emphasis ? "font-medium" : "")}>
@@ -201,7 +219,7 @@ export function DocumentParagraph({
 }
 
 // ---------------------------------------------------------------------------
-// Bullet list with editable add/remove/edit.
+// Bullet list with editable add/remove/edit. Brand-coloured bullet dots.
 // ---------------------------------------------------------------------------
 
 interface DocumentBulletListProps {
@@ -225,7 +243,10 @@ export function DocumentBulletList({
       <ul className="space-y-2">
         {list.map((item, i) => (
           <li key={i} className="flex gap-3 leading-relaxed">
-            <span className="mt-2 inline-block h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+            <span
+              className="mt-2 inline-block h-1.5 w-1.5 rounded-full shrink-0"
+              style={{ backgroundColor: "var(--doc-primary, hsl(var(--primary)))" }}
+            />
             <span>{item}</span>
           </li>
         ))}
@@ -279,7 +300,7 @@ export function DocumentBulletList({
 }
 
 // ---------------------------------------------------------------------------
-// Callout — tinted box used for activities, lesson stages, etc.
+// Callout — tinted box. Brand-coloured background derived from primary/accent.
 // ---------------------------------------------------------------------------
 
 interface DocumentCalloutProps {
@@ -301,16 +322,31 @@ export function DocumentCallout({
   minRows = 4,
   placeholder = "—",
 }: DocumentCalloutProps) {
-  const toneClasses =
+  const inkVar =
     tone === "primary"
-      ? "bg-primary/[0.06] border-primary/30"
-      : "bg-accent/10 border-accent/40";
-  const ink = tone === "primary" ? "text-primary" : "text-accent";
+      ? "var(--doc-primary, hsl(var(--primary)))"
+      : "var(--doc-accent, hsl(var(--accent)))";
+  const fillVar =
+    tone === "primary"
+      ? "var(--doc-primary-soft, hsl(var(--primary) / 0.08))"
+      : "var(--doc-accent-soft, hsl(var(--accent) / 0.12))";
 
   return (
-    <div className={cn("rounded-xl border p-4 sm:p-5", toneClasses)}>
+    <div
+      className="rounded-xl border p-4 sm:p-5"
+      style={{
+        backgroundColor: fillVar,
+        borderColor: inkVar,
+        // Render a softer border via opacity overlay
+        borderWidth: 1,
+        borderStyle: "solid",
+      }}
+    >
       {label && (
-        <div className={cn("text-[10px] font-semibold uppercase tracking-widest mb-2", ink)}>
+        <div
+          className="text-[10px] font-semibold uppercase tracking-widest mb-2"
+          style={{ color: inkVar }}
+        >
           {label}
         </div>
       )}

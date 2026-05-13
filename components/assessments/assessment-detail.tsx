@@ -40,6 +40,8 @@ import {
 import { PdfDownloadButton } from "@/components/pdf-download-button";
 import { AddToCalendarModal } from "@/components/calendar/add-to-calendar-modal";
 import { Assessment, deleteAssessment, updateAssessment } from "@/actions/assessments";
+import { useTeacherBrand } from "@/hooks/use-teacher-brand";
+import { buildPalette } from "@/lib/brand";
 
 interface AssessmentDetailProps {
   assessment: Assessment;
@@ -55,6 +57,8 @@ interface Question {
 
 export function AssessmentDetail({ assessment }: AssessmentDetailProps) {
   const router = useRouter();
+  const { brand } = useTeacherBrand();
+  const palette = buildPalette(brand?.schoolColor, brand?.personalColor);
   const [isEditing, setIsEditing] = useState(false);
   const [showAnswers, setShowAnswers] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -196,7 +200,7 @@ export function AssessmentDetail({ assessment }: AssessmentDetailProps) {
         }
       />
 
-      <DocumentPaper>
+      <DocumentPaper palette={palette}>
         <DocumentHeader
           title={data.title}
           subtitle={

@@ -43,6 +43,8 @@ import {
 } from "@/actions/lesson-plans";
 import { createAssessment } from "@/actions/assessments";
 import { callGenerate, reportGenerateError } from "@/lib/api/generate-client";
+import { useTeacherBrand } from "@/hooks/use-teacher-brand";
+import { buildPalette } from "@/lib/brand";
 
 interface LessonPlanContent {
   schoolName?: string;
@@ -60,6 +62,8 @@ interface LessonPlanDetailProps {
 
 export function LessonPlanDetail({ lessonPlan }: LessonPlanDetailProps) {
   const router = useRouter();
+  const { brand } = useTeacherBrand();
+  const palette = buildPalette(brand?.schoolColor, brand?.personalColor);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isGeneratingAssessment, setIsGeneratingAssessment] = useState(false);
@@ -221,7 +225,7 @@ export function LessonPlanDetail({ lessonPlan }: LessonPlanDetailProps) {
         }
       />
 
-      <DocumentPaper>
+      <DocumentPaper palette={palette}>
         <DocumentHeader
           title={data.title}
           subtitle={[data.subject, data.class_level].filter(Boolean).join(" · ")}

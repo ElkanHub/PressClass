@@ -39,6 +39,8 @@ import { AddItemModal } from "@/components/calendar/add-item-modal";
 import { Note, deleteNote, updateNote } from "@/actions/notes";
 import { createAssessment } from "@/actions/assessments";
 import { callGenerate, reportGenerateError } from "@/lib/api/generate-client";
+import { useTeacherBrand } from "@/hooks/use-teacher-brand";
+import { buildPalette } from "@/lib/brand";
 
 interface NoteContent {
   summary?: string;
@@ -56,6 +58,8 @@ interface NoteDetailProps {
 
 export function NoteDetail({ note }: NoteDetailProps) {
   const router = useRouter();
+  const { brand } = useTeacherBrand();
+  const palette = buildPalette(brand?.schoolColor, brand?.personalColor);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isGeneratingAssessment, setIsGeneratingAssessment] = useState(false);
@@ -223,7 +227,7 @@ export function NoteDetail({ note }: NoteDetailProps) {
         }
       />
 
-      <DocumentPaper>
+      <DocumentPaper palette={palette}>
         <DocumentHeader
           title={data.title}
           subtitle={[data.subject, data.class_level].filter(Boolean).join(" · ")}
