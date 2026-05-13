@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { HERO_IMAGE } from "@/lib/images";
+import GoogleAuthButton from "@/components/google-auth-button";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -39,7 +40,10 @@ export default function SignupPage() {
         email,
         password,
         options: {
-          emailRedirectTo: `${location.origin}/auth/confirm?next=/onboarding`,
+          // Default Supabase email templates redirect back here with ?code=...,
+          // which `/auth/callback` exchanges for a session. /auth/confirm also
+          // accepts ?code= for custom templates.
+          emailRedirectTo: `${location.origin}/auth/callback?next=/onboarding`,
           data: { full_name: fullName, user_type: "teacher", onboarding_completed: false },
         },
       });
@@ -93,6 +97,16 @@ export default function SignupPage() {
             </div>
             <h2 className="text-3xl font-bold tracking-tight">Create your account</h2>
             <p className="text-muted-foreground mt-2">90 seconds. No credit card.</p>
+          </div>
+
+          <div className="space-y-4">
+            <GoogleAuthButton />
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">or with email</span>
+              </div>
+            </div>
           </div>
 
           <form onSubmit={onSubmit} className="space-y-5">

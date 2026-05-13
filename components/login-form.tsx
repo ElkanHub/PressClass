@@ -1,136 +1,154 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { Loader2, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Zap } from "lucide-react";
-
-
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import GoogleAuthButton from "@/components/google-auth-button";
+import { HERO_IMAGE } from "@/lib/images";
 
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+export function LoginForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    const supabase = createClient();
     setIsLoading(true);
     setError(null);
-
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-
       router.push("/dashboard");
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
+      router.refresh();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setIsLoading(false);
     }
-  };
+  }
 
   return (
-
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <div className="h-16 flex items-center justify-center px-6 border-b border-border/50">
-        <Link href="/" className="flex items-center justify-center gap-2 font-bold text-3xl text-primary">
-          <div className="bg-primary/10 p-1.5 rounded-lg">
-            <Zap className="h-5 w-5 text-primary" />
+    <div className="min-h-screen grid lg:grid-cols-2">
+      {/* Left: image + marketing panel */}
+      <div className="hidden lg:block relative overflow-hidden">
+        <Image
+          src={HERO_IMAGE.src}
+          alt={HERO_IMAGE.alt}
+          fill
+          priority
+          sizes="50vw"
+          className="object-cover"
+          style={{ objectPosition: HERO_IMAGE.focus }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/95 via-primary/80 to-primary/60" />
+        <div className="relative h-full flex flex-col justify-between text-primary-foreground p-12">
+          <Link href="/" className="text-2xl font-bold">PressClass</Link>
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 backdrop-blur px-3 py-1 text-sm">
+              <Sparkles className="h-4 w-4" />
+              Welcome back
+            </div>
+            <h1 className="text-4xl font-bold leading-tight">
+              Pick up where you left off.
+            </h1>
+            <p className="text-lg opacity-90">
+              Your lesson plans, notes, and assessments — exactly as you left them.
+            </p>
           </div>
-          <span>PressClass</span>
-        </Link>
+          <p className="text-sm opacity-70">© {new Date().getFullYear()} PressClass</p>
+        </div>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>
-            Enter your email below to login to your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4">
+
+      {/* Right: form */}
+      <div className="flex items-center justify-center p-6 lg:p-12 bg-background">
+        <div className="w-full max-w-md space-y-8">
+          <div className="lg:hidden">
+            <Link href="/" className="inline-flex items-center gap-2 font-bold text-2xl text-primary">
+              PressClass
+            </Link>
+          </div>
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">Sign in</h2>
+            <p className="text-muted-foreground mt-2">Welcome back. Let's get you teaching.</p>
+          </div>
+
+          <div className="space-y-4">
             <GoogleAuthButton />
+
             <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
+              <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with email
-                </span>
+                <span className="bg-background px-2 text-muted-foreground">or with email</span>
               </div>
             </div>
-            <form onSubmit={handleLogin}>
-              <div className="flex flex-col gap-6">
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="m@example.com"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <div className="flex items-center">
-                    <Label htmlFor="password">Password</Label>
-                    <Link
-                      href="/auth/forgot-password"
-                      className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                    >
-                      Forgot your password?
-                    </Link>
-                  </div>
-                  <Input
-                    id="password"
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-                {error && <p className="text-sm text-red-500">{error}</p>}
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Logging in..." : "Login"}
-                </Button>
+
+            <form onSubmit={handleLogin} className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  required
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
-              <div className="mt-4 text-center text-sm">
-                Don&apos;t have an account?{" "}
-                <Link
-                  href="/auth/sign-up"
-                  className="underline underline-offset-4"
-                >
-                  Sign up
-                </Link>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
+                  <Link
+                    href="/auth/forgot-password"
+                    className="text-xs text-muted-foreground hover:text-primary"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
               </div>
+
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              <Button type="submit" className="w-full h-11" disabled={isLoading}>
+                {isLoading ? (
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Signing in…</>
+                ) : (
+                  "Sign in"
+                )}
+              </Button>
             </form>
           </div>
-        </CardContent>
-      </Card>
+
+          <div className="text-sm text-muted-foreground text-center">
+            New here?{" "}
+            <Link href="/auth/signup" className="text-primary font-medium hover:underline">
+              Create an account
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

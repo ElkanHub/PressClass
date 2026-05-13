@@ -1,20 +1,14 @@
+// app/auth/logout/route.ts — actually sign the user out, then bounce home.
+
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
-export async function GET() {
-    const supabase = await createClient();
-
-    // Check if a user's logged in
-    // const {
-    //     data: { user },
-    // } = await supabase.auth.getUser();
-
-    // if (user) {
-    //     await supabase.auth.signOut();
-    // }
-
-    // revalidatePath("/", "layout"); ..
-    return NextResponse.redirect("/auth/login", {
-        status: 302,
-    });
+export async function GET(request: Request) {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  const { origin } = new URL(request.url);
+  return NextResponse.redirect(`${origin}/`, { status: 302 });
 }
+
+// Some clients send POST for logout — accept both.
+export const POST = GET;
