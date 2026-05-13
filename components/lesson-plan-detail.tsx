@@ -4,537 +4,337 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import {
-    BookOpen,
-    Calendar as CalendarIcon,
-    Clock,
-    Download,
-    FileText,
-    GraduationCap,
-    Layout,
-    Loader2,
-    School,
-    Share2,
-    Edit2,
-    Trash2,
-    Save,
-    X,
-    MoreVertical,
-    Plus,
-    Minus
+  ArrowLeft,
+  Calendar as CalendarIcon,
+  Edit2,
+  FileText,
+  Loader2,
+  MoreVertical,
+  Save,
+  Trash2,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { PdfDownloadButton } from "@/components/pdf-download-button";
-import { callGenerate, reportGenerateError } from "@/lib/api/generate-client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LessonPlan, updateLessonPlan, deleteLessonPlan } from "@/actions/lesson-plans";
-import { createAssessment } from "@/actions/assessments";
+import {
+  DocumentActionBar,
+  DocumentBulletList,
+  DocumentCallout,
+  DocumentHeader,
+  DocumentMeta,
+  DocumentPaper,
+  DocumentParagraph,
+  DocumentSection,
+} from "@/components/document-view";
+import { PdfDownloadButton } from "@/components/pdf-download-button";
 import { AddToCalendarModal } from "@/components/calendar/add-to-calendar-modal";
-
-interface LessonPlanDetailProps {
-    lessonPlan: LessonPlan;
-}
+import {
+  LessonPlan,
+  deleteLessonPlan,
+  updateLessonPlan,
+} from "@/actions/lesson-plans";
+import { createAssessment } from "@/actions/assessments";
+import { callGenerate, reportGenerateError } from "@/lib/api/generate-client";
 
 interface LessonPlanContent {
-    schoolName?: string;
-    objectives?: string[];
-    rpk?: string;
-    materials?: string[];
-    stages?: {
-        starter?: string;
-        development?: string;
-        reflection?: string;
-    };
-    corePoints?: string[];
-    evaluation?: string[];
+  schoolName?: string;
+  objectives?: string[];
+  rpk?: string;
+  materials?: string[];
+  stages?: { starter?: string; development?: string; reflection?: string };
+  corePoints?: string[];
+  evaluation?: string[];
+}
+
+interface LessonPlanDetailProps {
+  lessonPlan: LessonPlan;
 }
 
 export function LessonPlanDetail({ lessonPlan }: LessonPlanDetailProps) {
-    const router = useRouter();
-    const [isGeneratingAssessment, setIsGeneratingAssessment] = useState(false);
-    const [isEditing, setIsEditing] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
-    const [data, setData] = useState(lessonPlan);
-    const [content, setContent] = useState(lessonPlan.content as LessonPlanContent);
-    const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
+  const router = useRouter();
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isGeneratingAssessment, setIsGeneratingAssessment] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [data, setData] = useState(lessonPlan);
+  const [content, setContent] = useState<LessonPlanContent>(
+    lessonPlan.content as LessonPlanContent
+  );
 
-    // Helper function to format text with proper line breaks and paragraphs
-    const formatText = (text: string | undefined) => {
-        if (!text) return null;
+  function reset() {
+    setIsEditing(false);
+    setData(lessonPlan);
+    setContent(lessonPlan.content as LessonPlanContent);
+  }
 
-        // Split by double line breaks for paragraphs, or single line breaks
-        const paragraphs = text.split(/\n\n+/).filter(p => p.trim());
+  async function handleSave() {
+    setIsSaving(true);
+    try {
+      await updateLessonPlan(data.id, {
+        title: data.title,
+        subject: data.subject,
+        class_level: data.class_level,
+        topic: data.topic,
+        sub_topic: data.sub_topic,
+        duration: data.duration,
+        week_term: data.week_term,
+        date: data.date,
+        content,
+      });
+      setIsEditing(false);
+      router.refresh();
+      toast.success("Lesson plan saved");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't save");
+    } finally {
+      setIsSaving(false);
+    }
+  }
 
-        return paragraphs.map((para, idx) => {
-            // Split each paragraph by single line breaks
-            const lines = para.split(/\n/).filter(l => l.trim());
-            return (
-                <p key={idx} className="mb-3 last:mb-0">
-                    {lines.map((line, lineIdx) => (
-                        <span key={lineIdx}>
-                            {line}
-                            {lineIdx < lines.length - 1 && <br />}
-                        </span>
-                    ))}
-                </p>
-            );
-        });
-    };
+  async function handleDelete() {
+    if (!confirm("Delete this lesson plan? This cannot be undone.")) return;
+    try {
+      await deleteLessonPlan(data.id);
+      toast.success("Lesson plan deleted");
+      router.push("/lesson-plans");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't delete");
+    }
+  }
 
-    const handleSave = async () => {
-        setIsSaving(true);
-        try {
-            await updateLessonPlan(data.id, {
-                title: data.title,
-                subject: data.subject,
-                class_level: data.class_level,
-                topic: data.topic,
-                sub_topic: data.sub_topic,
-                duration: data.duration,
-                week_term: data.week_term,
-                date: data.date,
-                content: content,
-            });
-            setIsEditing(false);
-            router.refresh();
-            toast.success("Lesson plan saved successfully");
-        } catch (error) {
-            console.error("Failed to save:", error);
-            toast.error("Failed to save changes");
-        } finally {
-            setIsSaving(false);
+  async function handleGenerateAssessment() {
+    setIsGeneratingAssessment(true);
+    try {
+      const generated = await callGenerate<any>("/api/generate", {
+        subject: data.subject,
+        strand: data.topic,
+        subStrand: data.sub_topic || "",
+        classLevel: data.class_level,
+        questionType: "mixed",
+        quantity: 10,
+        difficulty: "mixed",
+        difficultyConfig: { easy: 30, normal: 40, hard: 30 },
+      });
+      const result = await createAssessment({
+        title: `Assessment: ${data.title}`,
+        class_level: data.class_level,
+        topic: data.topic,
+        questions: generated.questions,
+      });
+      if (!result.success) {
+        toast.error(result.error || "Couldn't save assessment");
+        return;
+      }
+      toast.success("Assessment generated");
+      router.push(`/assessments/${result.assessment?.id}`);
+    } catch (err) {
+      reportGenerateError(err);
+    } finally {
+      setIsGeneratingAssessment(false);
+    }
+  }
+
+  const createdAt = (() => {
+    if (!data.created_at) return null;
+    const d = new Date(data.created_at);
+    return isNaN(d.getTime()) ? null : format(d, "PPP");
+  })();
+
+  return (
+    <>
+      <DocumentActionBar
+        eyebrow="Lesson plan"
+        meta={createdAt ? `Created ${createdAt}` : undefined}
+        actions={
+          isEditing ? (
+            <>
+              <Button variant="ghost" onClick={reset} disabled={isSaving}>
+                <X className="mr-1.5 h-4 w-4" /> Cancel
+              </Button>
+              <Button onClick={handleSave} disabled={isSaving}>
+                {isSaving ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Save className="mr-1.5 h-4 w-4" />}
+                Save
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" onClick={() => router.push("/lesson-plans")}>
+                <ArrowLeft className="mr-1.5 h-4 w-4" /> Back
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+                <Edit2 className="mr-1.5 h-4 w-4" /> Edit
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setIsCalendarOpen(true)}>
+                <CalendarIcon className="mr-1.5 h-4 w-4" /> Schedule
+              </Button>
+              <PdfDownloadButton
+                input={{
+                  kind: "lesson_plan",
+                  data: {
+                    title: data.title,
+                    subject: data.subject,
+                    class_level: data.class_level,
+                    topic: data.topic,
+                    sub_topic: data.sub_topic,
+                    date: data.date,
+                    duration: data.duration,
+                    week_term: data.week_term,
+                    content,
+                  },
+                }}
+                label="PDF"
+              />
+              <Button
+                size="sm"
+                onClick={handleGenerateAssessment}
+                disabled={isGeneratingAssessment}
+              >
+                {isGeneratingAssessment ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <FileText className="mr-1.5 h-4 w-4" />}
+                Assessment
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setIsEditing(true)}>
+                    <Edit2 className="mr-2 h-4 w-4" /> Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive" onClick={handleDelete}>
+                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          )
         }
-    };
+      />
 
-    const handleDelete = async () => {
-        if (confirm("Are you sure you want to delete this lesson plan? This action cannot be undone.")) {
-            try {
-                await deleteLessonPlan(data.id);
-                toast.success("Lesson plan deleted");
-                router.push("/lesson-plans");
-            } catch (error) {
-                console.error("Failed to delete:", error);
-                toast.error("Failed to delete lesson plan");
+      <DocumentPaper>
+        <DocumentHeader
+          title={data.title}
+          subtitle={[data.subject, data.class_level].filter(Boolean).join(" · ")}
+          editing={isEditing}
+          onTitleChange={(v) => setData({ ...data, title: v })}
+        />
+
+        <DocumentMeta
+          editing={isEditing}
+          onChange={(field, value) => {
+            if (field === "schoolName") {
+              setContent({ ...content, schoolName: value });
+            } else {
+              setData({ ...data, [field]: value });
             }
-        }
-    };
+          }}
+          fields={[
+            { label: "School",     value: content.schoolName, field: "schoolName",  editable: true },
+            { label: "Class",      value: data.class_level,    field: "class_level", editable: true },
+            { label: "Subject",    value: data.subject,        field: "subject",     editable: true },
+            { label: "Topic",      value: data.topic,          field: "topic",       editable: true },
+            { label: "Sub-topic",  value: data.sub_topic,      field: "sub_topic",   editable: true },
+            { label: "Date",       value: data.date,           field: "date",        editable: true },
+            { label: "Duration",   value: data.duration,       field: "duration",    editable: true },
+            { label: "Week / Term",value: data.week_term,      field: "week_term",   editable: true },
+          ]}
+        />
 
-    const handleContentChange = (field: keyof LessonPlanContent, value: any) => {
-        setContent({ ...content, [field]: value });
-    };
+        <DocumentSection label="Learning objectives">
+          <DocumentBulletList
+            items={content.objectives}
+            editing={isEditing}
+            onChange={(items) => setContent({ ...content, objectives: items })}
+          />
+        </DocumentSection>
 
-    const handleStageChange = (stage: keyof NonNullable<LessonPlanContent['stages']>, value: string) => {
-        setContent({
-            ...content,
-            stages: { ...content.stages, [stage]: value }
-        });
-    };
+        <DocumentSection label="Relevant previous knowledge">
+          <DocumentParagraph
+            value={content.rpk}
+            editing={isEditing}
+            minRows={4}
+            onChange={(v) => setContent({ ...content, rpk: v })}
+          />
+        </DocumentSection>
 
-    const handleListChange = (field: 'objectives' | 'materials' | 'corePoints' | 'evaluation', index: number, value: string) => {
-        const newList = [...(content[field] || [])];
-        newList[index] = value;
-        setContent({ ...content, [field]: newList });
-    };
+        <DocumentSection label="Materials">
+          <DocumentBulletList
+            items={content.materials}
+            editing={isEditing}
+            onChange={(items) => setContent({ ...content, materials: items })}
+          />
+        </DocumentSection>
 
-    const addListItem = (field: 'objectives' | 'materials' | 'corePoints' | 'evaluation') => {
-        setContent({ ...content, [field]: [...(content[field] || []), ""] });
-    };
-
-    const removeListItem = (field: 'objectives' | 'materials' | 'corePoints' | 'evaluation', index: number) => {
-        const newList = [...(content[field] || [])];
-        newList.splice(index, 1);
-        setContent({ ...content, [field]: newList });
-    };
-
-    const handleGenerateAssessment = async () => {
-        setIsGeneratingAssessment(true);
-        try {
-            const generated = await callGenerate<any>("/api/generate", {
-                subject: lessonPlan.subject,
-                strand: lessonPlan.topic,
-                subStrand: lessonPlan.sub_topic || "",
-                classLevel: lessonPlan.class_level,
-                questionType: "mixed",
-                quantity: 10,
-                difficulty: "mixed",
-                difficultyConfig: { easy: 30, normal: 40, hard: 30 },
-            });
-            const result = await createAssessment({
-                title: `Assessment: ${lessonPlan.title}`,
-                class_level: lessonPlan.class_level,
-                topic: lessonPlan.topic,
-                questions: generated.questions,
-            });
-            if (!result.success) {
-                toast.error(result.error || "Failed to save assessment");
-                return;
-            }
-            toast.success("Assessment generated");
-            router.push(`/assessments/${result.assessment?.id}`);
-        } catch (error) {
-            reportGenerateError(error);
-        } finally {
-            setIsGeneratingAssessment(false);
-        }
-    };
-
-    return (
-        <div className="space-y-6">
-            {/* Actions Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card p-4 rounded-lg border shadow-sm">
-                <div className="w-full md:w-auto flex-1">
-                    {isEditing ? (
-                        <Input
-                            value={data.title}
-                            onChange={(e) => setData({ ...data, title: e.target.value })}
-                            className="font-bold text-xl mb-2"
-                        />
-                    ) : (
-                        <h1 className="text-2xl font-bold">{data.title}</h1>
-                    )}
-                    <p className="text-muted-foreground text-sm">
-                        Created on {format(new Date(data.created_at), "PPP")}
-                    </p>
-                </div>
-                <div className="flex gap-2 flex-wrap justify-end">
-                    {isEditing ? (
-                        <>
-                            <Button variant="outline" onClick={() => { setIsEditing(false); setData(lessonPlan); setContent(lessonPlan.content as LessonPlanContent); }}>
-                                <X className="mr-2 h-4 w-4" /> Cancel
-                            </Button>
-                            <Button onClick={handleSave} disabled={isSaving}>
-                                <Save className="mr-2 h-4 w-4" /> {isSaving ? "Saving..." : "Save Changes"}
-                            </Button>
-                        </>
-                    ) : (
-                        <>
-                            <Button variant="outline" onClick={() => setIsCalendarModalOpen(true)}>
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                Add to Calendar
-                            </Button>
-                            <PdfDownloadButton
-                                input={{
-                                    kind: "lesson_plan",
-                                    data: {
-                                        title: data.title,
-                                        subject: data.subject,
-                                        class_level: data.class_level,
-                                        topic: data.topic,
-                                        sub_topic: data.sub_topic,
-                                        date: data.date,
-                                        duration: data.duration,
-                                        week_term: data.week_term,
-                                        content: content,
-                                    },
-                                }}
-                                label="PDF"
-                            />
-                            <Button
-                                onClick={handleGenerateAssessment}
-                                disabled={isGeneratingAssessment}
-                                className="bg-gradient-to-r from-primary to-purple-600"
-                            >
-                                {isGeneratingAssessment ? (
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                ) : (
-                                    <FileText className="mr-2 h-4 w-4" />
-                                )}
-                                Generate Assessment
-                            </Button>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" size="icon">
-                                        <MoreVertical className="h-4 w-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                                        <Edit2 className="mr-2 h-4 w-4" /> Edit Lesson Plan
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem className="text-destructive" onClick={handleDelete}>
-                                        <Trash2 className="mr-2 h-4 w-4" /> Delete
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </>
-                    )}
-                </div>
-            </div>
-
-            {/* Lesson Plan Content */}
-            <div id="lesson-plan-content" className="bg-white text-black p-8 rounded-lg shadow-lg max-w-4xl mx-auto space-y-8">
-                {/* 1. Administrative Details */}
-                <section className="grid grid-cols-2 md:grid-cols-3 gap-4 border-b pb-6">
-                    <div>
-                        <h3 className="font-bold text-gray-500 text-xs uppercase tracking-wider">School</h3>
-                        {isEditing ? (
-                            <Input value={content.schoolName || ""} onChange={(e) => handleContentChange('schoolName', e.target.value)} className="h-8" />
-                        ) : (
-                            <p className="font-medium">{content.schoolName || "N/A"}</p>
-                        )}
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-gray-500 text-xs uppercase tracking-wider">Class</h3>
-                        {isEditing ? (
-                            <Input value={data.class_level} onChange={(e) => setData({ ...data, class_level: e.target.value })} className="h-8" />
-                        ) : (
-                            <p className="font-medium">{data.class_level}</p>
-                        )}
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-gray-500 text-xs uppercase tracking-wider">Subject</h3>
-                        {isEditing ? (
-                            <Input value={data.subject} onChange={(e) => setData({ ...data, subject: e.target.value })} className="h-8" />
-                        ) : (
-                            <p className="font-medium">{data.subject}</p>
-                        )}
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-gray-500 text-xs uppercase tracking-wider">Date</h3>
-                        {isEditing ? (
-                            <Input value={data.date || ""} onChange={(e) => setData({ ...data, date: e.target.value })} className="h-8" />
-                        ) : (
-                            <p className="font-medium">{data.date || "N/A"}</p>
-                        )}
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-gray-500 text-xs uppercase tracking-wider">Duration</h3>
-                        {isEditing ? (
-                            <Input value={data.duration || ""} onChange={(e) => setData({ ...data, duration: e.target.value })} className="h-8" />
-                        ) : (
-                            <p className="font-medium">{data.duration || "N/A"}</p>
-                        )}
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-gray-500 text-xs uppercase tracking-wider">Week/Term</h3>
-                        {isEditing ? (
-                            <Input value={data.week_term || ""} onChange={(e) => setData({ ...data, week_term: e.target.value })} className="h-8" />
-                        ) : (
-                            <p className="font-medium">{data.week_term || "N/A"}</p>
-                        )}
-                    </div>
-                </section>
-
-                {/* 2. Topic / Sub-topic */}
-                <section>
-                    <h2 className="text-xl font-bold text-primary mb-3 flex items-center gap-2">
-                        <Layout className="h-5 w-5" />
-                        Topic & Sub-topic
-                    </h2>
-                    <div className="bg-gray-50 p-4 rounded-md space-y-2">
-                        {isEditing ? (
-                            <>
-                                <div>
-                                    <span className="font-semibold">Topic:</span>
-                                    <Input value={data.topic || ""} onChange={(e) => setData({ ...data, topic: e.target.value })} className="mt-1" />
-                                </div>
-                                <div>
-                                    <span className="font-semibold">Sub-topic:</span>
-                                    <Input value={data.sub_topic || ""} onChange={(e) => setData({ ...data, sub_topic: e.target.value })} className="mt-1" />
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <p><span className="font-semibold">Topic:</span> {data.topic}</p>
-                                <p><span className="font-semibold">Sub-topic:</span> {data.sub_topic}</p>
-                            </>
-                        )}
-                    </div>
-                </section>
-
-                {/* 3. Objectives */}
-                <section>
-                    <div className="flex justify-between items-center mb-3">
-                        <h2 className="text-xl font-bold text-primary flex items-center gap-2">
-                            <GraduationCap className="h-5 w-5" />
-                            Learning Objectives
-                        </h2>
-                        {isEditing && (
-                            <Button size="sm" variant="outline" onClick={() => addListItem('objectives')}>
-                                <Plus className="h-4 w-4 mr-1" /> Add
-                            </Button>
-                        )}
-                    </div>
-                    <ul className="list-disc list-inside space-y-2 bg-gray-50 p-4 rounded-md">
-                        {content.objectives?.map((obj: string, i: number) => (
-                            <li key={i} className="flex gap-2 items-center">
-                                {isEditing ? (
-                                    <>
-                                        <Input value={obj} onChange={(e) => handleListChange('objectives', i, e.target.value)} />
-                                        <Button size="icon" variant="ghost" onClick={() => removeListItem('objectives', i)}>
-                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                        </Button>
-                                    </>
-                                ) : (
-                                    <span>{obj}</span>
-                                )}
-                            </li>
-                        ))}
-                    </ul>
-                </section>
-
-                {/* 4. R.P.K. */}
-                <section>
-                    <h2 className="text-xl font-bold text-primary mb-3 flex items-center gap-2">
-                        <Clock className="h-5 w-5" />
-                        Relevant Previous Knowledge (R.P.K.)
-                    </h2>
-                    <div className="bg-gray-50 p-4 rounded-md">
-                        {isEditing ? (
-                            <Textarea value={content.rpk || ""} onChange={(e) => handleContentChange('rpk', e.target.value)} rows={4} />
-                        ) : (
-                            <div className="text-gray-700 leading-relaxed">
-                                {formatText(content.rpk)}
-                            </div>
-                        )}
-                    </div>
-                </section>
-
-                {/* 5. Materials */}
-                <section>
-                    <div className="flex justify-between items-center mb-3">
-                        <h2 className="text-xl font-bold text-primary flex items-center gap-2">
-                            <BookOpen className="h-5 w-5" />
-                            Teaching / Learning Materials
-                        </h2>
-                        {isEditing && (
-                            <Button size="sm" variant="outline" onClick={() => addListItem('materials')}>
-                                <Plus className="h-4 w-4 mr-1" /> Add
-                            </Button>
-                        )}
-                    </div>
-                    <ul className="list-disc list-inside space-y-2 bg-gray-50 p-4 rounded-md">
-                        {content.materials?.map((item: string, i: number) => (
-                            <li key={i} className="flex gap-2 items-center">
-                                {isEditing ? (
-                                    <>
-                                        <Input value={item} onChange={(e) => handleListChange('materials', i, e.target.value)} />
-                                        <Button size="icon" variant="ghost" onClick={() => removeListItem('materials', i)}>
-                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                        </Button>
-                                    </>
-                                ) : (
-                                    <span>{item}</span>
-                                )}
-                            </li>
-                        ))}
-                    </ul>
-                </section>
-
-                {/* 6. Lesson Stages */}
-                <section>
-                    <h2 className="text-xl font-bold text-primary mb-3 flex items-center gap-2">
-                        <School className="h-5 w-5" />
-                        Lesson Stages
-                    </h2>
-                    <div className="space-y-4">
-                        <div className="border-l-4 border-green-500 pl-4 py-2 bg-green-50 rounded-r-md">
-                            <h3 className="font-bold text-green-700">Starter / Introduction</h3>
-                            {isEditing ? (
-                                <Textarea value={content.stages?.starter || ""} onChange={(e) => handleStageChange('starter', e.target.value)} className="mt-1 bg-white" rows={4} />
-                            ) : (
-                                <div className="mt-2 text-gray-700 leading-relaxed">
-                                    {formatText(content.stages?.starter)}
-                                </div>
-                            )}
-                        </div>
-                        <div className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50 rounded-r-md">
-                            <h3 className="font-bold text-blue-700">Main Development</h3>
-                            {isEditing ? (
-                                <Textarea value={content.stages?.development || ""} onChange={(e) => handleStageChange('development', e.target.value)} className="mt-1 bg-white min-h-[150px]" rows={8} />
-                            ) : (
-                                <div className="mt-2 text-gray-700 leading-relaxed">
-                                    {formatText(content.stages?.development)}
-                                </div>
-                            )}
-                        </div>
-                        <div className="border-l-4 border-orange-500 pl-4 py-2 bg-orange-50 rounded-r-md">
-                            <h3 className="font-bold text-orange-700">Reflection / Plenary</h3>
-                            {isEditing ? (
-                                <Textarea value={content.stages?.reflection || ""} onChange={(e) => handleStageChange('reflection', e.target.value)} className="mt-1 bg-white" rows={4} />
-                            ) : (
-                                <div className="mt-2 text-gray-700 leading-relaxed">
-                                    {formatText(content.stages?.reflection)}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </section>
-
-                {/* 7. Core Points */}
-                <section>
-                    <div className="flex justify-between items-center mb-3">
-                        <h2 className="text-xl font-bold text-primary">Core Points</h2>
-                        {isEditing && (
-                            <Button size="sm" variant="outline" onClick={() => addListItem('corePoints')}>
-                                <Plus className="h-4 w-4 mr-1" /> Add
-                            </Button>
-                        )}
-                    </div>
-                    <ul className="list-disc list-inside space-y-2 bg-gray-50 p-4 rounded-md">
-                        {content.corePoints?.map((point: string, i: number) => (
-                            <li key={i} className="flex gap-2 items-center">
-                                {isEditing ? (
-                                    <>
-                                        <Input value={point} onChange={(e) => handleListChange('corePoints', i, e.target.value)} />
-                                        <Button size="icon" variant="ghost" onClick={() => removeListItem('corePoints', i)}>
-                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                        </Button>
-                                    </>
-                                ) : (
-                                    <span>{point}</span>
-                                )}
-                            </li>
-                        ))}
-                    </ul>
-                </section>
-
-                {/* 8. Evaluation */}
-                <section>
-                    <div className="flex justify-between items-center mb-3">
-                        <h2 className="text-xl font-bold text-primary">Evaluation / Assessment</h2>
-                        {isEditing && (
-                            <Button size="sm" variant="outline" onClick={() => addListItem('evaluation')}>
-                                <Plus className="h-4 w-4 mr-1" /> Add
-                            </Button>
-                        )}
-                    </div>
-                    <ul className="list-disc list-inside space-y-2 bg-gray-50 p-4 rounded-md">
-                        {content.evaluation?.map((item: string, i: number) => (
-                            <li key={i} className="flex gap-2 items-center">
-                                {isEditing ? (
-                                    <>
-                                        <Input value={item} onChange={(e) => handleListChange('evaluation', i, e.target.value)} />
-                                        <Button size="icon" variant="ghost" onClick={() => removeListItem('evaluation', i)}>
-                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                        </Button>
-                                    </>
-                                ) : (
-                                    <span>{item}</span>
-                                )}
-                            </li>
-                        ))}
-                    </ul>
-                </section>
-            </div>
-            <AddToCalendarModal
-                open={isCalendarModalOpen}
-                onOpenChange={setIsCalendarModalOpen}
-                defaultTitle={`Lesson: ${lessonPlan.title}`}
-                description={`Teach ${lessonPlan.subject} (${lessonPlan.class_level}) - ${lessonPlan.topic}.`}
-                relatedId={lessonPlan.id}
-                relatedType="lesson_plan"
+        <DocumentSection label="Lesson stages">
+          <div className="space-y-4">
+            <DocumentCallout
+              tone="primary"
+              label="Starter / Introduction"
+              value={content.stages?.starter}
+              editing={isEditing}
+              onChange={(v) =>
+                setContent({ ...content, stages: { ...content.stages, starter: v } })
+              }
+              minRows={4}
             />
-        </div>
-    );
+            <DocumentCallout
+              tone="accent"
+              label="Main development"
+              value={content.stages?.development}
+              editing={isEditing}
+              onChange={(v) =>
+                setContent({ ...content, stages: { ...content.stages, development: v } })
+              }
+              minRows={8}
+            />
+            <DocumentCallout
+              tone="primary"
+              label="Reflection / Plenary"
+              value={content.stages?.reflection}
+              editing={isEditing}
+              onChange={(v) =>
+                setContent({ ...content, stages: { ...content.stages, reflection: v } })
+              }
+              minRows={4}
+            />
+          </div>
+        </DocumentSection>
+
+        <DocumentSection label="Core points">
+          <DocumentBulletList
+            items={content.corePoints}
+            editing={isEditing}
+            onChange={(items) => setContent({ ...content, corePoints: items })}
+          />
+        </DocumentSection>
+
+        <DocumentSection label="Evaluation">
+          <DocumentBulletList
+            items={content.evaluation}
+            editing={isEditing}
+            onChange={(items) => setContent({ ...content, evaluation: items })}
+          />
+        </DocumentSection>
+      </DocumentPaper>
+
+      <AddToCalendarModal
+        open={isCalendarOpen}
+        onOpenChange={setIsCalendarOpen}
+        defaultTitle={`Lesson: ${lessonPlan.title}`}
+        description={`Teach ${lessonPlan.subject} (${lessonPlan.class_level}) — ${lessonPlan.topic}.`}
+        relatedId={lessonPlan.id}
+        relatedType="lesson_plan"
+      />
+    </>
+  );
 }

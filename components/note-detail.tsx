@@ -4,474 +4,307 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import {
-    BookOpen,
-    Calendar as CalendarIcon,
-    Clock,
-    Download,
-    FileText,
-    Layout,
-    Loader2,
-    School,
-    Edit2,
-    Trash2,
-    Save,
-    X,
-    MoreVertical,
-    Plus,
-    Minus,
-    Lightbulb,
-    List,
-    HelpCircle,
-    Link as LinkIcon
+  ArrowLeft,
+  Calendar as CalendarIcon,
+  Edit2,
+  FileText,
+  Loader2,
+  MoreVertical,
+  Save,
+  Trash2,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { PdfDownloadButton } from "@/components/pdf-download-button";
-import { callGenerate, reportGenerateError } from "@/lib/api/generate-client";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Note, updateNote, deleteNote } from "@/actions/notes";
-import { createAssessment } from "@/actions/assessments";
-
+import {
+  DocumentActionBar,
+  DocumentBulletList,
+  DocumentCallout,
+  DocumentHeader,
+  DocumentMeta,
+  DocumentPaper,
+  DocumentParagraph,
+  DocumentSection,
+} from "@/components/document-view";
+import { PdfDownloadButton } from "@/components/pdf-download-button";
 import { AddItemModal } from "@/components/calendar/add-item-modal";
-
-interface NoteDetailProps {
-    note: Note;
-}
+import { Note, deleteNote, updateNote } from "@/actions/notes";
+import { createAssessment } from "@/actions/assessments";
+import { callGenerate, reportGenerateError } from "@/lib/api/generate-client";
 
 interface NoteContent {
-    summary?: string;
-    lessonSummary?: string;
-    keyPoints?: string[];
-    examples?: string[];
-    questions?: string[];
-    activity?: string;
-    resources?: string[];
+  summary?: string;
+  lessonSummary?: string;
+  keyPoints?: string[];
+  examples?: string[];
+  questions?: string[];
+  activity?: string;
+  resources?: string[];
+}
+
+interface NoteDetailProps {
+  note: Note;
 }
 
 export function NoteDetail({ note }: NoteDetailProps) {
-    const router = useRouter();
-    const [isGeneratingAssessment, setIsGeneratingAssessment] = useState(false);
-    const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
-    const [isEditing, setIsEditing] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
-    const [data, setData] = useState(note);
-    const [content, setContent] = useState(note.content as NoteContent);
+  const router = useRouter();
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isGeneratingAssessment, setIsGeneratingAssessment] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [data, setData] = useState(note);
+  const [content, setContent] = useState<NoteContent>(note.content as NoteContent);
 
-    const handleSave = async () => {
-        setIsSaving(true);
-        try {
-            await updateNote(data.id, {
-                title: data.title,
-                school: data.school,
-                class_level: data.class_level,
-                subject: data.subject,
-                strand: data.strand,
-                sub_strand: data.sub_strand,
-                duration: data.duration,
-                week_term: data.week_term,
-                date: data.date,
-                content: content,
-            });
-            setIsEditing(false);
-            router.refresh();
-            toast.success("Notes saved successfully");
-        } catch (error) {
-            console.error("Failed to save:", error);
-            toast.error("Failed to save changes");
-        } finally {
-            setIsSaving(false);
+  function reset() {
+    setIsEditing(false);
+    setData(note);
+    setContent(note.content as NoteContent);
+  }
+
+  async function handleSave() {
+    setIsSaving(true);
+    try {
+      await updateNote(data.id, {
+        title: data.title,
+        school: data.school,
+        class_level: data.class_level,
+        subject: data.subject,
+        strand: data.strand,
+        sub_strand: data.sub_strand,
+        duration: data.duration,
+        week_term: data.week_term,
+        date: data.date,
+        content,
+      });
+      setIsEditing(false);
+      router.refresh();
+      toast.success("Notes saved");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't save");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!confirm("Delete these notes? This cannot be undone.")) return;
+    try {
+      await deleteNote(data.id);
+      toast.success("Notes deleted");
+      router.push("/notes");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't delete");
+    }
+  }
+
+  async function handleGenerateAssessment() {
+    setIsGeneratingAssessment(true);
+    try {
+      const generated = await callGenerate<any>("/api/generate", {
+        subject: data.subject,
+        strand: data.strand,
+        subStrand: data.sub_strand || "",
+        classLevel: data.class_level,
+        questionType: "mixed",
+        quantity: 10,
+        difficulty: "mixed",
+        difficultyConfig: { easy: 30, normal: 40, hard: 30 },
+      });
+      const result = await createAssessment({
+        title: `Assessment: ${data.title}`,
+        class_level: data.class_level,
+        topic: data.strand,
+        questions: generated.questions,
+      });
+      if (!result.success) {
+        toast.error(result.error || "Couldn't save assessment");
+        return;
+      }
+      toast.success("Assessment generated");
+      router.push(`/assessments/${result.assessment?.id}`);
+    } catch (err) {
+      reportGenerateError(err);
+    } finally {
+      setIsGeneratingAssessment(false);
+    }
+  }
+
+  const summary = content.lessonSummary ?? content.summary;
+  const formattedDate = (() => {
+    if (!data.date) return "—";
+    const d = new Date(data.date);
+    return isNaN(d.getTime()) ? data.date : format(d, "PPP");
+  })();
+  const createdAt = (() => {
+    if (!data.created_at) return null;
+    const d = new Date(data.created_at);
+    return isNaN(d.getTime()) ? null : format(d, "PPP");
+  })();
+
+  return (
+    <>
+      <DocumentActionBar
+        eyebrow="Notes"
+        meta={createdAt ? `Created ${createdAt}` : undefined}
+        actions={
+          isEditing ? (
+            <>
+              <Button variant="ghost" onClick={reset} disabled={isSaving}>
+                <X className="mr-1.5 h-4 w-4" /> Cancel
+              </Button>
+              <Button onClick={handleSave} disabled={isSaving}>
+                {isSaving ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Save className="mr-1.5 h-4 w-4" />}
+                Save
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" onClick={() => router.push("/notes")}>
+                <ArrowLeft className="mr-1.5 h-4 w-4" /> Back
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+                <Edit2 className="mr-1.5 h-4 w-4" /> Edit
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setIsCalendarOpen(true)}>
+                <CalendarIcon className="mr-1.5 h-4 w-4" /> Schedule
+              </Button>
+              <PdfDownloadButton
+                input={{
+                  kind: "notes",
+                  data: {
+                    title: data.title,
+                    school: data.school,
+                    class_level: data.class_level,
+                    subject: data.subject,
+                    strand: data.strand,
+                    sub_strand: data.sub_strand,
+                    date: data.date,
+                    duration: data.duration,
+                    week_term: data.week_term,
+                    content,
+                  },
+                }}
+                label="PDF"
+              />
+              <Button
+                size="sm"
+                onClick={handleGenerateAssessment}
+                disabled={isGeneratingAssessment}
+              >
+                {isGeneratingAssessment ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <FileText className="mr-1.5 h-4 w-4" />}
+                Assessment
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setIsEditing(true)}>
+                    <Edit2 className="mr-2 h-4 w-4" /> Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive" onClick={handleDelete}>
+                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          )
         }
-    };
+      />
 
-    const handleDelete = async () => {
-        if (confirm("Are you sure you want to delete these notes? This action cannot be undone.")) {
-            try {
-                await deleteNote(data.id);
-                toast.success("Notes deleted");
-                router.push("/notes");
-            } catch (error) {
-                console.error("Failed to delete:", error);
-                toast.error("Failed to delete notes");
-            }
-        }
-    };
+      <DocumentPaper>
+        <DocumentHeader
+          title={data.title}
+          subtitle={[data.subject, data.class_level].filter(Boolean).join(" · ")}
+          editing={isEditing}
+          onTitleChange={(v) => setData({ ...data, title: v })}
+        />
 
-    const handleListChange = (field: keyof NoteContent, index: number, value: string) => {
-        const list = content[field] as string[] || [];
-        const newList = [...list];
-        newList[index] = value;
-        setContent({ ...content, [field]: newList });
-    };
+        <DocumentMeta
+          editing={isEditing}
+          onChange={(field, value) => setData({ ...data, [field]: value })}
+          fields={[
+            { label: "School",     value: data.school,      field: "school",       editable: true },
+            { label: "Class",      value: data.class_level, field: "class_level",  editable: true },
+            { label: "Subject",    value: data.subject,     field: "subject",      editable: true },
+            { label: "Strand",     value: data.strand,      field: "strand",       editable: true },
+            { label: "Sub-strand", value: data.sub_strand,  field: "sub_strand",   editable: true },
+            { label: "Date",       value: isEditing ? data.date : formattedDate, field: "date", editable: true },
+            { label: "Duration",   value: data.duration,    field: "duration",     editable: true },
+            { label: "Week / Term",value: data.week_term,   field: "week_term",    editable: true },
+          ]}
+        />
 
-    const addListItem = (field: keyof NoteContent) => {
-        const list = content[field] as string[] || [];
-        setContent({ ...content, [field]: [...list, ""] });
-    };
+        <DocumentSection label="Lesson summary">
+          <DocumentParagraph
+            value={summary}
+            editing={isEditing}
+            minRows={6}
+            placeholder="Add the lesson summary."
+            onChange={(v) => setContent({ ...content, lessonSummary: v, summary: v })}
+          />
+        </DocumentSection>
 
-    const removeListItem = (field: keyof NoteContent, index: number) => {
-        const list = content[field] as string[] || [];
-        const newList = [...list];
-        newList.splice(index, 1);
-        setContent({ ...content, [field]: newList });
-    };
+        <DocumentSection label="Key points">
+          <DocumentBulletList
+            items={content.keyPoints}
+            editing={isEditing}
+            onChange={(items) => setContent({ ...content, keyPoints: items })}
+            placeholder="No key points yet."
+          />
+        </DocumentSection>
 
-    const handleGenerateAssessment = async () => {
-        setIsGeneratingAssessment(true);
-        try {
-            const generated = await callGenerate<any>("/api/generate", {
-                subject: note.subject,
-                strand: note.strand,
-                subStrand: note.sub_strand || "",
-                classLevel: note.class_level,
-                questionType: "mixed",
-                quantity: 10,
-                difficulty: "mixed",
-                difficultyConfig: { easy: 30, normal: 40, hard: 30 },
-            });
-            const result = await createAssessment({
-                title: `Assessment: ${note.title}`,
-                class_level: note.class_level,
-                topic: note.strand,
-                questions: generated.questions,
-            });
-            if (!result.success) {
-                toast.error(result.error || "Failed to save assessment");
-                return;
-            }
-            toast.success("Assessment generated");
-            router.push(`/assessments/${result.assessment?.id}`);
-        } catch (error) {
-            reportGenerateError(error);
-        } finally {
-            setIsGeneratingAssessment(false);
-        }
-    };
+        <DocumentSection label="Examples">
+          <DocumentBulletList
+            items={content.examples}
+            editing={isEditing}
+            onChange={(items) => setContent({ ...content, examples: items })}
+            placeholder="No examples yet."
+          />
+        </DocumentSection>
 
-    // Helper to get the summary text
-    const getSummary = () => content.lessonSummary || content.summary || "";
-
-    // Helper to get activity content
-    const getActivity = () => content.activity || "";
-
-    return (
-        <div className="space-y-6">
-            {/* Actions Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card p-4 rounded-lg border shadow-sm">
-                <div className="w-full md:w-auto flex-1">
-                    {isEditing ? (
-                        <Input
-                            value={data.title}
-                            onChange={(e) => setData({ ...data, title: e.target.value })}
-                            className="font-bold text-xl mb-2"
-                        />
-                    ) : (
-                        <h1 className="text-2xl font-bold">{data.title}</h1>
-                    )}
-                    <p className="text-muted-foreground text-sm">
-                        Created on {format(new Date(data.created_at), "PPP")}
-                    </p>
-                </div>
-                <div className="flex gap-2 flex-wrap justify-end">
-                    {isEditing ? (
-                        <>
-                            <Button variant="outline" onClick={() => { setIsEditing(false); setData(note); setContent(note.content as NoteContent); }}>
-                                <X className="mr-2 h-4 w-4" /> Cancel
-                            </Button>
-                            <Button onClick={handleSave} disabled={isSaving}>
-                                <Save className="mr-2 h-4 w-4" /> {isSaving ? "Saving..." : "Save Changes"}
-                            </Button>
-                        </>
-                    ) : (
-                        <>
-                            <Button variant="outline" onClick={() => setIsCalendarModalOpen(true)}>
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                Add to Calendar
-                            </Button>
-                            <PdfDownloadButton
-                                input={{
-                                    kind: "notes",
-                                    data: {
-                                        title: data.title,
-                                        school: data.school,
-                                        class_level: data.class_level,
-                                        subject: data.subject,
-                                        strand: data.strand,
-                                        sub_strand: data.sub_strand,
-                                        date: data.date,
-                                        duration: data.duration,
-                                        week_term: data.week_term,
-                                        content: content,
-                                    },
-                                }}
-                                label="PDF"
-                            />
-                            <Button
-                                onClick={handleGenerateAssessment}
-                                disabled={isGeneratingAssessment}
-                                className="bg-gradient-to-r from-primary to-purple-600"
-                            >
-                                {isGeneratingAssessment ? (
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                ) : (
-                                    <FileText className="mr-2 h-4 w-4" />
-                                )}
-                                Generate Assessment
-                            </Button>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" size="icon">
-                                        <MoreVertical className="h-4 w-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                                        <Edit2 className="mr-2 h-4 w-4" /> Edit Notes
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem className="text-destructive" onClick={handleDelete}>
-                                        <Trash2 className="mr-2 h-4 w-4" /> Delete
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </>
-                    )}
-                </div>
-            </div>
-
-            <AddItemModal
-                open={isCalendarModalOpen}
-                onOpenChange={setIsCalendarModalOpen}
-                defaultTitle={data.title}
-                defaultType="lesson"
-                defaultDescription={`Review notes for ${data.subject}: ${data.strand}`}
+        {(content.activity || isEditing) && (
+          <DocumentSection label="Activity">
+            <DocumentCallout
+              tone="accent"
+              label="For students"
+              value={content.activity}
+              editing={isEditing}
+              onChange={(v) => setContent({ ...content, activity: v })}
+              minRows={3}
+              placeholder="Describe an activity students can do after the lesson."
             />
+          </DocumentSection>
+        )}
 
-            {/* Note Content */}
-            <div id="note-content" className="bg-white text-black p-8 rounded-lg shadow-lg max-w-4xl mx-auto space-y-8">
-                {/* 1. Administrative Details */}
-                <section className="grid grid-cols-2 md:grid-cols-3 gap-4 border-b pb-6">
-                    <div>
-                        <h3 className="font-bold text-gray-500 text-xs uppercase tracking-wider">School</h3>
-                        {isEditing ? (
-                            <Input value={data.school || ""} onChange={(e) => setData({ ...data, school: e.target.value })} className="h-8" />
-                        ) : (
-                            <p className="font-medium">{data.school || "N/A"}</p>
-                        )}
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-gray-500 text-xs uppercase tracking-wider">Class</h3>
-                        {isEditing ? (
-                            <Input value={data.class_level} onChange={(e) => setData({ ...data, class_level: e.target.value })} className="h-8" />
-                        ) : (
-                            <p className="font-medium">{data.class_level}</p>
-                        )}
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-gray-500 text-xs uppercase tracking-wider">Subject</h3>
-                        {isEditing ? (
-                            <Input value={data.subject} onChange={(e) => setData({ ...data, subject: e.target.value })} className="h-8" />
-                        ) : (
-                            <p className="font-medium">{data.subject}</p>
-                        )}
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-gray-500 text-xs uppercase tracking-wider">Date</h3>
-                        {isEditing ? (
-                            <Input value={data.date || ""} onChange={(e) => setData({ ...data, date: e.target.value })} className="h-8" />
-                        ) : (
-                            <p className="font-medium">
-                                {data.date && !isNaN(new Date(data.date).getTime())
-                                    ? format(new Date(data.date), "PPP")
-                                    : data.date || "N/A"}
-                            </p>
-                        )}
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-gray-500 text-xs uppercase tracking-wider">Duration</h3>
-                        {isEditing ? (
-                            <Input value={data.duration || ""} onChange={(e) => setData({ ...data, duration: e.target.value })} className="h-8" />
-                        ) : (
-                            <p className="font-medium">{data.duration || "N/A"}</p>
-                        )}
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-gray-500 text-xs uppercase tracking-wider">Week/Term</h3>
-                        {isEditing ? (
-                            <Input value={data.week_term || ""} onChange={(e) => setData({ ...data, week_term: e.target.value })} className="h-8" />
-                        ) : (
-                            <p className="font-medium">{data.week_term || "N/A"}</p>
-                        )}
-                    </div>
-                </section>
+        <DocumentSection label="Resources">
+          <DocumentBulletList
+            items={content.resources}
+            editing={isEditing}
+            onChange={(items) => setContent({ ...content, resources: items })}
+            placeholder="No external resources yet."
+          />
+        </DocumentSection>
+      </DocumentPaper>
 
-                {/* 2. Topic / Sub-topic */}
-                <section>
-                    <h2 className="text-xl font-bold text-primary mb-3 flex items-center gap-2">
-                        <Layout className="h-5 w-5" />
-                        Topic & Sub-topic
-                    </h2>
-                    <div className="bg-gray-50 p-4 rounded-md space-y-2">
-                        {isEditing ? (
-                            <>
-                                <div>
-                                    <span className="font-semibold">Strand (Topic):</span>
-                                    <Input value={data.strand || ""} onChange={(e) => setData({ ...data, strand: e.target.value })} className="mt-1" />
-                                </div>
-                                <div>
-                                    <span className="font-semibold">Sub-strand (Sub-topic):</span>
-                                    <Input value={data.sub_strand || ""} onChange={(e) => setData({ ...data, sub_strand: e.target.value })} className="mt-1" />
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <p><span className="font-semibold">Strand:</span> {data.strand}</p>
-                                <p><span className="font-semibold">Sub-strand:</span> {data.sub_strand}</p>
-                            </>
-                        )}
-                    </div>
-                </section>
-
-                {/* 3. Lesson Summary */}
-                <section>
-                    <h2 className="text-xl font-bold text-primary mb-3 flex items-center gap-2">
-                        <BookOpen className="h-5 w-5" />
-                        Lesson Summary / Explanation
-                    </h2>
-                    <div className="bg-gray-50 p-4 rounded-md">
-                        {isEditing ? (
-                            <Textarea
-                                value={getSummary()}
-                                onChange={(e) => setContent({ ...content, lessonSummary: e.target.value, summary: e.target.value })}
-                                className="min-h-[150px]"
-                            />
-                        ) : (
-                            <p className="whitespace-pre-wrap">{getSummary()}</p>
-                        )}
-                    </div>
-                </section>
-
-                {/* 4. Key Points */}
-                <section>
-                    <div className="flex justify-between items-center mb-3">
-                        <h2 className="text-xl font-bold text-primary flex items-center gap-2">
-                            <List className="h-5 w-5" />
-                            Key Points / Core Concepts
-                        </h2>
-                        {isEditing && (
-                            <Button size="sm" variant="outline" onClick={() => addListItem('keyPoints')}>
-                                <Plus className="h-4 w-4 mr-1" /> Add
-                            </Button>
-                        )}
-                    </div>
-                    <ul className="list-disc list-inside space-y-2 bg-gray-50 p-4 rounded-md">
-                        {content.keyPoints?.map((point: string, i: number) => (
-                            <li key={i} className="flex gap-2 items-center">
-                                {isEditing ? (
-                                    <>
-                                        <Input value={point} onChange={(e) => handleListChange('keyPoints', i, e.target.value)} />
-                                        <Button size="icon" variant="ghost" onClick={() => removeListItem('keyPoints', i)}>
-                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                        </Button>
-                                    </>
-                                ) : (
-                                    <span>{point}</span>
-                                )}
-                            </li>
-                        ))}
-                    </ul>
-                </section>
-
-                {/* 5. Examples */}
-                <section>
-                    <div className="flex justify-between items-center mb-3">
-                        <h2 className="text-xl font-bold text-primary flex items-center gap-2">
-                            <Lightbulb className="h-5 w-5" />
-                            Examples or Illustrations
-                        </h2>
-                        {isEditing && (
-                            <Button size="sm" variant="outline" onClick={() => addListItem('examples')}>
-                                <Plus className="h-4 w-4 mr-1" /> Add
-                            </Button>
-                        )}
-                    </div>
-                    <ul className="list-disc list-inside space-y-2 bg-gray-50 p-4 rounded-md">
-                        {content.examples?.map((item: string, i: number) => (
-                            <li key={i} className="flex gap-2 items-center">
-                                {isEditing ? (
-                                    <>
-                                        <Input value={item} onChange={(e) => handleListChange('examples', i, e.target.value)} />
-                                        <Button size="icon" variant="ghost" onClick={() => removeListItem('examples', i)}>
-                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                        </Button>
-                                    </>
-                                ) : (
-                                    <span>{item}</span>
-                                )}
-                            </li>
-                        ))}
-                    </ul>
-                </section>
-
-                {/* 6. Activity / Questions */}
-                <section>
-                    <div className="flex justify-between items-center mb-3">
-                        <h2 className="text-xl font-bold text-primary flex items-center gap-2">
-                            <HelpCircle className="h-5 w-5" />
-                            Short Activity / Quick Check
-                        </h2>
-                    </div>
-                    <div className="bg-gray-50 p-4 rounded-md">
-                        {isEditing ? (
-                            <Textarea
-                                value={getActivity()}
-                                onChange={(e) => setContent({ ...content, activity: e.target.value })}
-                                className="min-h-[100px]"
-                            />
-                        ) : (
-                            <p className="whitespace-pre-wrap">{getActivity()}</p>
-                        )}
-                    </div>
-                </section>
-
-                {/* 7. Resources */}
-                <section>
-                    <div className="flex justify-between items-center mb-3">
-                        <h2 className="text-xl font-bold text-primary flex items-center gap-2">
-                            <LinkIcon className="h-5 w-5" />
-                            Extra Reading / More Resources
-                        </h2>
-                        {isEditing && (
-                            <Button size="sm" variant="outline" onClick={() => addListItem('resources')}>
-                                <Plus className="h-4 w-4 mr-1" /> Add
-                            </Button>
-                        )}
-                    </div>
-                    <ul className="list-disc list-inside space-y-2 bg-gray-50 p-4 rounded-md">
-                        {content.resources?.map((item: string, i: number) => (
-                            <li key={i} className="flex gap-2 items-center">
-                                {isEditing ? (
-                                    <>
-                                        <Input value={item} onChange={(e) => handleListChange('resources', i, e.target.value)} />
-                                        <Button size="icon" variant="ghost" onClick={() => removeListItem('resources', i)}>
-                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                        </Button>
-                                    </>
-                                ) : (
-                                    <a href="#" className="text-blue-600 hover:underline">{item}</a>
-                                )}
-                            </li>
-                        ))}
-                    </ul>
-                </section>
-            </div>
-
-        </div>
-    );
+      <AddItemModal
+        open={isCalendarOpen}
+        onOpenChange={setIsCalendarOpen}
+        defaultTitle={data.title}
+        defaultType="lesson"
+        defaultDescription={`Review notes for ${data.subject}: ${data.strand}`}
+      />
+    </>
+  );
 }
