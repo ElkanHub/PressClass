@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import SidebarContent from "@/components/layout/sidebar-content";
 import { LogoutButton } from "@/components/logout-button";
 import CreditsPill from "@/components/credits-pill";
+import { FeedbackDialog } from "@/components/feedback/feedback-dialog";
 
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
@@ -21,6 +22,7 @@ import { useEffect, useState } from "react";
 export default function Header() {
     const pathname = usePathname();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [feedbackOpen, setFeedbackOpen] = useState(false);
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
@@ -95,12 +97,20 @@ export default function Header() {
                             <Link href="/account?tab=security">Security</Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                            onSelect={(e) => { e.preventDefault(); setFeedbackOpen(true); }}
+                        >
+                            Send feedback
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
                         <DropdownMenuItem className="text-destructive focus:text-destructive">
                             <LogoutButton />
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
+
+            <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
         </header>
     );
 }

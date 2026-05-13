@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PageShell, Section } from "@/components/ui/page-shell";
 import { PdfDownloadButton } from "@/components/pdf-download-button";
+import { GenerationFeedback } from "@/components/feedback/generation-feedback";
 import { saveNote } from "@/actions/notes";
 
 export default function NotesResultPage() {
@@ -134,6 +135,15 @@ export default function NotesResultPage() {
           </Section>
         )}
       </Card>
+
+      <GenerationFeedback
+        type="notes"
+        context={{
+          subject: admin.subject,
+          class_level: admin.class,
+          topic: notes.topic,
+        }}
+      />
     </PageShell>
   );
 }

@@ -42,6 +42,7 @@ import { AddToCalendarModal } from "@/components/calendar/add-to-calendar-modal"
 import { Assessment, deleteAssessment, updateAssessment } from "@/actions/assessments";
 import { useTeacherBrand } from "@/hooks/use-teacher-brand";
 import { buildPalette } from "@/lib/brand";
+import { GenerationFeedback } from "@/components/feedback/generation-feedback";
 
 interface AssessmentDetailProps {
   assessment: Assessment;
@@ -249,6 +250,18 @@ export function AssessmentDetail({ assessment }: AssessmentDetailProps) {
           </ol>
         </DocumentSection>
       </DocumentPaper>
+
+      <div className="max-w-4xl mx-auto mt-6">
+        <GenerationFeedback
+          type="assessment"
+          generationId={data.id}
+          context={{
+            class_level: data.class_level,
+            topic: data.topic,
+            question_count: data.questions.length,
+          }}
+        />
+      </div>
 
       <AddToCalendarModal
         open={isCalendarOpen}

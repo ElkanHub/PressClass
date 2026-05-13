@@ -45,6 +45,7 @@ import { createAssessment } from "@/actions/assessments";
 import { callGenerate, reportGenerateError } from "@/lib/api/generate-client";
 import { useTeacherBrand } from "@/hooks/use-teacher-brand";
 import { buildPalette } from "@/lib/brand";
+import { GenerationFeedback } from "@/components/feedback/generation-feedback";
 
 interface LessonPlanContent {
   schoolName?: string;
@@ -330,6 +331,19 @@ export function LessonPlanDetail({ lessonPlan }: LessonPlanDetailProps) {
           />
         </DocumentSection>
       </DocumentPaper>
+
+      <div className="max-w-4xl mx-auto mt-6">
+        <GenerationFeedback
+          type="lesson_plan"
+          generationId={data.id}
+          context={{
+            subject: data.subject,
+            class_level: data.class_level,
+            topic: data.topic,
+            sub_topic: data.sub_topic,
+          }}
+        />
+      </div>
 
       <AddToCalendarModal
         open={isCalendarOpen}

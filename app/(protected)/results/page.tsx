@@ -9,6 +9,7 @@ import { QuestionDisplay } from "@/components/question-display";
 import { createAssessment } from "@/actions/assessments";
 import { PageShell } from "@/components/ui/page-shell";
 import { PdfDownloadButton } from "@/components/pdf-download-button";
+import { GenerationFeedback } from "@/components/feedback/generation-feedback";
 
 interface AssessmentData {
   title: string;
@@ -84,6 +85,14 @@ export default function ResultsPage() {
       }
     >
       <QuestionDisplay questions={data.questions} showAnswers={showAnswers} />
+      <GenerationFeedback
+        type="assessment"
+        context={{
+          class_level: data.classLevel,
+          topic: data.topic,
+          question_count: data.questions.length,
+        }}
+      />
     </PageShell>
   );
 }

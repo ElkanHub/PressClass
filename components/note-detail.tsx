@@ -41,6 +41,7 @@ import { createAssessment } from "@/actions/assessments";
 import { callGenerate, reportGenerateError } from "@/lib/api/generate-client";
 import { useTeacherBrand } from "@/hooks/use-teacher-brand";
 import { buildPalette } from "@/lib/brand";
+import { GenerationFeedback } from "@/components/feedback/generation-feedback";
 
 interface NoteContent {
   summary?: string;
@@ -301,6 +302,19 @@ export function NoteDetail({ note }: NoteDetailProps) {
           />
         </DocumentSection>
       </DocumentPaper>
+
+      <div className="max-w-4xl mx-auto mt-6">
+        <GenerationFeedback
+          type="notes"
+          generationId={data.id}
+          context={{
+            subject: data.subject,
+            class_level: data.class_level,
+            strand: data.strand,
+            sub_strand: data.sub_strand,
+          }}
+        />
+      </div>
 
       <AddItemModal
         open={isCalendarOpen}
