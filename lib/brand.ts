@@ -16,7 +16,7 @@ export interface BrandPalette {
   accentRgb: Rgb;
 }
 
-export const DEFAULT_PALETTE: BrandPalette = buildPalette("#0F766E", "#9333EA");
+export const DEFAULT_PALETTE: BrandPalette = buildPalette("#0F766E", "#F59E0B");
 
 const HEX = /^#([0-9a-f]{6})$/i;
 
@@ -45,7 +45,7 @@ const BLACK: Rgb = { r: 0, g: 0, b: 0 };
 /** Build a complete PDF palette from a school + personal color. Falls back to defaults if either is missing or invalid. */
 export function buildPalette(schoolColor?: string | null, personalColor?: string | null): BrandPalette {
   const primaryHex = isValidHex(schoolColor) ? schoolColor : "#0F766E";
-  const accentHex = isValidHex(personalColor) ? personalColor : "#9333EA";
+  const accentHex = isValidHex(personalColor) ? personalColor : "#F59E0B";
   const primary = hexToRgb(primaryHex);
   const accent = hexToRgb(accentHex);
 
@@ -64,13 +64,30 @@ export function buildPalette(schoolColor?: string | null, personalColor?: string
   };
 }
 
-/** Curated swatches surfaced in the onboarding color pickers. */
+/** Curated swatches surfaced in the onboarding color pickers.
+ *  Ordered to favour the African-school palette (deep greens, blues, ochres). */
 export const CURATED_SCHOOL_COLORS = [
-  "#0F766E", "#1D4ED8", "#7C3AED", "#DB2777", "#DC2626",
-  "#EA580C", "#CA8A04", "#16A34A", "#0891B2", "#475569",
+  "#0F766E", // teal-700 (PressClass primary)
+  "#15803D", // green-700 (Ghana / Nigeria green)
+  "#1E40AF", // blue-800
+  "#9F1239", // rose-800
+  "#854D0E", // amber-800 (clay)
+  "#7C2D12", // orange-900 (terracotta)
+  "#0E7490", // cyan-700
+  "#3F3F46", // zinc-700 (slate)
+  "#1F2937", // gray-800
+  "#365314", // lime-900
 ];
 
 export const CURATED_PERSONAL_COLORS = [
-  "#9333EA", "#F59E0B", "#EF4444", "#10B981", "#3B82F6",
-  "#EC4899", "#14B8A6", "#8B5CF6", "#F97316", "#64748B",
+  "#F59E0B", // amber-500 (sunset)
+  "#DC2626", // red-600
+  "#16A34A", // green-600
+  "#EAB308", // yellow-500 (gold)
+  "#2563EB", // blue-600
+  "#0EA5E9", // sky-500
+  "#EC4899", // pink-500
+  "#A16207", // amber-700
+  "#059669", // emerald-600
+  "#7C3AED", // violet-600
 ];

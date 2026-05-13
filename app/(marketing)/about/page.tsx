@@ -1,7 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { Sparkles, Globe, Heart, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CLASSROOM_WIDE, TEACHER_AT_BOARD } from "@/lib/images";
 
 export const metadata: Metadata = {
   title: "About — Built for African teachers",
@@ -23,19 +25,42 @@ export default function AboutPage() {
 
 function Hero() {
   return (
-    <section className="border-b">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 py-16 sm:py-20 text-center">
-        <div className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium text-muted-foreground">
-          <Sparkles className="h-3.5 w-3.5 text-primary" /> Our mission
+    <section className="relative overflow-hidden border-b">
+      <div className="absolute inset-0 -z-10 ambient-glow" />
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-16 pb-20 sm:pt-24 grid lg:grid-cols-[1fr_0.9fr] gap-10 items-center">
+        <div>
+          <div className="reveal inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary">
+            <Sparkles className="h-3.5 w-3.5" /> Our mission
+          </div>
+          <h1 className="reveal reveal-delay-1 mt-5 text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05]">
+            Give African teachers
+            <br />
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              their evenings back.
+            </span>
+          </h1>
+          <p className="reveal reveal-delay-2 mt-6 text-lg text-muted-foreground leading-relaxed">
+            We build tools that turn hours of lesson prep into seconds — without watering down the quality
+            of what students actually receive.
+          </p>
         </div>
-        <h1 className="mt-5 text-4xl sm:text-5xl font-bold tracking-tight leading-tight">
-          Give African teachers their evenings back.
-        </h1>
-        <p className="mt-5 text-lg text-muted-foreground">
-          We build tools that turn hours of lesson prep into seconds — without watering down the quality
-          of what students actually receive.
-        </p>
+        <div className="reveal reveal-delay-2 relative aspect-[4/5] rounded-[32px] overflow-hidden border border-border/60 shadow-2xl shadow-primary/15">
+          <Image
+            src={TEACHER_AT_BOARD.src}
+            alt={TEACHER_AT_BOARD.alt}
+            fill
+            priority
+            sizes="(max-width: 1024px) 100vw, 500px"
+            className="object-cover"
+            style={{ objectPosition: TEACHER_AT_BOARD.focus }}
+          />
+          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent" />
+          <div className="absolute bottom-4 left-4 right-4 text-xs text-white/95 font-medium drop-shadow">
+            For teachers, by people who've spent time in African classrooms.
+          </div>
+        </div>
       </div>
+      <div className="pa-stripe h-1" />
     </section>
   );
 }
@@ -104,13 +129,32 @@ function Beliefs() {
 
 function Cta() {
   return (
-    <section className="py-20">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 text-center">
-        <h2 className="text-3xl font-bold tracking-tight">Come reclaim your time.</h2>
-        <p className="mt-3 text-muted-foreground">25 free credits when you sign up. No card.</p>
-        <Button asChild size="lg" className="mt-6">
-          <Link href="/auth/signup">Get started <ArrowRight className="ml-2 h-4 w-4" /></Link>
-        </Button>
+    <section className="py-20 lg:py-28">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6">
+        <div className="relative overflow-hidden rounded-[36px] border border-primary/30 shadow-2xl shadow-primary/20">
+          <Image
+            src={CLASSROOM_WIDE.src}
+            alt={CLASSROOM_WIDE.alt}
+            fill
+            sizes="(max-width: 1024px) 100vw, 1024px"
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/85 to-primary/70" />
+          <div className="relative p-10 sm:p-16 text-center text-primary-foreground">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+              Come reclaim your time.
+            </h2>
+            <p className="mt-4 max-w-xl mx-auto opacity-90">25 free credits when you sign up. No card.</p>
+            <Button
+              asChild
+              size="lg"
+              variant="secondary"
+              className="mt-7 h-12 px-7 text-base rounded-full bg-white text-primary hover:bg-white/90"
+            >
+              <Link href="/auth/signup">Get started <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            </Button>
+          </div>
+        </div>
       </div>
     </section>
   );

@@ -1,9 +1,11 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { Sparkles, Coins, ArrowRight, ShieldCheck, RotateCcw, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { CLASSROOM_WIDE } from "@/lib/images";
 
 export const metadata: Metadata = {
   title: "Pricing — buy credits, no subscription",
@@ -71,19 +73,25 @@ export default async function PricingPage() {
 
 function Hero({ currency }: { currency: string }) {
   return (
-    <section className="border-b">
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-16 sm:py-20 text-center">
-        <div className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium text-muted-foreground">
-          <Sparkles className="h-3.5 w-3.5 text-primary" /> Pay-as-you-go
+    <section className="relative overflow-hidden border-b">
+      <div className="absolute inset-0 -z-10 ambient-glow" />
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 pt-16 pb-20 sm:pt-24 text-center">
+        <div className="reveal inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary">
+          <Sparkles className="h-3.5 w-3.5" /> Pay-as-you-go
         </div>
-        <h1 className="mt-5 text-4xl sm:text-5xl font-bold tracking-tight leading-tight">
-          Buy credits. Spend them on what you generate.
+        <h1 className="reveal reveal-delay-1 mt-5 text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05]">
+          Buy credits. Spend them on
+          <br />
+          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            what you generate.
+          </span>
         </h1>
-        <p className="mt-5 text-lg text-muted-foreground max-w-2xl mx-auto">
+        <p className="reveal reveal-delay-2 mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
           No subscriptions. No expiry. Refunded when generations fail. Showing prices in{" "}
           <span className="font-semibold text-foreground">{currency}</span>.
         </p>
       </div>
+      <div className="pa-stripe h-1" />
     </section>
   );
 }
@@ -211,13 +219,34 @@ function Faq() {
 
 function Cta() {
   return (
-    <section className="py-16">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 text-center rounded-2xl border bg-card p-10">
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Start with 25 free credits.</h2>
-        <p className="mt-3 text-muted-foreground">Enough for a few real lesson plans, on the house.</p>
-        <Button asChild size="lg" className="mt-6">
-          <Link href="/auth/signup">Create your account <ArrowRight className="ml-2 h-4 w-4" /></Link>
-        </Button>
+    <section className="py-20 lg:py-28">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6">
+        <div className="relative overflow-hidden rounded-[36px] border border-primary/30 shadow-2xl shadow-primary/20">
+          <Image
+            src={CLASSROOM_WIDE.src}
+            alt={CLASSROOM_WIDE.alt}
+            fill
+            sizes="(max-width: 1024px) 100vw, 1024px"
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/85 to-primary/70" />
+          <div className="relative p-10 sm:p-16 text-center text-primary-foreground">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+              Start with 25 free credits.
+            </h2>
+            <p className="mt-4 max-w-xl mx-auto opacity-90">
+              Enough for a few real lesson plans, on the house.
+            </p>
+            <Button
+              asChild
+              size="lg"
+              variant="secondary"
+              className="mt-7 h-12 px-7 text-base rounded-full bg-white text-primary hover:bg-white/90"
+            >
+              <Link href="/auth/signup">Create your account <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            </Button>
+          </div>
+        </div>
       </div>
     </section>
   );

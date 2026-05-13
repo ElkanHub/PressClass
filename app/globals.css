@@ -4,95 +4,171 @@
 
 @layer base {
   :root {
-    /* Light Mode (Default) - Inspired by Canva/Brilliant/Material */
+    /* PressClass palette — emerald-teal primary with a warm African-amber accent. */
     --background: 0 0% 100%;
-    /* Pure White */
-    --foreground: 240 10% 3.9%;
-    /* Deep Graphite */
+    --foreground: 200 14% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 200 14% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover-foreground: 200 14% 11%;
 
-    /* Primary: Vibrant Blue/Purple (Brilliant-esque) */
-    --primary: 246 80% 60%;
-    --primary-foreground: 0 0% 98%;
+    /* Primary — deep emerald-teal: trust, growth, education */
+    --primary: 173 58% 35%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Secondary: Soft Gray/Blue for pills */
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
+    /* Accent — warm sunset amber: optimism, energy, African earth */
+    --accent: 32 92% 54%;
+    --accent-foreground: 28 100% 15%;
 
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
+    --secondary: 173 30% 96%;
+    --secondary-foreground: 173 30% 18%;
 
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --muted: 173 20% 96%;
+    --muted-foreground: 200 10% 42%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 78% 52%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 246 80% 60%;
+    --border: 173 15% 90%;
+    --input: 173 15% 90%;
+    --ring: 173 58% 35%;
 
     --radius: 1rem;
-    /* High radius for "Pill" look */
+
+    /* Pan-African palette tokens — used decoratively in stripes / dividers. */
+    --pa-green: 130 53% 36%;
+    --pa-gold:  44 92% 53%;
+    --pa-red:   358 75% 51%;
   }
 
   .dark {
-    /* Dark Mode - Deep Blue/Black */
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    --background: 200 25% 6%;
+    --foreground: 0 0% 96%;
 
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
+    --card: 200 22% 9%;
+    --card-foreground: 0 0% 96%;
 
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 200 22% 9%;
+    --popover-foreground: 0 0% 96%;
 
-    --primary: 246 80% 60%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 173 55% 48%;
+    --primary-foreground: 173 35% 8%;
 
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
+    --accent: 32 92% 54%;
+    --accent-foreground: 28 100% 15%;
 
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --secondary: 200 14% 14%;
+    --secondary-foreground: 0 0% 96%;
 
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    --muted: 200 14% 14%;
+    --muted-foreground: 200 8% 64%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 70% 45%;
+    --destructive-foreground: 0 0% 96%;
 
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 246 80% 60%;
+    --border: 200 14% 18%;
+    --input: 200 14% 18%;
+    --ring: 173 55% 48%;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-  }
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; }
+  html { scroll-behavior: smooth; }
 }
 
 @layer utilities {
   .glass {
-    @apply bg-white/70 dark:bg-black/70 backdrop-blur-lg border border-white/20 dark:border-white/10 shadow-sm;
+    @apply bg-white/75 dark:bg-black/60 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-[0_10px_30px_-12px_rgba(15,118,110,0.18)];
   }
 
   .glass-card {
     @apply bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm hover:shadow-md transition-all duration-300;
   }
 
-  .pill {
-    @apply rounded-full px-4 py-1;
+  .pill { @apply rounded-full px-4 py-1; }
+
+  /* Pan-African three-stripe divider. */
+  .pa-stripe {
+    background-image: linear-gradient(
+      to right,
+      hsl(var(--pa-green)) 0%,
+      hsl(var(--pa-green)) 33.33%,
+      hsl(var(--pa-gold))  33.33%,
+      hsl(var(--pa-gold))  66.66%,
+      hsl(var(--pa-red))   66.66%,
+      hsl(var(--pa-red))   100%
+    );
+  }
+
+  /* Floating-nav custom edges: asymmetric, signature. */
+  .nav-shape {
+    border-radius: 999px 28px 999px 28px;
+  }
+
+  /* Subtle ambient glow used behind hero / CTAs. */
+  .ambient-glow {
+    background:
+      radial-gradient(60% 60% at 20% 0%, hsl(var(--primary) / 0.18) 0%, transparent 60%),
+      radial-gradient(50% 50% at 100% 100%, hsl(var(--accent) / 0.18) 0%, transparent 55%);
+  }
+
+  /* Drifting gradient (used on chips / accents). */
+  @keyframes drift {
+    0%, 100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+  }
+  .gradient-drift {
+    background: linear-gradient(115deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--primary)));
+    background-size: 200% 200%;
+    animation: drift 8s ease-in-out infinite;
+  }
+
+  /* Marquee for testimonial / logo strips. */
+  @keyframes marquee {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .marquee-track {
+    animation: marquee 40s linear infinite;
+    will-change: transform;
+  }
+  .marquee-track:hover { animation-play-state: paused; }
+
+  /* Scroll-reveal: fade & lift in when the element first enters the layout. */
+  @keyframes rise-in {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .reveal { animation: rise-in 0.7s ease-out both; }
+  .reveal-delay-1 { animation-delay: 0.08s; }
+  .reveal-delay-2 { animation-delay: 0.16s; }
+  .reveal-delay-3 { animation-delay: 0.24s; }
+  .reveal-delay-4 { animation-delay: 0.32s; }
+
+  /* Card lift on hover. */
+  .lift {
+    transition: transform 0.28s cubic-bezier(.2,.7,.2,1), box-shadow 0.28s ease;
+  }
+  .lift:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -20px hsl(var(--primary) / 0.25); }
+
+  /* Soft pulsing dot used on live badges. */
+  @keyframes pulse-dot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50%      { transform: scale(1.4); opacity: 0.5; }
+  }
+  .pulse-dot::before {
+    content: ""; position: absolute; inset: 0; border-radius: 9999px;
+    background: hsl(var(--accent)); animation: pulse-dot 1.8s ease-in-out infinite;
+  }
+
+  /* Respect users who don't want motion. */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track, .gradient-drift, .reveal, .pulse-dot::before {
+      animation: none !important;
+    }
   }
 }

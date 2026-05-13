@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Loader2, GraduationCap, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { HERO_IMAGE } from "@/lib/images";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -52,22 +54,34 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
-      <div className="hidden lg:flex flex-col justify-between bg-primary text-primary-foreground p-12">
-        <Link href="/" className="text-2xl font-bold">PressClass</Link>
-        <div className="space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 px-3 py-1 text-sm">
-            <Sparkles className="h-4 w-4" />
-            Built for African teachers
+      <div className="hidden lg:block relative overflow-hidden">
+        <Image
+          src={HERO_IMAGE.src}
+          alt={HERO_IMAGE.alt}
+          fill
+          priority
+          sizes="50vw"
+          className="object-cover"
+          style={{ objectPosition: HERO_IMAGE.focus }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/95 via-primary/80 to-primary/60" />
+        <div className="relative h-full flex flex-col justify-between text-primary-foreground p-12">
+          <Link href="/" className="text-2xl font-bold">PressClass</Link>
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 backdrop-blur px-3 py-1 text-sm">
+              <Sparkles className="h-4 w-4" />
+              Built for African teachers
+            </div>
+            <h1 className="text-4xl font-bold leading-tight">
+              Plan lessons. Generate notes. Build assessments — in seconds.
+            </h1>
+            <p className="text-lg opacity-90">
+              Join thousands of teachers using PressClass to reclaim their evenings.
+              Get <span className="font-semibold">25 free credits</span> when you finish setup.
+            </p>
           </div>
-          <h1 className="text-4xl font-bold leading-tight">
-            Plan lessons. Generate notes. Build assessments — in seconds.
-          </h1>
-          <p className="text-lg opacity-90">
-            Join thousands of teachers using PressClass to reclaim their evenings.
-            Get <span className="font-semibold">25 free credits</span> when you finish setup.
-          </p>
+          <p className="text-sm opacity-70">© {new Date().getFullYear()} PressClass</p>
         </div>
-        <p className="text-sm opacity-70">© {new Date().getFullYear()} PressClass</p>
       </div>
 
       <div className="flex items-center justify-center p-6 lg:p-12 bg-background">

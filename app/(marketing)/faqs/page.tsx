@@ -121,12 +121,16 @@ export default function FaqsPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <section className="border-b">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 py-16 sm:py-20 text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
-            Questions, answered.
+      <section className="relative overflow-hidden border-b">
+        <div className="absolute inset-0 -z-10 ambient-glow" />
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 pt-16 pb-20 sm:pt-24 text-center">
+          <h1 className="reveal text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05]">
+            Questions,{" "}
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              answered.
+            </span>
           </h1>
-          <p className="mt-4 text-lg text-muted-foreground">
+          <p className="reveal reveal-delay-1 mt-5 text-lg text-muted-foreground">
             Couldn't find what you need?{" "}
             <a className="text-primary font-medium underline-offset-4 hover:underline" href="mailto:hello@pressclass.app">
               Email us
@@ -134,6 +138,7 @@ export default function FaqsPage() {
             .
           </p>
         </div>
+        <div className="pa-stripe h-1" />
       </section>
 
       <section className="py-16">

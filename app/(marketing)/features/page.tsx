@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import {
   BookOpen,
@@ -13,6 +14,7 @@ import {
   Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FEATURE_SHOTS, CLASSROOM_WIDE } from "@/lib/images";
 
 export const metadata: Metadata = {
   title: "Features — Lesson plans, notes, assessments with brand PDFs",
@@ -35,18 +37,22 @@ export default function FeaturesPage() {
 
 function Hero() {
   return (
-    <section className="border-b">
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-16 sm:py-20 text-center">
-        <div className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium text-muted-foreground">
-          <Sparkles className="h-3.5 w-3.5 text-primary" /> Built around how teachers actually work
+    <section className="relative overflow-hidden border-b">
+      <div className="absolute inset-0 -z-10 ambient-glow" />
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 pt-16 pb-20 sm:pt-24 text-center">
+        <div className="reveal inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary">
+          <Sparkles className="h-3.5 w-3.5" /> Built around how teachers actually work
         </div>
-        <h1 className="mt-5 text-4xl sm:text-5xl font-bold tracking-tight leading-tight">
-          One toolkit. Less prep. More teaching.
+        <h1 className="reveal reveal-delay-1 mt-5 text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05]">
+          One toolkit. Less prep.
+          <br />
+          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">More teaching.</span>
         </h1>
-        <p className="mt-5 text-lg text-muted-foreground max-w-2xl mx-auto">
+        <p className="reveal reveal-delay-2 mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
           PressClass replaces hours of formatting, retyping, and copy-pasting with a few seconds and a few credits.
         </p>
       </div>
+      <div className="pa-stripe h-1" />
     </section>
   );
 }
@@ -58,6 +64,7 @@ function CoreTools() {
       title: "Lesson plan generator",
       subtitle: "GES / SBC structure out of the box",
       cost: 5,
+      image: FEATURE_SHOTS.lessonPlan,
       body:
         "Provide subject, class, topic, sub-topic, duration and week / term — get back a complete plan: learning objectives, RPK, materials, three lesson stages (starter, development, reflection), core points, and evaluation. Inline editing, brand-aware PDF export, optional auto-generated assessment.",
       bullets: [
@@ -72,6 +79,7 @@ function CoreTools() {
       title: "Notes generator",
       subtitle: "Topic-summary notes for student study",
       cost: 3,
+      image: FEATURE_SHOTS.notes,
       body:
         "Three-paragraph lesson summary written for the student. Key points, real examples, an end-of-topic activity, and curated external resources. Perfect for printing or pasting into a class group.",
       bullets: [
@@ -86,6 +94,7 @@ function CoreTools() {
       title: "Assessment generator",
       subtitle: "Quizzes, tests, and end-of-topic checks",
       cost: 4,
+      image: FEATURE_SHOTS.assessment,
       body:
         "Objective, subjective, or mixed-difficulty assessments with a controllable easy / normal / hard split. Auto answer key on a separate page. Generate directly from a lesson plan or notes you've already created.",
       bullets: [
@@ -128,7 +137,7 @@ function CoreTools() {
                 ))}
               </ul>
             </div>
-            <ToolMock title={t.title} icon={t.icon} />
+            <ToolVisual title={t.title} icon={t.icon} image={t.image} cost={t.cost} />
           </article>
         ))}
       </div>
@@ -136,22 +145,33 @@ function CoreTools() {
   );
 }
 
-function ToolMock({ title, icon: Icon }: { title: string; icon: any }) {
+function ToolVisual({
+  title,
+  icon: Icon,
+  image,
+  cost,
+}: {
+  title: string;
+  icon: any;
+  image: { src: string; alt: string };
+  cost: number;
+}) {
   return (
-    <div className="rounded-2xl border bg-card overflow-hidden shadow-sm">
-      <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/40 text-xs text-muted-foreground">
-        <span className="font-medium">{title}</span>
-        <Icon className="h-4 w-4" />
-      </div>
-      <div className="p-6 space-y-3">
-        <div className="h-3 w-2/3 rounded-full bg-muted" />
-        <div className="h-2 w-full rounded-full bg-muted" />
-        <div className="h-2 w-11/12 rounded-full bg-muted" />
-        <div className="h-2 w-3/4 rounded-full bg-muted" />
-        <div className="mt-4 grid grid-cols-3 gap-2">
-          <div className="h-7 rounded-md bg-primary/10" />
-          <div className="h-7 rounded-md bg-amber-500/10" />
-          <div className="h-7 rounded-md bg-primary/10" />
+    <div className="lift relative overflow-hidden rounded-2xl border bg-card shadow-sm">
+      <div className="relative aspect-[5/4]">
+        <Image
+          src={image.src}
+          alt={image.alt}
+          fill
+          sizes="(max-width: 1024px) 100vw, 50vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+        <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
+          <Icon className="h-3.5 w-3.5" /> {cost} credits
+        </span>
+        <div className="absolute bottom-3 left-3 right-3 text-xs text-white/95 drop-shadow font-medium">
+          {title}
         </div>
       </div>
     </div>
@@ -238,13 +258,34 @@ function Workflow() {
 
 function Cta() {
   return (
-    <section className="py-20">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 text-center">
-        <h2 className="text-3xl font-bold tracking-tight">Try it free. 25 credits on us.</h2>
-        <p className="mt-3 text-muted-foreground">Enough for a few real lesson plans before you spend a cedi.</p>
-        <Button asChild size="lg" className="mt-6">
-          <Link href="/auth/signup">Create your account <ArrowRight className="ml-2 h-4 w-4" /></Link>
-        </Button>
+    <section className="py-20 lg:py-28">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6">
+        <div className="relative overflow-hidden rounded-[36px] border border-primary/30 shadow-2xl shadow-primary/20">
+          <Image
+            src={CLASSROOM_WIDE.src}
+            alt={CLASSROOM_WIDE.alt}
+            fill
+            sizes="(max-width: 1024px) 100vw, 1024px"
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/85 to-primary/70" />
+          <div className="relative p-10 sm:p-16 text-center text-primary-foreground">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+              Try it free. 25 credits on us.
+            </h2>
+            <p className="mt-4 max-w-xl mx-auto opacity-90">
+              Enough for a few real lesson plans before you spend a cedi.
+            </p>
+            <Button
+              asChild
+              size="lg"
+              variant="secondary"
+              className="mt-7 h-12 px-7 text-base rounded-full bg-white text-primary hover:bg-white/90"
+            >
+              <Link href="/auth/signup">Create your account <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            </Button>
+          </div>
+        </div>
       </div>
     </section>
   );
