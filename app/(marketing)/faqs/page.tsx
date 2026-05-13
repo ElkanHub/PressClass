@@ -126,9 +126,7 @@ export default function FaqsPage() {
         <div className="mx-auto max-w-3xl px-4 sm:px-6 pt-16 pb-20 sm:pt-24 text-center">
           <h1 className="reveal text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05]">
             Questions,{" "}
-            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              answered.
-            </span>
+            <span className="text-primary">answered.</span>
           </h1>
           <p className="reveal reveal-delay-1 mt-5 text-lg text-muted-foreground">
             Couldn't find what you need?{" "}

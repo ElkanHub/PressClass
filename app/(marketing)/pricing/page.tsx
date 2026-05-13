@@ -82,9 +82,7 @@ function Hero({ currency }: { currency: string }) {
         <h1 className="reveal reveal-delay-1 mt-5 text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05]">
           Buy credits. Spend them on
           <br />
-          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            what you generate.
-          </span>
+          <span className="text-primary">what you generate.</span>
         </h1>
         <p className="reveal reveal-delay-2 mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
           No subscriptions. No expiry. Refunded when generations fail. Showing prices in{" "}

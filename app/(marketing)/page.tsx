@@ -14,6 +14,7 @@ import {
   Quote,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { WordRotate } from "@/components/ui/word-rotate";
 import {
   HERO_IMAGE,
   CLASSROOM_WIDE,
@@ -84,14 +85,12 @@ function Hero() {
             </div>
 
             <h1 className="reveal reveal-delay-1 text-4xl sm:text-5xl lg:text-[3.5rem] font-bold tracking-tight leading-[1.05]">
-              Lesson plans, notes,
+              <WordRotate
+                words={["Lesson plans", "Study notes", "Assessments", "Quizzes", "Marking schemes"]}
+                wordClassName="text-primary"
+              />
               <br className="hidden sm:block" />
-              and assessments —{" "}
-              <span className="relative inline-block">
-                <span className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
-                  in seconds.
-                </span>
-              </span>
+              built for African teachers — in seconds.
             </h1>
 
             <p className="reveal reveal-delay-2 text-lg text-muted-foreground max-w-xl leading-relaxed">
@@ -361,9 +360,7 @@ function HowItWorks() {
               className="lift rounded-2xl border bg-background/80 backdrop-blur p-7"
               style={{ animationDelay: `${i * 0.1}s` }}
             >
-              <div className="text-5xl font-bold gradient-drift bg-clip-text text-transparent inline-block">
-                {s.n}
-              </div>
+              <div className="text-5xl font-bold text-primary inline-block">{s.n}</div>
               <h3 className="mt-3 text-lg font-semibold">{s.title}</h3>
               <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{s.copy}</p>
             </div>

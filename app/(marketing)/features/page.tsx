@@ -46,7 +46,7 @@ function Hero() {
         <h1 className="reveal reveal-delay-1 mt-5 text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05]">
           One toolkit. Less prep.
           <br />
-          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">More teaching.</span>
+          <span className="text-primary">More teaching.</span>
         </h1>
         <p className="reveal reveal-delay-2 mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
           PressClass replaces hours of formatting, retyping, and copy-pasting with a few seconds and a few credits.
