@@ -57,7 +57,7 @@ export default function SidebarContent({ onLinkClick }: SidebarContentProps) {
                             href={item.href}
                             onClick={onLinkClick}
                             className={cn(
-                                "flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all duration-200",
+                                "flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors duration-150",
                                 "rounded-full", // Pill shape
                                 isActive
                                     ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"

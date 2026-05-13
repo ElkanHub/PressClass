@@ -41,6 +41,12 @@
     --pa-green: 130 53% 36%;
     --pa-gold:  44 92% 53%;
     --pa-red:   358 75% 51%;
+
+    /* Easing tokens — stronger than CSS defaults. Per Emil Kowalski's
+       design-engineering philosophy: built-in eases lack punch. */
+    --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   }
 
   .dark {
@@ -86,7 +92,8 @@
   }
 
   .glass-card {
-    @apply bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm hover:shadow-md transition-all duration-300;
+    @apply bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm hover:shadow-md;
+    transition: box-shadow 200ms var(--ease-out);
   }
 
   .pill { @apply rounded-full px-4 py-1; }
@@ -143,17 +150,26 @@
     from { opacity: 0; transform: translateY(14px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  .reveal { animation: rise-in 0.7s ease-out both; }
-  .reveal-delay-1 { animation-delay: 0.08s; }
-  .reveal-delay-2 { animation-delay: 0.16s; }
-  .reveal-delay-3 { animation-delay: 0.24s; }
-  .reveal-delay-4 { animation-delay: 0.32s; }
+  .reveal { animation: rise-in 600ms var(--ease-out) both; }
+  .reveal-delay-1 { animation-delay: 60ms; }
+  .reveal-delay-2 { animation-delay: 120ms; }
+  .reveal-delay-3 { animation-delay: 180ms; }
+  .reveal-delay-4 { animation-delay: 240ms; }
 
-  /* Card lift on hover. */
-  .lift {
-    transition: transform 0.28s cubic-bezier(.2,.7,.2,1), box-shadow 0.28s ease;
+  /* Card lift on hover — pointer-capable devices only (touch taps shouldn't
+     trigger hover lift). Custom ease-out per Emil. */
+  .lift { transition: transform 220ms var(--ease-out), box-shadow 220ms var(--ease-out); }
+  @media (hover: hover) and (pointer: fine) {
+    .lift:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 18px 40px -20px hsl(var(--primary) / 0.25);
+    }
   }
-  .lift:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -20px hsl(var(--primary) / 0.25); }
+
+  /* Press feedback — subtle scale for any pressable element. Gives users
+     instant proof the UI heard them. */
+  .press { transition: transform 140ms var(--ease-out); }
+  .press:active { transform: scale(0.97); }
 
   /* Soft pulsing dot used on live badges. */
   @keyframes pulse-dot {

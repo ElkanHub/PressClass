@@ -52,7 +52,7 @@ export function TimerDisplay({ time, mode, isRunning, totalTime }: TimerDisplayP
                         strokeDasharray={circumference}
                         strokeDashoffset={strokeDashoffset}
                         className={cn(
-                            "transition-all duration-1000 ease-linear",
+                            "transition-[stroke-dashoffset,color] duration-1000 ease-linear",
                             isRunning ? "text-primary" : "text-primary/50"
                         )}
                         strokeLinecap="round"

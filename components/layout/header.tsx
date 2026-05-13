@@ -39,7 +39,7 @@ export default function Header() {
     const avatarUrl = user?.user_metadata?.avatar_url;
 
     return (
-        <header className="h-16 flex items-center justify-between px-6 bg-background/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-30 ml-0 md:ml-64 transition-all duration-300">
+        <header className="h-16 flex items-center justify-between px-6 bg-background/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-30 ml-0 md:ml-64">
             {/* Left: Mobile Toggle & Search */}
             <div className="flex items-center gap-4 flex-1">
                 <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -130,7 +130,7 @@ function HeaderSearch() {
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 placeholder="Search your lesson plans, notes, assessments…"
-                className="pl-10 bg-muted/50 border-transparent focus:bg-background rounded-full transition-all duration-200"
+                className="pl-10 bg-muted/50 border-transparent focus:bg-background rounded-full transition-colors duration-150"
             />
         </form>
     );

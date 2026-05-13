@@ -31,7 +31,7 @@ export function MarketingNav() {
       <div className="px-3 sm:px-6 pt-3 sm:pt-4">
         <nav
           className={cn(
-            "mx-auto flex items-center justify-between transition-all duration-300",
+            "mx-auto flex items-center justify-between transition-[box-shadow,padding] duration-300 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)]",
             "max-w-5xl bg-background/70 backdrop-blur-xl border border-border/60 nav-shape",
             scrolled
               ? "shadow-[0_18px_44px_-22px_rgba(15,118,110,0.35)] py-2 pl-3 pr-2"

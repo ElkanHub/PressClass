@@ -37,7 +37,7 @@ export default async function ProtectedLayout({
     <div className="min-h-screen bg-muted/30">
       <Sidebar />
       <Header />
-      <main className="md:ml-64 px-4 sm:px-6 py-4 sm:py-6 pb-28 md:pb-8 transition-all duration-300">
+      <main className="md:ml-64 px-4 sm:px-6 py-4 sm:py-6 pb-28 md:pb-8">
         <div className="max-w-6xl mx-auto space-y-6 overflow-x-hidden">{children}</div>
       </main>
       <BottomNav />
