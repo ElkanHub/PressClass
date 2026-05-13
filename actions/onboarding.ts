@@ -53,31 +53,44 @@ export async function completeOnboarding(
   const country = getCountry(payload.countryCode);
   const hexOrNull = (v: string) => (/^#[0-9A-Fa-f]{6}$/.test(v) ? v : null);
 
-  // 1. Update profile via the user-scoped client — RLS allows owners to update
-  //    their own row, so this works even without SUPABASE_SERVICE_ROLE_KEY.
-  const { error: profileErr } = await supabase
+  // 1. Upsert profile via the user-scoped client. UPSERT (not UPDATE) so that
+  //    if the handle_new_user trigger somehow missed creating the row, we
+  //    create it here. RLS allows owners to insert/update their own row.
+  //    .select() lets us detect a silent RLS rejection.
+  const { data: savedProfile, error: profileErr } = await supabase
     .from("profiles")
-    .update({
-      full_name: payload.fullName,
-      country_code: payload.countryCode,
-      country_name: country?.name ?? null,
-      currency: country?.currency ?? "USD",
-      phone: payload.phone || null,
-      current_school: payload.currentSchool || null,
-      school_color: hexOrNull(payload.schoolColor),
-      personal_color: hexOrNull(payload.personalColor),
-      preferred_subjects: payload.preferredSubjects,
-      preferred_class_levels: payload.preferredClassLevels,
-      teaching_experience: payload.teachingExperience || null,
-      primary_use_case: payload.primaryUseCase || null,
-      referral_source: payload.referralSource || null,
-      marketing_opt_in: payload.marketingOptIn,
-      onboarding_completed: true,
-      onboarding_step: 999,
-      updated_at: new Date().toISOString(),
-    } as never)
-    .eq("id", user.id);
+    .upsert(
+      {
+        id: user.id,
+        email: user.email ?? null,
+        full_name: payload.fullName,
+        country_code: payload.countryCode,
+        country_name: country?.name ?? null,
+        currency: country?.currency ?? "USD",
+        phone: payload.phone || null,
+        current_school: payload.currentSchool || null,
+        school_color: hexOrNull(payload.schoolColor),
+        personal_color: hexOrNull(payload.personalColor),
+        preferred_subjects: payload.preferredSubjects,
+        preferred_class_levels: payload.preferredClassLevels,
+        teaching_experience: payload.teachingExperience || null,
+        primary_use_case: payload.primaryUseCase || null,
+        referral_source: payload.referralSource || null,
+        marketing_opt_in: payload.marketingOptIn,
+        onboarding_completed: true,
+        onboarding_step: 999,
+        updated_at: new Date().toISOString(),
+      } as never,
+      { onConflict: "id" }
+    )
+    .select()
+    .maybeSingle();
   if (profileErr) throw new Error(`Could not save profile: ${profileErr.message}`);
+  if (!savedProfile) {
+    throw new Error(
+      "Profile save returned no row. Your session may have expired — try signing in again."
+    );
+  }
 
   // 2. Fingerprint + credit grant. If the service-role key is missing, log
   //    and proceed — onboarding shouldn't fail just because the bonus path

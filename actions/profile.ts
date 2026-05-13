@@ -26,9 +26,6 @@ export interface ProfileTeachingInput {
   marketingOptIn: boolean;
 }
 
-// We use the user-scoped Supabase client throughout — RLS already allows users
-// to update their own profiles row (see migration 01_base_users_profiles_schools).
-// This avoids depending on SUPABASE_SERVICE_ROLE_KEY being set in production.
 async function requireUser() {
   const supabase = await createClient();
   const {
@@ -38,22 +35,52 @@ async function requireUser() {
   return { user, supabase };
 }
 
+// All profile saves go through UPSERT keyed on `id`, then read the resulting
+// row back. That way:
+//   1. If the trigger somehow missed creating the profile row at signup,
+//      the upsert creates it.
+//   2. We can detect a silent RLS rejection — if the read returns nothing,
+//      we throw instead of pretending success.
+async function upsertProfile(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  email: string | null,
+  patch: Record<string, unknown>
+) {
+  const { data, error } = await supabase
+    .from("profiles")
+    .upsert(
+      {
+        id: userId,
+        email,
+        ...patch,
+        updated_at: new Date().toISOString(),
+      } as never,
+      { onConflict: "id" }
+    )
+    .select()
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  if (!data) {
+    throw new Error(
+      "Save returned no row. Your session may have expired — sign out and back in."
+    );
+  }
+  return data;
+}
+
 export async function updateProfileBasic(input: ProfileBasicInput) {
   const { user, supabase } = await requireUser();
   const country = getCountry(input.countryCode);
 
-  const { error } = await supabase
-    .from("profiles")
-    .update({
-      full_name: input.fullName.trim() || null,
-      country_code: input.countryCode || null,
-      country_name: country?.name ?? null,
-      currency: country?.currency ?? "USD",
-      phone: input.phone?.trim() || null,
-      updated_at: new Date().toISOString(),
-    } as never)
-    .eq("id", user.id);
-  if (error) throw new Error(error.message);
+  await upsertProfile(supabase, user.id, user.email ?? null, {
+    full_name: input.fullName.trim() || null,
+    country_code: input.countryCode || null,
+    country_name: country?.name ?? null,
+    currency: country?.currency ?? "USD",
+    phone: input.phone?.trim() || null,
+  });
 
   revalidatePath("/account");
   revalidatePath("/dashboard");
@@ -62,16 +89,11 @@ export async function updateProfileBasic(input: ProfileBasicInput) {
 
 export async function updateProfileBrand(input: ProfileBrandInput) {
   const { user, supabase } = await requireUser();
-  const { error } = await supabase
-    .from("profiles")
-    .update({
-      current_school: input.currentSchool.trim() || null,
-      school_color: HEX.test(input.schoolColor) ? input.schoolColor : null,
-      personal_color: HEX.test(input.personalColor) ? input.personalColor : null,
-      updated_at: new Date().toISOString(),
-    } as never)
-    .eq("id", user.id);
-  if (error) throw new Error(error.message);
+  await upsertProfile(supabase, user.id, user.email ?? null, {
+    current_school: input.currentSchool.trim() || null,
+    school_color: HEX.test(input.schoolColor) ? input.schoolColor : null,
+    personal_color: HEX.test(input.personalColor) ? input.personalColor : null,
+  });
 
   revalidatePath("/account");
   revalidatePath("/notes/[id]", "page");
@@ -82,18 +104,13 @@ export async function updateProfileBrand(input: ProfileBrandInput) {
 
 export async function updateProfileTeaching(input: ProfileTeachingInput) {
   const { user, supabase } = await requireUser();
-  const { error } = await supabase
-    .from("profiles")
-    .update({
-      preferred_subjects: input.preferredSubjects,
-      preferred_class_levels: input.preferredClassLevels,
-      teaching_experience: input.teachingExperience || null,
-      primary_use_case: input.primaryUseCase || null,
-      marketing_opt_in: input.marketingOptIn,
-      updated_at: new Date().toISOString(),
-    } as never)
-    .eq("id", user.id);
-  if (error) throw new Error(error.message);
+  await upsertProfile(supabase, user.id, user.email ?? null, {
+    preferred_subjects: input.preferredSubjects,
+    preferred_class_levels: input.preferredClassLevels,
+    teaching_experience: input.teachingExperience || null,
+    primary_use_case: input.primaryUseCase || null,
+    marketing_opt_in: input.marketingOptIn,
+  });
 
   revalidatePath("/account");
   return { ok: true };
@@ -105,7 +122,6 @@ export async function updateUserPassword(currentPassword: string, newPassword: s
   const { user, supabase } = await requireUser();
   if (!user.email) throw new Error("Account has no email.");
 
-  // Re-authenticate first so a stolen session can't silently rotate the password.
   const { error: signInError } = await supabase.auth.signInWithPassword({
     email: user.email,
     password: currentPassword,
