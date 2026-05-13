@@ -16,8 +16,6 @@ export interface BrandPalette {
   accentRgb: Rgb;
 }
 
-export const DEFAULT_PALETTE: BrandPalette = buildPalette("#0F766E", "#F59E0B");
-
 const HEX = /^#([0-9a-f]{6})$/i;
 
 export function isValidHex(value: string | null | undefined): value is string {
