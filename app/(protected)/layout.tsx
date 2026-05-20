@@ -1,9 +1,9 @@
-// app/(protected)/layout.tsx
 import Sidebar from "@/components/layout/sidebar";
 import Header from "@/components/layout/header";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { PwaPrompts } from "@/components/pwa-prompts";
 import { FeedbackPrompts } from "@/components/feedback/feedback-prompts";
+import TestingPhaseBanner from "@/components/testing-phase-banner";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -44,6 +44,8 @@ export default async function ProtectedLayout({
       <BottomNav />
       <PwaPrompts />
       <FeedbackPrompts />
+      <TestingPhaseBanner />
     </div>
   );
 }
+
