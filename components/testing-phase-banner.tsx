@@ -20,16 +20,11 @@ export default function TestingPhaseBanner() {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   useEffect(() => {
-    const lastSeen = localStorage.getItem(
-      "pc_launch_banner_last_seen"
-    );
+    const lastSeen = localStorage.getItem("pc_launch_banner_last_seen");
 
     const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
 
-    if (
-      !lastSeen ||
-      Date.now() - Number(lastSeen) > sevenDaysMs
-    ) {
+    if (!lastSeen || Date.now() - Number(lastSeen) > sevenDaysMs) {
       const timer = setTimeout(() => {
         setOpen(true);
       }, 800);
@@ -39,19 +34,13 @@ export default function TestingPhaseBanner() {
   }, []);
 
   function handleDismiss() {
-    localStorage.setItem(
-      "pc_launch_banner_last_seen",
-      Date.now().toString()
-    );
+    localStorage.setItem("pc_launch_banner_last_seen", Date.now().toString());
 
     setOpen(false);
   }
 
   function handleFeedbackTrigger() {
-    localStorage.setItem(
-      "pc_launch_banner_last_seen",
-      Date.now().toString()
-    );
+    localStorage.setItem("pc_launch_banner_last_seen", Date.now().toString());
 
     setOpen(false);
 
@@ -71,7 +60,13 @@ export default function TestingPhaseBanner() {
         <DialogContent
           className="
           sm:max-w-3xl
-          overflow-hidden
+          max-h-[90dvh]
+          overflow-y-auto
+          [&::-webkit-scrollbar]:w-1.5
+          [&::-webkit-scrollbar-track]:bg-transparent
+          [&::-webkit-scrollbar-thumb]:bg-emerald-500/20
+          [&::-webkit-scrollbar-thumb]:rounded-full
+          hover:[&::-webkit-scrollbar-thumb]:bg-emerald-500/40
           border
           border-white/10
           bg-[#07140F]
@@ -83,7 +78,6 @@ export default function TestingPhaseBanner() {
         >
           {/* BACKGROUND */}
           <div className="absolute inset-0 overflow-hidden">
-
             {/* Animated Emerald Orb */}
             <motion.div
               animate={{
@@ -173,10 +167,8 @@ export default function TestingPhaseBanner() {
 
           {/* CONTENT */}
           <div className="relative z-10">
-
             {/* HERO */}
-            <div className="px-8 pt-10 pb-8 text-center">
-
+            <div className="px-5 pt-8 pb-5 text-center sm:px-8 sm:pt-10 sm:pb-8">
               {/* Floating Rocket */}
               <motion.div
                 animate={{
@@ -187,20 +179,20 @@ export default function TestingPhaseBanner() {
                   repeat: Infinity,
                   ease: "easeInOut",
                 }}
-                className="relative mx-auto mb-6 w-fit"
+                className="relative mx-auto mb-4 sm:mb-6 w-fit"
               >
                 <div
                   className="
                   relative
-                  flex h-20 w-20 items-center justify-center
-                  rounded-3xl
+                  flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center
+                  rounded-2xl sm:rounded-3xl
                   border border-white/10
                   bg-white/[0.05]
                   backdrop-blur-xl
                   shadow-2xl
                 "
                 >
-                  <Rocket className="h-9 w-9 text-emerald-400" />
+                  <Rocket className="h-7 w-7 sm:h-9 sm:w-9 text-emerald-400" />
                 </div>
 
                 {/* Pulse Ring */}
@@ -215,7 +207,7 @@ export default function TestingPhaseBanner() {
                   }}
                   className="
                   absolute inset-0
-                  rounded-3xl
+                  rounded-2xl sm:rounded-3xl
                   border border-emerald-400
                 "
                 />
@@ -228,54 +220,49 @@ export default function TestingPhaseBanner() {
                 rounded-full
                 border border-emerald-400/20
                 bg-emerald-400/10
-                px-4 py-1.5
-                text-xs font-semibold tracking-wide
+                px-3.5 py-1 sm:px-4 sm:py-1.5
+                text-[10px] sm:text-xs font-semibold tracking-wide
                 text-emerald-300
                 backdrop-blur-md
               "
               >
-                <Sparkles className="h-3.5 w-3.5" />
+                <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 EARLY ACCESS
               </div>
 
               {/* Headline */}
               <h1
                 className="
-                mt-6
-                text-4xl
+                mt-4 sm:mt-6
+                text-2xl sm:text-4xl md:text-5xl
                 font-black
                 tracking-tight
-                leading-none
-                sm:text-5xl
+                leading-tight
               "
               >
                 Help Shape
-                <span className="mt-2 block text-emerald-400">
-                  PressClass
-                </span>
+                <span className="mt-1 sm:mt-2 block text-emerald-400">PressClass</span>
               </h1>
 
               {/* Subtitle */}
               <p
                 className="
-                mx-auto mt-5
+                mx-auto mt-3 sm:mt-5
                 max-w-xl
-                text-sm leading-relaxed
+                text-xs sm:text-sm md:text-base leading-relaxed
                 text-zinc-300
-                sm:text-base
               "
               >
-                You’re among the first educators helping
-                build the future of African lesson preparation.
-                Explore new features early, influence product
-                decisions, and unlock exclusive launch rewards.
+                You’re among the first educators helping build the future of
+                African lesson preparation. Explore new features early,
+                influence product decisions, and unlock exclusive launch
+                rewards.
               </p>
             </div>
 
             {/* PERKS */}
-            <div className="px-6 pb-6 sm:px-8">
-              <div className="grid gap-4 sm:grid-cols-3">
-
+            <div className="px-5 pb-5 sm:px-8 sm:pb-6">
+              <div className="grid gap-3 sm:gap-4 sm:grid-cols-3">
                 {/* CARD 1 */}
                 <motion.div
                   whileHover={{
@@ -286,7 +273,7 @@ export default function TestingPhaseBanner() {
                   rounded-2xl
                   border border-white/10
                   bg-white/[0.03]
-                  p-5
+                  p-4 sm:p-5
                   backdrop-blur-xl
                   transition-all duration-300
                 "
@@ -302,8 +289,8 @@ export default function TestingPhaseBanner() {
 
                   <div
                     className="
-                    relative mb-4
-                    flex h-11 w-11 items-center justify-center
+                    relative mb-3 sm:mb-4
+                    flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center
                     rounded-xl
                     bg-emerald-500/10
                     text-emerald-400
@@ -316,9 +303,9 @@ export default function TestingPhaseBanner() {
                     100% Launch Bonus
                   </h3>
 
-                  <p className="relative mt-2 text-xs leading-relaxed text-zinc-400">
-                    Get double credits on your first top-up
-                    after our official launch.
+                  <p className="relative mt-1.5 text-xs leading-relaxed text-zinc-400">
+                    Get double credits on your first top-up after our official
+                    launch.
                   </p>
                 </motion.div>
 
@@ -332,7 +319,7 @@ export default function TestingPhaseBanner() {
                   rounded-2xl
                   border border-white/10
                   bg-white/[0.03]
-                  p-5
+                  p-4 sm:p-5
                   backdrop-blur-xl
                   transition-all duration-300
                 "
@@ -348,8 +335,8 @@ export default function TestingPhaseBanner() {
 
                   <div
                     className="
-                    relative mb-4
-                    flex h-11 w-11 items-center justify-center
+                    relative mb-3 sm:mb-4
+                    flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center
                     rounded-xl
                     bg-amber-500/10
                     text-amber-400
@@ -362,9 +349,9 @@ export default function TestingPhaseBanner() {
                     Founder Pricing
                   </h3>
 
-                  <p className="relative mt-2 text-xs leading-relaxed text-zinc-400">
-                    Lock in early supporter pricing forever.
-                    Never pay public launch rates.
+                  <p className="relative mt-1.5 text-xs leading-relaxed text-zinc-400">
+                    Lock in early supporter pricing forever. Never pay public
+                    launch rates.
                   </p>
                 </motion.div>
 
@@ -378,7 +365,7 @@ export default function TestingPhaseBanner() {
                   rounded-2xl
                   border border-white/10
                   bg-white/[0.03]
-                  p-5
+                  p-4 sm:p-5
                   backdrop-blur-xl
                   transition-all duration-300
                 "
@@ -394,8 +381,8 @@ export default function TestingPhaseBanner() {
 
                   <div
                     className="
-                    relative mb-4
-                    flex h-11 w-11 items-center justify-center
+                    relative mb-3 sm:mb-4
+                    flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center
                     rounded-xl
                     bg-emerald-500/10
                     text-emerald-400
@@ -408,31 +395,30 @@ export default function TestingPhaseBanner() {
                     Founding Teacher
                   </h3>
 
-                  <p className="relative mt-2 text-xs leading-relaxed text-zinc-400">
-                    Receive an exclusive early supporter
-                    badge on your dashboard.
+                  <p className="relative mt-1.5 text-xs leading-relaxed text-zinc-400">
+                    Receive an exclusive early supporter badge on your
+                    dashboard.
                   </p>
                 </motion.div>
               </div>
             </div>
 
             {/* FEEDBACK BOX */}
-            <div className="px-6 pb-6 sm:px-8">
+            <div className="px-5 pb-5 sm:px-8 sm:pb-6">
               <div
                 className="
                 relative overflow-hidden
                 rounded-2xl
                 border border-white/10
                 bg-white/[0.03]
-                p-5
+                p-4 sm:p-5
                 backdrop-blur-xl
               "
               >
-                <div className="flex gap-4">
-
+                <div className="flex gap-3 sm:gap-4">
                   <div
                     className="
-                    flex h-11 w-11 flex-shrink-0
+                    flex h-10 w-10 sm:h-11 sm:w-11 flex-shrink-0
                     items-center justify-center
                     rounded-xl
                     bg-emerald-500/10
@@ -443,15 +429,12 @@ export default function TestingPhaseBanner() {
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-bold">
-                      Your feedback matters
-                    </h4>
+                    <h4 className="text-sm font-bold">Your feedback matters</h4>
 
-                    <p className="mt-2 text-xs leading-relaxed text-zinc-400">
-                      We’re actively refining PressClass for
-                      African school systems. Found a bug or
-                      have an idea? Your feedback directly
-                      shapes what we build next.
+                    <p className="mt-1.5 text-xs leading-relaxed text-zinc-400">
+                      We’re actively refining PressClass for African school
+                      systems. Found a bug or have an idea? Your feedback
+                      directly shapes what we build next.
                     </p>
                   </div>
                 </div>
@@ -463,15 +446,15 @@ export default function TestingPhaseBanner() {
               className="
               flex flex-col gap-3
               border-t border-white/5
-              px-6 py-6
-              sm:flex-row sm:px-8
+              px-5 py-5
+              sm:flex-row sm:px-8 sm:py-6
             "
             >
               <Button
                 variant="ghost"
                 onClick={handleFeedbackTrigger}
                 className="
-                h-12 flex-1
+                h-11 sm:h-12 flex-1
                 rounded-xl
                 border border-white/10
                 bg-white/[0.03]
@@ -486,7 +469,7 @@ export default function TestingPhaseBanner() {
               <Button
                 onClick={handleDismiss}
                 className="
-                h-12 flex-1
+                h-11 sm:h-12 flex-1
                 rounded-xl
                 bg-emerald-500
                 font-bold
