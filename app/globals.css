@@ -181,10 +181,78 @@
     background: hsl(var(--accent)); animation: pulse-dot 1.8s ease-in-out infinite;
   }
 
+  /* Gold Sheen & Sparkle Animations */
+  @keyframes gold-sheen {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  @keyframes gold-shimmer-border {
+    0%, 100% {
+      border-color: rgba(251, 191, 36, 0.35);
+      box-shadow: 0 0 6px rgba(251, 191, 36, 0.15), inset 0 0 3px rgba(251, 191, 36, 0.05);
+    }
+    50% {
+      border-color: rgba(251, 191, 36, 0.95);
+      box-shadow: 0 0 16px rgba(251, 191, 36, 0.45), inset 0 0 8px rgba(251, 191, 36, 0.2);
+    }
+  }
+
+  .gold-sheen-active {
+    position: relative;
+    overflow: hidden;
+    animation: gold-shimmer-border 4s ease-in-out infinite !important;
+  }
+
+  .gold-sheen-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      115deg,
+      transparent 30%,
+      rgba(251, 191, 36, 0.08) 40%,
+      rgba(251, 191, 36, 0.28) 48%,
+      rgba(251, 191, 36, 0.38) 50%,
+      rgba(251, 191, 36, 0.28) 52%,
+      rgba(251, 191, 36, 0.08) 60%,
+      transparent 70-gradient
+    );
+    background: linear-gradient(
+      115deg,
+      transparent 20%,
+      rgba(251, 191, 36, 0.05) 35%,
+      rgba(251, 191, 36, 0.25) 45%,
+      rgba(251, 191, 36, 0.4) 50%,
+      rgba(251, 191, 36, 0.25) 55%,
+      rgba(251, 191, 36, 0.05) 65%,
+      transparent 80%
+    );
+    background-size: 200% 100%;
+    animation: gold-sheen 3.5s infinite linear;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  .gold-sheen-pill-active {
+    animation: gold-shimmer-border 4s ease-in-out infinite !important;
+    background-color: rgba(251, 191, 36, 0.12) !important;
+    border-color: rgba(251, 191, 36, 0.6) !important;
+    color: #b45309 !important; /* amber-700 */
+  }
+  
+  .dark .gold-sheen-pill-active {
+    color: #fbbf24 !important; /* amber-400 */
+    background-color: rgba(251, 191, 36, 0.08) !important;
+  }
+
   /* Respect users who don't want motion. */
   @media (prefers-reduced-motion: reduce) {
-    .marquee-track, .gradient-drift, .reveal, .pulse-dot::before {
+    .marquee-track, .gradient-drift, .reveal, .pulse-dot::before, .gold-sheen-active, .gold-sheen-overlay, .gold-sheen-pill-active {
       animation: none !important;
     }
   }
 }
+

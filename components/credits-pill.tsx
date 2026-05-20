@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Coins } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
+import GoldSheenEffect from "@/components/gold-sheen-effect";
 
 interface Props {
   className?: string;
@@ -46,7 +47,7 @@ export default function CreditsPill({ className }: Props) {
     <Link
       href="/credits"
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition",
+        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition relative overflow-hidden",
         low
           ? "border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 dark:bg-amber-950/30 dark:text-amber-200"
           : "border-input bg-muted/50 hover:bg-muted",
@@ -54,8 +55,10 @@ export default function CreditsPill({ className }: Props) {
       )}
       title={low ? "Low credits — top up to keep generating" : "Your credit balance"}
     >
-      <Coins className="h-4 w-4" />
-      <span>{balance ?? "—"}</span>
+      <GoldSheenEffect isPill />
+      <Coins className="h-4 w-4 relative z-10" />
+      <span className="relative z-10">{balance ?? "—"}</span>
     </Link>
   );
 }
+

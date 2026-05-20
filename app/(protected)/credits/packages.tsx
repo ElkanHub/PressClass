@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import GoldSheenEffect from "@/components/gold-sheen-effect";
 
 interface Price { currency: string; amount_minor: number; }
 interface Package {
@@ -52,50 +53,56 @@ export default function CreditPackages({ packages, currency, userEmail }: Props)
         const featured = pkg.code === "popular";
 
         return (
-          <Card key={pkg.id} className={`p-6 ${featured ? "border-primary ring-2 ring-primary/20" : ""}`}>
-            {featured && (
-              <div className="mb-2 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                <Sparkles className="h-3 w-3" /> Most popular
+          <Card key={pkg.id} className={`p-6 relative overflow-hidden ${featured ? "border-primary ring-2 ring-primary/20" : ""}`}>
+            <GoldSheenEffect />
+            <div className="relative z-10 flex flex-col h-full justify-between">
+              <div>
+                {featured && (
+                  <div className="mb-2 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                    <Sparkles className="h-3 w-3" /> Most popular
+                  </div>
+                )}
+                <h3 className="text-lg font-semibold">{pkg.name}</h3>
+                <div className="mt-2 text-3xl font-bold">{total}</div>
+                <div className="text-sm text-muted-foreground">
+                  credits{pkg.bonus_credits ? ` (${pkg.credits} + ${pkg.bonus_credits} bonus)` : ""}
+                </div>
+                <div className="mt-4 text-2xl font-semibold">
+                  {price ? formatPrice(price.amount_minor, price.currency) : "—"}
+                </div>
               </div>
-            )}
-            <h3 className="text-lg font-semibold">{pkg.name}</h3>
-            <div className="mt-2 text-3xl font-bold">{total}</div>
-            <div className="text-sm text-muted-foreground">
-              credits{pkg.bonus_credits ? ` (${pkg.credits} + ${pkg.bonus_credits} bonus)` : ""}
-            </div>
-            <div className="mt-4 text-2xl font-semibold">
-              {price ? formatPrice(price.amount_minor, price.currency) : "—"}
-            </div>
-            <Button
-              className="mt-4 w-full"
-              onClick={() => {
-                const link = PAYSTACK_LINKS[pkg.code];
-                if (!link) {
-                  toast.error("Payment link not configured for this package.");
-                  return;
-                }
-
-                let targetUrl = link;
-                if (userEmail) {
-                  try {
-                    const url = new URL(link);
-                    url.searchParams.set("email", userEmail);
-                    targetUrl = url.toString();
-                  } catch (e) {
-                    const separator = link.includes("?") ? "&" : "?";
-                    targetUrl = `${link}${separator}email=${encodeURIComponent(userEmail)}`;
+              <Button
+                className="mt-4 w-full relative z-20"
+                onClick={() => {
+                  const link = PAYSTACK_LINKS[pkg.code];
+                  if (!link) {
+                    toast.error("Payment link not configured for this package.");
+                    return;
                   }
-                }
 
-                toast.info("Redirecting to payment checkout...");
-                window.location.href = targetUrl;
-              }}
-            >
-              Buy now
-            </Button>
+                  let targetUrl = link;
+                  if (userEmail) {
+                    try {
+                      const url = new URL(link);
+                      url.searchParams.set("email", userEmail);
+                      targetUrl = url.toString();
+                    } catch (e) {
+                      const separator = link.includes("?") ? "&" : "?";
+                      targetUrl = `${link}${separator}email=${encodeURIComponent(userEmail)}`;
+                    }
+                  }
+
+                  toast.info("Redirecting to payment checkout...");
+                  window.location.href = targetUrl;
+                }}
+              >
+                Buy now
+              </Button>
+            </div>
           </Card>
         );
       })}
     </div>
   );
 }
+

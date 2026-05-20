@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Coins, TrendingUp, History } from "lucide-react";
 import CreditPackages from "./packages";
+import GoldSheenEffect from "@/components/gold-sheen-effect";
 
 export const dynamic = "force-dynamic";
 
@@ -31,19 +32,29 @@ export default async function CreditsPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="p-6">
-          <div className="flex items-center gap-3 text-muted-foreground"><Coins className="h-5 w-5" /> Current balance</div>
-          <div className="mt-2 text-4xl font-bold">{balance}</div>
+        <Card className="p-6 relative overflow-hidden">
+          <GoldSheenEffect />
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 text-muted-foreground"><Coins className="h-5 w-5" /> Current balance</div>
+            <div className="mt-2 text-4xl font-bold">{balance}</div>
+          </div>
         </Card>
-        <Card className="p-6">
-          <div className="flex items-center gap-3 text-muted-foreground"><TrendingUp className="h-5 w-5" /> Lifetime earned</div>
-          <div className="mt-2 text-4xl font-bold">{balanceRow?.lifetime_earned ?? 0}</div>
+        <Card className="p-6 relative overflow-hidden">
+          <GoldSheenEffect />
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 text-muted-foreground"><TrendingUp className="h-5 w-5" /> Lifetime earned</div>
+            <div className="mt-2 text-4xl font-bold">{balanceRow?.lifetime_earned ?? 0}</div>
+          </div>
         </Card>
-        <Card className="p-6">
-          <div className="flex items-center gap-3 text-muted-foreground"><History className="h-5 w-5" /> Lifetime spent</div>
-          <div className="mt-2 text-4xl font-bold">{balanceRow?.lifetime_spent ?? 0}</div>
+        <Card className="p-6 relative overflow-hidden">
+          <GoldSheenEffect />
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 text-muted-foreground"><History className="h-5 w-5" /> Lifetime spent</div>
+            <div className="mt-2 text-4xl font-bold">{balanceRow?.lifetime_spent ?? 0}</div>
+          </div>
         </Card>
       </div>
+
 
       <section>
         <h2 className="mb-4 text-xl font-semibold">Top up</h2>
