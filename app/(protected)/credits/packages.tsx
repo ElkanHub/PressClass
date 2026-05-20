@@ -18,7 +18,15 @@ interface Package {
 interface Props {
   packages: Package[];
   currency: string;
+  userEmail?: string;
 }
+
+const PAYSTACK_LINKS: Record<string, string | undefined> = {
+  taste: process.env.NEXT_PUBLIC_PAYSTACK_LINK_TASTE,
+  starter: process.env.NEXT_PUBLIC_PAYSTACK_LINK_STARTER,
+  popular: process.env.NEXT_PUBLIC_PAYSTACK_LINK_POPULAR,
+  bulk: process.env.NEXT_PUBLIC_PAYSTACK_LINK_BULK,
+};
 
 function formatPrice(amountMinor: number, currency: string): string {
   const amount = amountMinor / 100;
@@ -29,7 +37,7 @@ function formatPrice(amountMinor: number, currency: string): string {
   }
 }
 
-export default function CreditPackages({ packages, currency }: Props) {
+export default function CreditPackages({ packages, currency, userEmail }: Props) {
   if (!packages.length) {
     return <div className="text-muted-foreground">No packages available yet.</div>;
   }
@@ -61,7 +69,26 @@ export default function CreditPackages({ packages, currency }: Props) {
             <Button
               className="mt-4 w-full"
               onClick={() => {
-                toast.info("Payment gateway coming online soon — credit purchases will activate in the next deploy.");
+                const link = PAYSTACK_LINKS[pkg.code];
+                if (!link) {
+                  toast.error("Payment link not configured for this package.");
+                  return;
+                }
+
+                let targetUrl = link;
+                if (userEmail) {
+                  try {
+                    const url = new URL(link);
+                    url.searchParams.set("email", userEmail);
+                    targetUrl = url.toString();
+                  } catch (e) {
+                    const separator = link.includes("?") ? "&" : "?";
+                    targetUrl = `${link}${separator}email=${encodeURIComponent(userEmail)}`;
+                  }
+                }
+
+                toast.info("Redirecting to payment checkout...");
+                window.location.href = targetUrl;
               }}
             >
               Buy now

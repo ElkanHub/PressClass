@@ -47,7 +47,7 @@ export default async function CreditsPage() {
 
       <section>
         <h2 className="mb-4 text-xl font-semibold">Top up</h2>
-        <CreditPackages packages={(packages as any) ?? []} currency={currency} />
+        <CreditPackages packages={(packages as any) ?? []} currency={currency} userEmail={user.email} />
       </section>
 
       <section>
