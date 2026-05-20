@@ -1,229 +1,517 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Rocket, Gift, ShieldCheck, Award, MessageSquareHeart, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
+import {
+  Rocket,
+  Gift,
+  ShieldCheck,
+  Award,
+  MessageSquareHeart,
+  Sparkles,
+} from "lucide-react";
+
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { FeedbackDialog } from "@/components/feedback/feedback-dialog";
 
-interface ConfettiPiece {
-  id: number;
-  x: number;
-  y: number;
-  rotate: number;
-  color: string;
-  size: number;
-  delay: number;
-  duration: number;
-}
-
-const PAN_AFRICAN_COLORS = [
-  "#0f766e", // emerald/teal
-  "#f59e0b", // sunset amber
-  "#16a34a", // vibrant green
-  "#dc2626", // energetic red
-  "#eab308", // gold
-];
-
 export default function TestingPhaseBanner() {
   const [open, setOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const [confetti, setConfetti] = useState<ConfettiPiece[]>([]);
 
   useEffect(() => {
-    // 7-day recurrence logic check
-    const lastSeen = localStorage.getItem("pc_launch_banner_last_seen");
+    const lastSeen = localStorage.getItem(
+      "pc_launch_banner_last_seen"
+    );
+
     const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
 
-    if (!lastSeen || Date.now() - Number(lastSeen) > sevenDaysMs) {
-      // Elegant 1.2-second entrance delay for maximum visual impact
+    if (
+      !lastSeen ||
+      Date.now() - Number(lastSeen) > sevenDaysMs
+    ) {
       const timer = setTimeout(() => {
         setOpen(true);
-        triggerConfettiBlast();
-      }, 1200);
+      }, 800);
+
       return () => clearTimeout(timer);
     }
   }, []);
 
-  function triggerConfettiBlast() {
-    const pieces = Array.from({ length: 65 }).map((_, i) => ({
-      id: i,
-      x: (Math.random() - 0.5) * 320, // explode left and right
-      y: -Math.random() * 250 - 80, // initial explosion upwards
-      rotate: Math.random() * 360,
-      color: PAN_AFRICAN_COLORS[Math.floor(Math.random() * PAN_AFRICAN_COLORS.length)],
-      size: Math.random() * 8 + 6, // 6px to 14px
-      delay: Math.random() * 0.15, // slight stagger
-      duration: Math.random() * 1.5 + 2.5, // 2.5s to 4s fall
-    }));
-    setConfetti(pieces);
-  }
-
   function handleDismiss() {
-    localStorage.setItem("pc_launch_banner_last_seen", Date.now().toString());
+    localStorage.setItem(
+      "pc_launch_banner_last_seen",
+      Date.now().toString()
+    );
+
     setOpen(false);
   }
 
   function handleFeedbackTrigger() {
-    localStorage.setItem("pc_launch_banner_last_seen", Date.now().toString());
+    localStorage.setItem(
+      "pc_launch_banner_last_seen",
+      Date.now().toString()
+    );
+
     setOpen(false);
-    // Slight delay so the welcome banner transitions out smoothly before the feedback form slides in
+
     setTimeout(() => {
       setFeedbackOpen(true);
-    }, 300);
+    }, 250);
   }
 
   return (
     <>
-      <Dialog open={open} onOpenChange={(v) => {
-        if (!v) handleDismiss();
-      }}>
-        <DialogContent className="sm:max-w-2xl p-0 overflow-hidden border-none bg-gradient-to-b from-card to-background shadow-2xl rounded-2xl relative">
-          
-          {/* Celebrating Confetti Overlay */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden z-50">
-            {open && confetti.map((p) => (
-              <motion.span
-                key={p.id}
-                className="absolute left-1/2 top-1/2 rounded-sm"
-                style={{
-                  width: p.size,
-                  height: p.size,
-                  backgroundColor: p.color,
-                }}
-                initial={{ x: 0, y: 0, rotate: 0, opacity: 0, scale: 0.5 }}
+      <Dialog
+        open={open}
+        onOpenChange={(v) => {
+          if (!v) handleDismiss();
+        }}
+      >
+        <DialogContent
+          className="
+          sm:max-w-3xl
+          overflow-hidden
+          border
+          border-white/10
+          bg-[#07140F]
+          p-0
+          shadow-[0_30px_120px_rgba(0,0,0,0.8)]
+          rounded-3xl
+          text-white
+        "
+        >
+          {/* BACKGROUND */}
+          <div className="absolute inset-0 overflow-hidden">
+
+            {/* Animated Emerald Orb */}
+            <motion.div
+              animate={{
+                x: [0, 40, 0],
+                y: [0, -20, 0],
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              className="
+              absolute
+              right-[-80px]
+              top-[-120px]
+              h-[260px]
+              w-[260px]
+              rounded-full
+              bg-emerald-500/20
+              blur-3xl
+            "
+            />
+
+            {/* Animated Amber Orb */}
+            <motion.div
+              animate={{
+                x: [0, -20, 0],
+                y: [0, 30, 0],
+              }}
+              transition={{
+                duration: 10,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              className="
+              absolute
+              left-[-100px]
+              bottom-[-140px]
+              h-[240px]
+              w-[240px]
+              rounded-full
+              bg-amber-500/10
+              blur-3xl
+            "
+            />
+
+            {/* Grid Overlay */}
+            <div
+              className="
+              absolute inset-0 opacity-[0.05]
+              bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)]
+              bg-[size:40px_40px]
+            "
+            />
+
+            {/* Noise Texture */}
+            <div
+              className="
+              absolute inset-0 opacity-[0.03]
+              mix-blend-soft-light
+              bg-[radial-gradient(circle_at_center,white_1px,transparent_1px)]
+              bg-[size:18px_18px]
+            "
+            />
+
+            {/* Shimmer Sweep */}
+            <motion.div
+              animate={{
+                x: ["-100%", "220%"],
+              }}
+              transition={{
+                duration: 6,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+              className="
+              absolute inset-y-0
+              w-1/3
+              skew-x-12
+              bg-gradient-to-r
+              from-transparent
+              via-white/5
+              to-transparent
+            "
+            />
+          </div>
+
+          {/* CONTENT */}
+          <div className="relative z-10">
+
+            {/* HERO */}
+            <div className="px-8 pt-10 pb-8 text-center">
+
+              {/* Floating Rocket */}
+              <motion.div
                 animate={{
-                  x: [0, p.x, p.x * 1.2, p.x * 1.3],
-                  y: [0, p.y, p.y + 100, p.y + 400],
-                  rotate: [0, p.rotate, p.rotate * 2, p.rotate * 3],
-                  opacity: [0, 1, 1, 0],
-                  scale: [0.5, 1.2, 1, 0.5],
+                  y: [0, -8, 0],
                 }}
                 transition={{
-                  duration: p.duration,
-                  delay: p.delay,
-                  ease: [0.1, 0.8, 0.3, 1], // Custom snappy-to-smooth explosion curve
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
                 }}
-              />
-            ))}
-          </div>
+                className="relative mx-auto mb-6 w-fit"
+              >
+                <div
+                  className="
+                  relative
+                  flex h-20 w-20 items-center justify-center
+                  rounded-3xl
+                  border border-white/10
+                  bg-white/[0.05]
+                  backdrop-blur-xl
+                  shadow-2xl
+                "
+                >
+                  <Rocket className="h-9 w-9 text-emerald-400" />
+                </div>
 
-          {/* Celebratory Gradient Banner Header */}
-          <div className="bg-gradient-to-r from-teal-700 via-emerald-600 to-amber-500 p-8 text-white relative overflow-hidden flex flex-col items-center justify-center text-center">
-            {/* Shimmer/Overlay */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/10 to-transparent pointer-events-none" />
-            
-            {/* Floating Animated Sparks in Header */}
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-              className="absolute -right-16 -top-16 w-48 h-48 border border-white/10 rounded-full pointer-events-none"
-            />
-            <motion.div
-              animate={{ rotate: -360 }}
-              transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-              className="absolute -left-12 -bottom-12 w-36 h-36 border border-white/5 rounded-full pointer-events-none"
-            />
+                {/* Pulse Ring */}
+                <motion.div
+                  animate={{
+                    scale: [1, 1.4],
+                    opacity: [0.5, 0],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                  }}
+                  className="
+                  absolute inset-0
+                  rounded-3xl
+                  border border-emerald-400
+                "
+                />
+              </motion.div>
 
-            {/* Glowing Rocket Icon Badge */}
-            <div className="relative mb-3 flex items-center justify-center w-16 h-16 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
-              <Rocket className="h-8 w-8 text-amber-300 animate-pulse" />
-              <Sparkles className="absolute -top-1 -right-1 h-5 w-5 text-amber-300 animate-bounce" />
+              {/* Badge */}
+              <div
+                className="
+                inline-flex items-center gap-2
+                rounded-full
+                border border-emerald-400/20
+                bg-emerald-400/10
+                px-4 py-1.5
+                text-xs font-semibold tracking-wide
+                text-emerald-300
+                backdrop-blur-md
+              "
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                EARLY ACCESS
+              </div>
+
+              {/* Headline */}
+              <h1
+                className="
+                mt-6
+                text-4xl
+                font-black
+                tracking-tight
+                leading-none
+                sm:text-5xl
+              "
+              >
+                Help Shape
+                <span className="mt-2 block text-emerald-400">
+                  PressClass
+                </span>
+              </h1>
+
+              {/* Subtitle */}
+              <p
+                className="
+                mx-auto mt-5
+                max-w-xl
+                text-sm leading-relaxed
+                text-zinc-300
+                sm:text-base
+              "
+              >
+                You’re among the first educators helping
+                build the future of African lesson preparation.
+                Explore new features early, influence product
+                decisions, and unlock exclusive launch rewards.
+              </p>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Beta Testing & Launch Prep!</h2>
-            <p className="mt-2 text-emerald-50 text-sm max-w-md">
-              We are preparing to officially launch PressClass! Thank you for joining us early to shape the future of African lesson prep.
-            </p>
-          </div>
+            {/* PERKS */}
+            <div className="px-6 pb-6 sm:px-8">
+              <div className="grid gap-4 sm:grid-cols-3">
 
-          {/* Content Body */}
-          <div className="p-6 sm:p-8 space-y-6">
-            
-            {/* Exclusive Perks Section */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold tracking-wider uppercase text-muted-foreground">
-                🎁 Exclusive Early Supporter Perks
-              </h3>
-              
-              <div className="grid gap-3 sm:grid-cols-3">
-                {/* Perk 1 */}
-                <div className="p-4 rounded-xl border border-primary/10 bg-primary/5 hover:bg-primary/10 transition duration-200 flex flex-col items-center text-center">
-                  <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 flex items-center justify-center mb-2">
+                {/* CARD 1 */}
+                <motion.div
+                  whileHover={{
+                    y: -4,
+                  }}
+                  className="
+                  group relative overflow-hidden
+                  rounded-2xl
+                  border border-white/10
+                  bg-white/[0.03]
+                  p-5
+                  backdrop-blur-xl
+                  transition-all duration-300
+                "
+                >
+                  <div
+                    className="
+                    absolute inset-0 opacity-0
+                    transition-opacity duration-300
+                    group-hover:opacity-100
+                    bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.18),transparent_60%)]
+                  "
+                  />
+
+                  <div
+                    className="
+                    relative mb-4
+                    flex h-11 w-11 items-center justify-center
+                    rounded-xl
+                    bg-emerald-500/10
+                    text-emerald-400
+                  "
+                  >
                     <Gift className="h-5 w-5" />
                   </div>
-                  <h4 className="font-bold text-sm text-foreground">100% Launch Bonus</h4>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Get double credits on your very first top-up after we officially launch.
-                  </p>
-                </div>
 
-                {/* Perk 2 */}
-                <div className="p-4 rounded-xl border border-accent/15 bg-accent/5 hover:bg-accent/10 transition duration-200 flex flex-col items-center text-center">
-                  <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 flex items-center justify-center mb-2">
+                  <h3 className="relative text-sm font-bold">
+                    100% Launch Bonus
+                  </h3>
+
+                  <p className="relative mt-2 text-xs leading-relaxed text-zinc-400">
+                    Get double credits on your first top-up
+                    after our official launch.
+                  </p>
+                </motion.div>
+
+                {/* CARD 2 */}
+                <motion.div
+                  whileHover={{
+                    y: -4,
+                  }}
+                  className="
+                  group relative overflow-hidden
+                  rounded-2xl
+                  border border-white/10
+                  bg-white/[0.03]
+                  p-5
+                  backdrop-blur-xl
+                  transition-all duration-300
+                "
+                >
+                  <div
+                    className="
+                    absolute inset-0 opacity-0
+                    transition-opacity duration-300
+                    group-hover:opacity-100
+                    bg-[radial-gradient(circle_at_top_right,rgba(245,158,11,0.18),transparent_60%)]
+                  "
+                  />
+
+                  <div
+                    className="
+                    relative mb-4
+                    flex h-11 w-11 items-center justify-center
+                    rounded-xl
+                    bg-amber-500/10
+                    text-amber-400
+                  "
+                  >
                     <ShieldCheck className="h-5 w-5" />
                   </div>
-                  <h4 className="font-bold text-sm text-foreground">Founder Price Lock</h4>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Lock in our lowest beta rates for life—never pay standard public pricing.
-                  </p>
-                </div>
 
-                {/* Perk 3 */}
-                <div className="p-4 rounded-xl border border-primary/10 bg-primary/5 hover:bg-primary/10 transition duration-200 flex flex-col items-center text-center">
-                  <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 flex items-center justify-center mb-2">
+                  <h3 className="relative text-sm font-bold">
+                    Founder Pricing
+                  </h3>
+
+                  <p className="relative mt-2 text-xs leading-relaxed text-zinc-400">
+                    Lock in early supporter pricing forever.
+                    Never pay public launch rates.
+                  </p>
+                </motion.div>
+
+                {/* CARD 3 */}
+                <motion.div
+                  whileHover={{
+                    y: -4,
+                  }}
+                  className="
+                  group relative overflow-hidden
+                  rounded-2xl
+                  border border-white/10
+                  bg-white/[0.03]
+                  p-5
+                  backdrop-blur-xl
+                  transition-all duration-300
+                "
+                >
+                  <div
+                    className="
+                    absolute inset-0 opacity-0
+                    transition-opacity duration-300
+                    group-hover:opacity-100
+                    bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.18),transparent_60%)]
+                  "
+                  />
+
+                  <div
+                    className="
+                    relative mb-4
+                    flex h-11 w-11 items-center justify-center
+                    rounded-xl
+                    bg-emerald-500/10
+                    text-emerald-400
+                  "
+                  >
                     <Award className="h-5 w-5" />
                   </div>
-                  <h4 className="font-bold text-sm text-foreground">Founding Teacher</h4>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    An exclusive glowing badge on your dashboard to honor your day-one status.
+
+                  <h3 className="relative text-sm font-bold">
+                    Founding Teacher
+                  </h3>
+
+                  <p className="relative mt-2 text-xs leading-relaxed text-zinc-400">
+                    Receive an exclusive early supporter
+                    badge on your dashboard.
                   </p>
+                </motion.div>
+              </div>
+            </div>
+
+            {/* FEEDBACK BOX */}
+            <div className="px-6 pb-6 sm:px-8">
+              <div
+                className="
+                relative overflow-hidden
+                rounded-2xl
+                border border-white/10
+                bg-white/[0.03]
+                p-5
+                backdrop-blur-xl
+              "
+              >
+                <div className="flex gap-4">
+
+                  <div
+                    className="
+                    flex h-11 w-11 flex-shrink-0
+                    items-center justify-center
+                    rounded-xl
+                    bg-emerald-500/10
+                    text-emerald-400
+                  "
+                  >
+                    <MessageSquareHeart className="h-5 w-5" />
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-bold">
+                      Your feedback matters
+                    </h4>
+
+                    <p className="mt-2 text-xs leading-relaxed text-zinc-400">
+                      We’re actively refining PressClass for
+                      African school systems. Found a bug or
+                      have an idea? Your feedback directly
+                      shapes what we build next.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Feedback Instructions Section */}
-            <div className="p-4 rounded-xl bg-muted/50 border flex gap-4 items-start">
-              <div className="mt-1 flex items-center justify-center w-8 h-8 rounded-lg bg-teal-600/10 text-teal-600 dark:text-teal-400 flex-shrink-0">
-                <MessageSquareHeart className="h-4 w-4" />
-              </div>
-              <div className="space-y-1">
-                <h4 className="font-semibold text-sm text-foreground">Your feedback is our fuel!</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  We are tuning PressClass for African school systems. Spotted a bug or have an idea? Help us perfect it! You can submit feedback anytime via the <span className="font-semibold text-foreground">Send Feedback</span> button in the top-right menu (under your avatar) or click right below.
-                </p>
-              </div>
-            </div>
-
-            {/* Footer Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            {/* CTA */}
+            <div
+              className="
+              flex flex-col gap-3
+              border-t border-white/5
+              px-6 py-6
+              sm:flex-row sm:px-8
+            "
+            >
               <Button
-                variant="outline"
-                className="w-full order-2 sm:order-1 border-primary/20 hover:bg-primary/5 hover:text-primary transition"
+                variant="ghost"
                 onClick={handleFeedbackTrigger}
+                className="
+                h-12 flex-1
+                rounded-xl
+                border border-white/10
+                bg-white/[0.03]
+                text-white
+                hover:bg-white/[0.06]
+                hover:text-white
+              "
               >
-                Share Feedback Now
+                Share Feedback
               </Button>
+
               <Button
-                className="w-full order-1 sm:order-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-semibold transition"
                 onClick={handleDismiss}
+                className="
+                h-12 flex-1
+                rounded-xl
+                bg-emerald-500
+                font-bold
+                text-black
+                transition-all duration-300
+                hover:scale-[1.02]
+                hover:bg-emerald-400
+              "
               >
-                Start Exploring!
+                Start Exploring
               </Button>
             </div>
-
           </div>
-
         </DialogContent>
       </Dialog>
 
-      {/* Embedded Feedback Dialog */}
+      {/* FEEDBACK DIALOG */}
       <FeedbackDialog
         open={feedbackOpen}
         onOpenChange={setFeedbackOpen}
         title="Beta Testing Feedback"
-        description="Share bugs, suggestions, or praise. We review every single submission to make lesson planning effortless for you."
+        description="
+          Share bugs, ideas, or suggestions.
+          We review every submission carefully.
+        "
       />
     </>
   );
